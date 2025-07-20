@@ -4,7 +4,6 @@ namespace Inquisition\Core\Infrastructure\Http\Router;
 
 use Inquisition\Core\Infrastructure\Http\HttpMethod;
 use Inquisition\Core\Infrastructure\Http\Middleware\MiddlewareInterface;
-use InvalidArgumentException;
 
 /**
  * Route Implementation
@@ -20,7 +19,7 @@ class Route implements RouteInterface
     /**
      * @var HttpMethod[]
      */
-    private(set) array   $methods {
+    private(set) array $methods {
         get {
             return $this->methods;
         }
@@ -30,17 +29,17 @@ class Route implements RouteInterface
             return $this->name;
         }
     }
-    private(set) mixed   $handler {
+    private(set) mixed $handler {
         get {
             return $this->handler;
         }
     }
-    private array        $parameters = [];
+    private array $parameters = [];
 
     /**
      * @var MiddlewareInterface[]
      */
-    private(set) array $middlewares     = [] {
+    private(set) array $middlewares = [] {
         get {
             return $this->middlewares;
         }
@@ -53,15 +52,15 @@ class Route implements RouteInterface
             }
         }
     }
-    public array       $defaults        = [] {
+    public array $defaults = [] {
         get {
             return $this->defaults;
         }
     }
-    private array      $metadata        = [];
-    private ?string    $compiledPattern = null;
-    private array      $parameterNames  = [];
-    private array      $constraints     = [];
+    private array $metadata = [];
+    private ?string $compiledPattern = null;
+    private array $parameterNames = [];
+    private array $constraints = [];
 
 
     public function __construct(
@@ -69,7 +68,8 @@ class Route implements RouteInterface
         mixed   $handler,
         array   $methods = [HttpMethod::GET],
         ?string $name = null,
-    ) {
+    )
+    {
         $this->path = $path;
         $this->handler = $handler;
         $this->methods = array_filter($methods, fn($m) => $m instanceof HttpMethod);;
@@ -215,7 +215,7 @@ class Route implements RouteInterface
      */
     public static function get(string $path, mixed $handler, ?string $name = null): self
     {
-        return new self($path, $handler, ['GET'], $name);
+        return new self($path, $handler, [HttpMethod::GET], $name);
     }
 
     /**
@@ -223,7 +223,7 @@ class Route implements RouteInterface
      */
     public static function post(string $path, mixed $handler, ?string $name = null): self
     {
-        return new self($path, $handler, ['POST'], $name);
+        return new self($path, $handler, [HttpMethod::POST], $name);
     }
 
     /**
@@ -231,7 +231,7 @@ class Route implements RouteInterface
      */
     public static function put(string $path, mixed $handler, ?string $name = null): self
     {
-        return new self($path, $handler, ['PUT'], $name);
+        return new self($path, $handler, [HttpMethod::PUT], $name);
     }
 
     /**
@@ -239,7 +239,7 @@ class Route implements RouteInterface
      */
     public static function delete(string $path, mixed $handler, ?string $name = null): self
     {
-        return new self($path, $handler, ['DELETE'], $name);
+        return new self($path, $handler, [HttpMethod::DELETE], $name);
     }
 
     /**
@@ -247,7 +247,7 @@ class Route implements RouteInterface
      */
     public static function patch(string $path, mixed $handler, ?string $name = null): self
     {
-        return new self($path, $handler, ['PATCH'], $name);
+        return new self($path, $handler, [HttpMethod::PATCH], $name);
     }
 
     /**
@@ -255,7 +255,7 @@ class Route implements RouteInterface
      */
     public static function any(string $path, mixed $handler, ?string $name = null): self
     {
-        return new self($path, $handler, ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], $name);
+        return new self($path, $handler, [HttpMethod::GET, HttpMethod::POST, HttpMethod::PUT, HttpMethod::DELETE, HttpMethod::PATCH], $name);
     }
 
     /**
