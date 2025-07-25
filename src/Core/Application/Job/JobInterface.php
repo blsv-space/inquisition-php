@@ -4,6 +4,7 @@ namespace Inquisition\Core\Application\Job;
 
 use Inquisition\Core\Application\Job\Exception\JobFailedException;
 use Inquisition\Core\Application\Job\Exception\JobRetryableException;
+use Throwable;
 
 interface JobInterface
 {
@@ -55,12 +56,12 @@ interface JobInterface
     /**
      * Check if a job should be retried after failure
      */
-    public function shouldRetry(\Throwable $exception, int $attempt): bool;
+    public function shouldRetry(Throwable $exception, int $attempt): bool;
 
     /**
      * Called when a job fails permanently (after all retries)
      */
-    public function onFailure(\Throwable $exception): void;
+    public function onFailure(Throwable $exception): void;
 
     /**
      * Called when a job completes successfully

@@ -20,15 +20,14 @@ readonly class JobWorker
     }
 
     /**
-     * @param string $queueName
      * @return void
      */
-    public function work(string $queueName = 'default'): void
+    public function work(): void
     {
-        echo "Starting job worker for queue: {$queueName}\n";
+        echo "Starting job worker for queue: {$this->queue->getQueueName()}\n";
 
         while (true) {
-            $job = $this->queue->dequeue($queueName);
+            $job = $this->queue->dequeue();
 
             if (!$job) {
                 sleep(1);

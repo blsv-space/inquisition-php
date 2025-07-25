@@ -2,9 +2,11 @@
 
 namespace Inquisition\Core\Infrastructure\Migration;
 
+use Exception;
 use Inquisition\Core\Infrastructure\Persistence\Repository\MigrationRepository;
 use Inquisition\Foundation\Singleton\SingletonInterface;
 use Inquisition\Foundation\Singleton\SingletonTrait;
+use RuntimeException;
 
 final class MigrationRunner implements SingletonInterface
 {
@@ -86,9 +88,9 @@ final class MigrationRunner implements SingletonInterface
             }
 
             $connection->commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $connection->rollback();
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 "Migration failed: {$migration->getVersion()} - {$e->getMessage()}",
                 0,
                 $e

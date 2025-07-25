@@ -2,6 +2,8 @@
 
 namespace Inquisition\Core\Application\Job;
 
+use Throwable;
+
 interface JobQueueInterface
 {
     /**
@@ -12,7 +14,7 @@ interface JobQueueInterface
     /**
      * Get the next job from the queue
      */
-    public function dequeue(string $queue = 'default'): ?JobInterface;
+    public function dequeue(): ?JobInterface;
 
     /**
      * Mark a job as completed
@@ -22,7 +24,7 @@ interface JobQueueInterface
     /**
      * Mark a job as failed and schedule retry if applicable
      */
-    public function fail(JobInterface $job, \Throwable $exception, int $attempt): void;
+    public function fail(JobInterface $job, Throwable $exception, int $attempt): void;
 
     /**
      * Get queue statistics
@@ -33,4 +35,9 @@ interface JobQueueInterface
      * Clear all jobs from a queue
      */
     public function clear(string $queue = 'default'): void;
+
+    /**
+     * @return string
+     */
+    public function getQueueName(): string;
 }

@@ -8,15 +8,24 @@ trait SingletonTrait
 {
     private static ?self $instance = null;
 
+    /**
+     *
+     */
     private function __construct()
     {
     }
 
+    /**
+     * @return mixed
+     */
     public function __clone()
     {
         throw new LogicException('Cannot clone singleton');
     }
 
+    /**
+     * @return mixed
+     */
     public function __wakeup()
     {
         throw new LogicException('Cannot unserialize singleton');
@@ -26,9 +35,20 @@ trait SingletonTrait
     {
         if (static::$instance === null) {
             static::$instance = new static();
+            if (static::class !== SingletonRegistry::class) {
+                SingletonRegistry::getInstance()->register(static::class);
+            }
         }
 
         return static::$instance;
+    }
+
+    /**
+     * @return bool
+     */
+    public static function hasInstance(): bool
+    {
+        return static::$instance !== null;
     }
 
     /**

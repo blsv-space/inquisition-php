@@ -30,10 +30,9 @@ interface RequestInterface
      */
     public function getParameter(string $key, $default = null);
 
-    /**
-     * Get request headers
-     */
-    public function getHeaders(): array;
+    public array $headers {
+        get;
+    }
 
     /**
      * Get a specific header value

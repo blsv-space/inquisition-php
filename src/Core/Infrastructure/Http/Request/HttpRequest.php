@@ -5,91 +5,149 @@ namespace Inquisition\Core\Infrastructure\Http\Request;
 use Inquisition\Core\Application\Http\Request\RequestInterface;
 use Inquisition\Core\Infrastructure\Http\HttpMethod;
 
-class HttpRequest implements RequestInterface
+final class HttpRequest implements RequestInterface
 {
+    /** @var array<string,string|string[]> */
+    private(set) array $headers {
+        get {
+            return $this->headers;
+        }
+    }
+    /**
+     * @var array|null
+     */
+    private ?array $decodedJson = null;
 
     /**
-     * @inheritDoc
+     * @param HttpMethod $method
+     * @param string $uri
+     * @param string $rawBody
+     * @param string $clientIp
+     * @param array<string,string|string[]> $headers
+     * @param array<string,mixed> $query
+     * @param array<string,mixed> $body
+     * @param array<string,mixed> $files
+     */
+    public function __construct(
+        private readonly HttpMethod $method,
+        private readonly string     $uri,
+        private readonly array      $query = [],
+        private readonly array      $body = [],
+        private readonly string     $rawBody = '',
+        private readonly array      $files = [],
+        private readonly string     $clientIp = '0.0.0.0',
+        array                       $headers = [],
+    )
+    {
+        $this->headers = $this->normaliseHeaders($headers);
+    }
+
+    /* -----------------------------------------------------------------
+     |  RequestInterface
+     * -----------------------------------------------------------------*/
+
+    /**
+     * @return HttpMethod
      */
     public function getMethod(): HttpMethod
     {
-        return HttpMethod::fromString($_SERVER['REQUEST_METHOD']) ?? HttpMethod::GET;
+        return $this->method;
     }
 
     /**
-     * @inheritDoc
+     * @return string
      */
     public function getUri(): string
     {
-        return $_SERVER['REQUEST_URI'] ?? '/';
+        return $this->uri;
     }
 
     /**
-     * @inheritDoc
+     * @return mixed[]
      */
     public function getAllParameters(): array
     {
-        return array_merge($_REQUEST, $this->getJsonBody() ?? []);
+        return $this->body + $this->query;
     }
 
     /**
-     * @inheritDoc
+     * @param string $key
+     * @param $default
+     * @return mixed|null
      */
     public function getParameter(string $key, $default = null)
     {
-        return $this->getAllParameters()[$key] ?? $default;
+        return $this->body[$key]
+            ?? $this->query[$key]
+            ?? $default;
     }
 
     /**
-     * @inheritDoc
-     */
-    public function getHeaders(): array
-    {
-        return getallheaders();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getHeader(string $name, $default = null): ?string
-    {
-        $headers = $this->getHeaders();
-
-        return $headers[$name] ?? $default;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getBody(): string
-    {
-        return file_get_contents('php://input');
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getJsonBody(): ?array
-    {
-        $body = $this->getBody();
-
-        return !empty($body) ? json_decode($body, true) : null;
-    }
-
-    /**
-     * @inheritDoc
+     * @param string $key
+     * @return bool
      */
     public function hasParameter(string $key): bool
     {
-        return array_key_exists($key, $this->getAllParameters());
+        return array_key_exists($key, $this->body) || array_key_exists($key, $this->query);
     }
 
     /**
-     * @inheritDoc
+     * @param string $name
+     * @param $default
+     * @return string|null
+     */
+    public function getHeader(string $name, $default = null): ?string
+    {
+        $normalised = strtolower($name);
+
+        if (!isset($this->headers[$normalised])) {
+            return $default;
+        }
+
+        $value = $this->headers[$normalised];
+        if (is_array($value)) {
+            return implode(', ', $value);
+        }
+
+        return $value;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBody(): string
+    {
+        return $this->rawBody;
+    }
+
+    /**
+     * @return array|null
+     * @throws \JsonException
+     */
+    public function getJsonBody(): ?array
+    {
+        if ($this->decodedJson !== null) {
+            return $this->decodedJson;
+        }
+
+        $contentType = $this->getHeader('Content-Type');
+
+        if ($contentType !== null && str_contains($contentType, 'application/json')) {
+            $decoded = json_decode($this->rawBody, true, 512, JSON_THROW_ON_ERROR | JSON_BIGINT_AS_STRING);
+            if (is_array($decoded)) {
+                return $this->decodedJson = $decoded;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return mixed[]
      */
     public function getFiles(): array
     {
-        return $_FILES;
+        return $this->files;
     }
 
     /**
@@ -97,6 +155,75 @@ class HttpRequest implements RequestInterface
      */
     public function getClientIp(): string
     {
-        return $_SERVER['REMOTE_ADDR'];
+        return $this->clientIp;
+    }
+
+    /* -----------------------------------------------------------------
+     |  Helpers
+     * -----------------------------------------------------------------*/
+
+    /**
+     * Build a request object from PHP super-globals.
+     */
+    public static function createFromGlobals(): self
+    {
+        $method = HttpMethod::from($_SERVER['REQUEST_METHOD'] ?? 'GET');
+        $uri = strtok($_SERVER['REQUEST_URI'] ?? '/', '?');
+        $headers = self::collectHeaders();
+        $rawBody = file_get_contents('php://input') ?: '';
+        $clientIp = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+
+        return new self(
+            method: $method,
+            uri: $uri,
+            query: $_GET,
+            body: $_POST,
+            rawBody: $rawBody,
+            files: $_FILES,
+            clientIp: $clientIp,
+            headers: $headers,
+        );
+    }
+
+    /**
+     * Convert header keys to lower-case for case-insensitive lookup.
+     *
+     * @param array<string,string|string[]> $headers
+     *
+     * @return array<string,string|string[]>
+     */
+    private function normaliseHeaders(array $headers): array
+    {
+        $normalised = [];
+        foreach ($headers as $key => $value) {
+            $normalised[strtolower($key)] = $value;
+        }
+
+        return $normalised;
+    }
+
+    /**
+     * Collect HTTP headers in a SAPI-agnostic way.
+     *
+     * @return array<string,string>
+     */
+    private static function collectHeaders(): array
+    {
+        if (function_exists('getallheaders')) {
+            /** @var array<string,string> $headers */
+            $headers = getallheaders();
+            return $headers;
+        }
+
+        // Fallback for non-Apache SAPIs
+        $headers = [];
+        foreach ($_SERVER as $name => $value) {
+            if (str_starts_with($name, 'HTTP_')) {
+                $header = str_replace('_', '-', substr($name, 5));
+                $headers[$header] = $value;
+            }
+        }
+
+        return $headers;
     }
 }
