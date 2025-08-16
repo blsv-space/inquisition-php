@@ -1,11 +1,11 @@
 <?php
 
-namespace Inquisition\Core\Application\Command;
+namespace Inquisition\Core\Application\Console\Command;
 
 use Inquisition\Core\Infrastructure\Migration\MigrationDiscovery;
 use Inquisition\Core\Infrastructure\Migration\MigrationRunner;
 
-readonly class MigrateCommand implements CommandInterface
+final readonly class MigrateCommand extends AbstractCommand
 {
     private MigrationRunner $migrationRunner;
     private MigrationDiscovery $migrationDiscovery;
@@ -17,9 +17,52 @@ readonly class MigrateCommand implements CommandInterface
     }
 
     /**
+     * @return string
+     */
+    public function getAlias(): string
+    {
+        return 'migrate';
+    }
+
+    /**
+     * @return string
+     */
+    public function getDescription(): string
+    {
+        return 'Run database migrations';
+    }
+
+    /**
+     * @return string
+     */
+    public function getHelp(): string
+    {
+        return 'Run database migrations';
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getArguments(): array
+    {
+        return [
+            'down' => 'Rollback the last migration',
+            'steps' => 'Number of migrations to rollback',
+        ];
+    }
+
+    /**
      * @return void
      */
-    public function up(): void
+    public function execute(): void
+    {
+        $this->up();
+    }
+
+    /**
+     * @return void
+     */
+    private function up(): void
     {
         echo "Running migrations...\n";
         $this->discoveryAndRegistration();
@@ -32,7 +75,7 @@ readonly class MigrateCommand implements CommandInterface
      *
      * @return void
      */
-    public function down(int $steps = 1): void
+    private function down(int $steps = 1): void
     {
         echo "Rolling back migrations...\n";
         $this->discoveryAndRegistration();
