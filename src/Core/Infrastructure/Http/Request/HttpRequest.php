@@ -8,7 +8,7 @@ use Inquisition\Core\Infrastructure\Http\HttpMethod;
 final class HttpRequest implements RequestInterface
 {
     /** @var array<string,string|string[]> */
-    private(set) array $headers {
+    protected(set) array $headers {
         get {
             return $this->headers;
         }

@@ -11,9 +11,14 @@ use Inquisition\Core\Application\Http\Request\RequestInterface;
 interface RouteMatcherInterface
 {
     /**
+     * Find a matching route for the request based on the route group
+     */
+    public function matchByRouteGroup(RequestInterface $request, RouteGroupInterface $routeGroup): ?RouteMatchResult;
+
+    /**
      * Find a matching route for the request
      */
-    public function match(RequestInterface $request, RouteGroupInterface $routes): ?RouteMatchResult;
+    public function match(RequestInterface $request, RouteInterface $route): ?RouteMatchResult;
 
     /**
      * Check if a route matches the request

@@ -31,7 +31,32 @@ trait SingletonTrait
         throw new LogicException('Cannot unserialize singleton');
     }
 
-    public static function getInstance(): self
+    /**
+     * @return mixed
+     */
+    public function __sleep()
+    {
+        throw new LogicException('Cannot serialize singleton');
+    }
+
+    /**
+     * @return mixed
+     */
+    public function __serialize()
+    {
+        throw new LogicException('Cannot serialize singleton');
+    }
+
+    /**
+     * @param array $data
+     * @return mixed
+     */
+    public function __unserialize(array $data)
+    {
+        throw new LogicException('Cannot unserialize singleton');
+    }
+
+    public static function getInstance(): static
     {
         if (static::$instance === null) {
             static::$instance = new static();
@@ -60,12 +85,23 @@ trait SingletonTrait
     }
 
     /**
-     * Overrides the current instance with a new static instance of the current Class.
-     *
+     * @param SingletonTrait|null $instance
      * @return void
      */
-    public static function override(): void
+    public static function override($instance = null): void
     {
+        if ($instance
+            && (!is_object($instance)
+                || static::class !== $instance::class
+            )
+        ) {
+            throw new LogicException('Cannot override singleton with different class');
+        }
+
+        if ($instance !== null) {
+            static::$instance = $instance;
+            return;
+        }
         static::$instance = new static();
     }
 }

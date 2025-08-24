@@ -11,22 +11,26 @@ use Inquisition\Core\Infrastructure\Http\Middleware\MiddlewareInterface;
  */
 interface RouteInterface
 {
-    private(set) string $path {
+    protected(set) string $path {
         get;
     }
 
     /**
      * @var HttpMethod[]
      */
-    private(set) array $methods {
+    protected(set) array $methods {
         get;
     }
 
-    private(set) null|string $name {
+    protected(set) null|string $name {
         get;
     }
 
-    private(set) mixed $handler {
+    protected(set) mixed $handler {
+        get;
+    }
+
+    protected(set) array $constraints {
         get;
     }
 
@@ -43,7 +47,7 @@ interface RouteInterface
     /**
      * @var MiddlewareInterface[]
      */
-    private(set) array $middlewares {
+    protected(set) array $middlewares {
         get;
     }
 
@@ -52,20 +56,15 @@ interface RouteInterface
      */
     public function middleware(string|array $middleware): self;
 
-
     /**
      * Check if the route matches the given method and path
      */
-    public function matches(string $method, string $path): bool;
+    public function matches(HttpMethod $method, string $path): bool;
 
-    private(set) array $defaults {
+    public array $defaults {
         get;
+        set;
     }
-
-    /**
-     * Set default values for parameters
-     */
-    public function defaults(array $defaults): self;
 
     /**
      * Get route metadata
@@ -80,7 +79,7 @@ interface RouteInterface
     /**
      * Check if the route has a specific method
      */
-    public function hasMethod(string $method): bool;
+    public function hasMethod(HttpMethod $method): bool;
 
     /**
      * Set route name (fluent interface)
@@ -90,6 +89,6 @@ interface RouteInterface
     /**
      * Add constraints to route parameters (fluent interface)
      */
-    public function where(string|array $constraints): self;
+    public function where(array $constraints): self;
 
 }

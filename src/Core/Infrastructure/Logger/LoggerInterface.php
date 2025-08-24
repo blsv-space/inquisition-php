@@ -8,6 +8,8 @@ namespace Inquisition\Core\Infrastructure\Logger;
  */
 interface LoggerInterface
 {
+
+
     /**
      * System is unusable
      */
@@ -51,17 +53,15 @@ interface LoggerInterface
     /**
      * Log with arbitrary level
      */
-    public function log(string $level, string $message, array $context = []): void;
+    public function log(LogLevelEnum $level, string $message, array $context = []): void;
 
     /**
      * Set the minimum log level
      */
-    public function setLevel(string $level): self;
-
-    /**
-     * Get the current log level
-     */
-    public function getLevel(): string;
+    public LogLevelEnum $level {
+        get;
+        set;
+    }
 
     /**
      * Add context to all subsequent log entries
@@ -73,8 +73,7 @@ interface LoggerInterface
      */
     public function channel(string $channel): self;
 
-    /**
-     * Get the current channel/category
-     */
-    public function getChannel(): string;
+    public string $channel {
+        get;
+    }
 }

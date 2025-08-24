@@ -11,38 +11,28 @@ use Inquisition\Core\Infrastructure\Http\Middleware\MiddlewareInterface;
  */
 class Route implements RouteInterface
 {
-    private(set) string $path {
-        get {
-            return $this->path;
-        }
+    protected(set) string $path {
+        get => $this->path;
     }
     /**
      * @var HttpMethod[]
      */
-    private(set) array $methods {
-        get {
-            return $this->methods;
-        }
+    protected(set) array $methods {
+        get => $this->methods;
     }
-    private(set) ?string $name {
-        get {
-            return $this->name;
-        }
+    protected(set) ?string $name {
+        get => $this->name;
     }
-    private(set) mixed $handler {
-        get {
-            return $this->handler;
-        }
+    protected(set) mixed $handler {
+        get => $this->handler;
     }
     private array $parameters = [];
 
     /**
      * @var MiddlewareInterface[]
      */
-    private(set) array $middlewares = [] {
-        get {
-            return $this->middlewares;
-        }
+    protected(set) array $middlewares = [] {
+        get => $this->middlewares;
         set {
             if ($value instanceof MiddlewareInterface) {
                 $this->middlewares[] = $value;
@@ -53,16 +43,25 @@ class Route implements RouteInterface
         }
     }
     public array $defaults = [] {
-        get {
-            return $this->defaults;
-        }
+        get => $this->defaults;
+
+        set(array $defaults) => $this->defaults = array_merge($this->defaults, $defaults);
+
     }
     private array $metadata = [];
     private ?string $compiledPattern = null;
     private array $parameterNames = [];
-    private array $constraints = [];
+    protected(set) array $constraints = [] {
+        get => $this->constraints;
+    }
 
 
+    /**
+     * @param string $path
+     * @param mixed $handler
+     * @param array $methods
+     * @param string|null $name
+     */
     public function __construct(
         string  $path,
         mixed   $handler,
@@ -70,7 +69,7 @@ class Route implements RouteInterface
         ?string $name = null,
     )
     {
-        $this->path = $path;
+        $this->path = trim($path, '/');
         $this->handler = $handler;
         $this->methods = array_filter($methods, fn($m) => $m instanceof HttpMethod);;
         $this->name = $name;
@@ -79,11 +78,18 @@ class Route implements RouteInterface
         Router::getInstance()->addRoute($this);
     }
 
+    /**
+     * @return array
+     */
     public function getParameters(): array
     {
         return $this->parameters;
     }
 
+    /**
+     * @param array $parameters
+     * @return $this
+     */
     public function setParameters(array $parameters): self
     {
         $this->parameters = $parameters;
@@ -91,7 +97,12 @@ class Route implements RouteInterface
         return $this;
     }
 
-    public function matches(string $method, string $path): bool
+    /**
+     * @param HttpMethod $method
+     * @param string $path
+     * @return bool
+     */
+    public function matches(HttpMethod $method, string $path): bool
     {
         if (!$this->hasMethod($method)) {
             return false;
@@ -120,6 +131,10 @@ class Route implements RouteInterface
         return false;
     }
 
+    /**
+     * @param string|array $middleware
+     * @return $this
+     */
     public function middleware(string|array $middleware): self
     {
         $this->middlewares = $middleware;
@@ -127,6 +142,10 @@ class Route implements RouteInterface
         return $this;
     }
 
+    /**
+     * @param string $name
+     * @return $this
+     */
     public function name(string $name): self
     {
         $this->name = $name;
@@ -134,38 +153,32 @@ class Route implements RouteInterface
         return $this;
     }
 
-    public function where(string|array $constraints): self
+    /**
+     * @param array $constraints
+     * @return $this
+     */
+    public function where(array $constraints): self
     {
-        if (is_string($constraints)) {
-            // If it's a string, treat it as a constraint for all parameters
-            // This is less common but could be useful
-            foreach ($this->parameterNames as $paramName) {
-                $this->constraints[$paramName] = $constraints;
-            }
-        } elseif (is_array($constraints)) {
-            // Merge with existing constraints
-            $this->constraints = array_merge($this->constraints, $constraints);
-        }
+        $this->constraints = array_merge($this->constraints, $constraints);
 
-        // Recompile the pattern with the new constraints
         $this->compilePattern();
 
         return $this;
     }
 
 
-    public function defaults(array $defaults): self
-    {
-        $this->defaults = array_merge($this->defaults, $defaults);
-
-        return $this;
-    }
-
+    /**
+     * @return array
+     */
     public function getMetadata(): array
     {
         return $this->metadata;
     }
 
+    /**
+     * @param array $metadata
+     * @return $this
+     */
     public function setMetadata(array $metadata): self
     {
         $this->metadata = $metadata;
@@ -173,9 +186,13 @@ class Route implements RouteInterface
         return $this;
     }
 
-    public function hasMethod(string $method): bool
+    /**
+     * @param HttpMethod $method
+     * @return bool
+     */
+    public function hasMethod(HttpMethod $method): bool
     {
-        return in_array(strtoupper($method), $this->methods, true);
+        return in_array($method, $this->methods, true);
     }
 
     /**
@@ -187,7 +204,7 @@ class Route implements RouteInterface
         $this->parameterNames = [];
 
         $pattern = preg_replace_callback(
-            '/\{([^}]+)\}/',
+            '/\{([^}]+)}/',
             function ($matches) {
                 $param = $matches[1];
                 $isOptional = str_ends_with($param, '?');

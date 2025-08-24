@@ -15,7 +15,7 @@ class HttpRequestValidator implements ValidatorInterface
     /**
      * @var array<string>
      */
-    private(set) array $errors = [] {
+    protected(set) array $errors = [] {
         get {
             return $this->errors;
         }

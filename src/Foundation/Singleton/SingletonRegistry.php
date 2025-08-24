@@ -2,8 +2,6 @@
 
 namespace Inquisition\Foundation\Singleton;
 
-use Inquisition\Foundation\Singleton\SingletonInterface;
-
 class SingletonRegistry implements SingletonInterface
 {
     use SingletonTrait;
@@ -14,12 +12,12 @@ class SingletonRegistry implements SingletonInterface
     private array $singletons = [];
 
     /**
-     * @param string $name
+     * @param class-string<SingletonInterface> $name
      * @return void
      */
     public function register(string $name): void
     {
-        if (in_array($name, $this->singletons, true)) {
+        if (array_key_exists($name, $this->singletons)) {
             return;
         }
 
@@ -27,7 +25,7 @@ class SingletonRegistry implements SingletonInterface
     }
 
     /**
-     * @return array
+     * @return list<class-string<SingletonInterface>>
      */
     public function getRegisteredSingletons(): array
     {
@@ -39,10 +37,11 @@ class SingletonRegistry implements SingletonInterface
      */
     public function resetAll(): void
     {
-        foreach ($this->singletons as $singleton) {
+        foreach ($this->singletons as $singleton => $_) {
             if ($singleton instanceof SingletonInterface) {
                 $singleton::reset();
             }
         }
+        $this->singletons = [];
     }
 }

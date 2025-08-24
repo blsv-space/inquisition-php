@@ -15,11 +15,12 @@ final class Router implements RouterInterface
     use SingletonTrait;
 
     private readonly UrlGeneratorInterface $urlGenerator;
+    private readonly RouteMatcherInterface $routeMatcher;
 
     /**
      * @var RouteInterface[]
      */
-    private(set) array $routes = [] {
+    protected(set) array $routes = [] {
         get {
             return $this->routes;
         }
@@ -44,7 +45,7 @@ final class Router implements RouterInterface
     /**
      * @var array<string, RouteInterface>
      */
-    private(set) array $namedRoutes = [] {
+    protected(set) array $namedRoutes = [] {
         get {
             return $this->namedRoutes;
         }
@@ -59,7 +60,8 @@ final class Router implements RouterInterface
 
     private function __construct()
     {
-        $this->urlGenerator = new UrlGenerator();
+        $this->urlGenerator = UrlGenerator::getInstance();
+        $this->routeMatcher = RouteMatcher::getInstance();
     }
 
     /**
@@ -71,11 +73,9 @@ final class Router implements RouterInterface
      */
     public function routeByRequest(RequestInterface $request): ?RouteMatchResult
     {
-        $method = $request->getMethod()->value;
-        $path = $request->getUri();
-
         foreach ($this->routes as $route) {
-            if ($route->matches($method, $path)) {
+            $routeMatchResult = $this->routeMatcher->match($request, $route);
+            if ($routeMatchResult) {
                 return new RouteMatchResult($route, $route->getParameters());
             }
         }

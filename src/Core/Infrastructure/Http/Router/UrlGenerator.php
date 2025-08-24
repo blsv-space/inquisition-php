@@ -3,14 +3,19 @@
 namespace Inquisition\Core\Infrastructure\Http\Router;
 
 use Inquisition\Core\Infrastructure\Http\HttpSchema;
+use Inquisition\Foundation\Singleton\SingletonInterface;
+use Inquisition\Foundation\Singleton\SingletonTrait;
 use InvalidArgumentException;
 
 /**
  * URL Generator Implementation
  * Generates URLs from routes with support for parameters and options
  */
-final class UrlGenerator implements UrlGeneratorInterface
+final class UrlGenerator
+    implements UrlGeneratorInterface, SingletonInterface
 {
+    use SingletonTrait;
+
     public string     $baseUrl = '' {
         get {
             return $this->baseUrl;
@@ -49,7 +54,7 @@ final class UrlGenerator implements UrlGeneratorInterface
         }
     }
 
-    public function __construct()
+    private function __construct()
     {
         $this->detectCurrentSchemeAndHost();
     }
@@ -101,7 +106,7 @@ final class UrlGenerator implements UrlGeneratorInterface
         $allParameters = array_merge($route->defaults, $parameters);
 
         // Replace path parameters
-        $path = preg_replace_callback('/\{([^}]+)\}/', function ($matches) use ($allParameters) {
+        $path = preg_replace_callback('/\{([^}]+)}/', function ($matches) use ($allParameters) {
             $paramName = $matches[1];
 
             // Handle optional parameters (ending with ?)

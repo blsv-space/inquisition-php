@@ -8,13 +8,13 @@ use InvalidArgumentException;
 
 class RouteGroup implements RouteGroupInterface
 {
-    private(set) string $prefix = '' {
+    protected(set) string $prefix = '' {
         get {
             return $this->prefix;
         }
     }
 
-    private(set) array $middlewares = [] {
+    protected(set) array $middlewares = [] {
         get {
             return $this->middlewares;
         }
@@ -28,19 +28,19 @@ class RouteGroup implements RouteGroupInterface
         }
     }
 
-    private(set) ?string $namespace = null {
+    protected(set) ?string $namespace = null {
         get {
             return $this->namespace;
         }
     }
 
-    private(set) ?string $namePrefix = null {
+    protected(set) ?string $namePrefix = null {
         get {
             return $this->namePrefix;
         }
     }
 
-    private(set) array $constraints = [] {
+    protected(set) array $constraints = [] {
         get {
             return $this->constraints;
         }
@@ -54,7 +54,7 @@ class RouteGroup implements RouteGroupInterface
         }
     }
 
-    private(set) array $attributes = [] {
+    protected(set) array $attributes = [] {
         get {
             return $this->attributes;
         }
@@ -64,7 +64,7 @@ class RouteGroup implements RouteGroupInterface
         }
     }
 
-    private(set) array $routes = [] {
+    protected(set) array $routes = [] {
         get {
             return $this->routes;
         }
@@ -299,7 +299,7 @@ class RouteGroup implements RouteGroupInterface
     }
 
     /**
-     * Build the full path by combining group prefix with route path
+     * Build the full path by combining group prefix with the route path
      */
     private function buildFullPath(string $path): string
     {
@@ -313,7 +313,7 @@ class RouteGroup implements RouteGroupInterface
     }
 
     /**
-     * Build the full name by combining group name prefix with route name
+     * Build the full name by combining the group name prefix with route name
      */
     private function buildFullName(?string $name): ?string
     {
