@@ -37,7 +37,7 @@ final class MigrationDiscovery implements SingletonInterface
         $migrations = [];
         foreach ($this->paths as $path) {
             if (!is_dir($path)) {
-                throw new RuntimeException("Migration path does not exist: {$path}");
+                throw new RuntimeException("Migration path does not exist: $path");
             }
             $files = glob($path . '/*.php');
 

@@ -51,7 +51,7 @@ class DatabaseConnection implements DatabaseConnectionInterface
     private function getDsn(): string
     {
         if (is_null($this->dsn)) {
-            $this->dsn = "{$this->driver}:";
+            $this->dsn = "$this->driver:";
 
             if ($this->unix_socket) {
                 $this->dsn .= "unix_socket={$this->unix_socket}";

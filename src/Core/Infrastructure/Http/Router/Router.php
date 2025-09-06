@@ -52,7 +52,7 @@ final class Router implements RouterInterface
 
         set {
             if ($this->hasRoute($value->name)) {
-                throw new InvalidArgumentException("Route name '{$value->name}' already exists");
+                throw new InvalidArgumentException("Route name '$value->name' already exists");
             }
             $this->namedRoutes[$value->name] = $value;
         }

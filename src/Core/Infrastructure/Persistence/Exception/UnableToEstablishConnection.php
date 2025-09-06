@@ -8,6 +8,6 @@ class UnableToEstablishConnection extends PersistenceException
 {
     public function __construct(string $connection, PDOException $exception)
     {
-        parent::__construct("Unable to establish connection to '{$connection}'", $exception->getCode(), $exception);
+        parent::__construct("Unable to establish connection to '$connection'", $exception->getCode(), $exception);
     }
 }

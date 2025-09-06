@@ -1,11 +1,22 @@
 <?php
+
 namespace Inquisition\Core\Application\Console\Command;
 
 interface CommandInterface
 {
+    public static function getAlias(): string;
+
+    public static function getArguments(): array;
+
     public function execute(): void;
+
     public function getDescription(): string;
+
     public function getHelp(): string;
-    public function getAlias(): string;
-    public function getArguments(): array;
+
+    protected(set) array $parameters
+    {
+        set;
+    }
+
 }

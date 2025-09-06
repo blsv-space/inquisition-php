@@ -38,7 +38,7 @@ class Route implements RouteInterface
                 $this->middlewares[] = $value;
             } elseif (is_array($value)) {
                 $this->middlewares = array_merge($this->middlewares,
-                    array_filter($value, fn($m) => $m instanceof MiddlewareInterface));;
+                    array_filter($value, fn($m) => $m instanceof MiddlewareInterface));
             }
         }
     }
@@ -71,7 +71,7 @@ class Route implements RouteInterface
     {
         $this->path = trim($path, '/');
         $this->handler = $handler;
-        $this->methods = array_filter($methods, fn($m) => $m instanceof HttpMethod);;
+        $this->methods = array_filter($methods, fn($m) => $m instanceof HttpMethod);
         $this->name = $name;
         $this->compilePattern();
 
@@ -217,7 +217,7 @@ class Route implements RouteInterface
 
                 $constraint = $this->constraints[$param] ?? '[^/]+';
 
-                return $isOptional ? "({$constraint})?" : "({$constraint})";
+                return $isOptional ? "($constraint)?" : "($constraint)";
             },
             $pattern
         );

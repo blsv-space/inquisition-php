@@ -6,6 +6,6 @@ class RouteNotFoundException extends RouterException
 {
     public function __construct(string $method, string $path)
     {
-        parent::__construct("Route not found: {$method} {$path}");
+        parent::__construct("Route not found: $method $path");
     }
 }

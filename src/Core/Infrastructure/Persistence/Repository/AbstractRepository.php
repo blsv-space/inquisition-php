@@ -139,7 +139,7 @@ abstract class AbstractRepository implements RepositoryInterface
         if ($exists) {
             $stmt = $this->connection->connect()->prepare('
                 UPDATE ' . static::getTableName() . '
-                SET ' . implode(', ', array_map(fn($field) => "`{$field}` = :{$field}", array_keys($rawData))) . '
+                SET ' . implode(', ', array_map(fn($field) => "`$field` = :$field", array_keys($rawData))) . '
                 WHERE id = :id;
             ');
             $stmt->execute($rawData);
@@ -267,10 +267,10 @@ abstract class AbstractRepository implements RepositoryInterface
         foreach ($criteria as $field => $value) {
             if (is_array($value)) {
                 $placeholders = str_repeat('?,', count($value) - 1) . '?';
-                $conditions[] = "`{$field}` IN ({$placeholders})";
+                $conditions[] = "`$field` IN ({$placeholders})";
                 $parameters = array_merge($parameters, $value);
             } else {
-                $conditions[] = "`{$field}` = ?";
+                $conditions[] = "`$field` = ?";
                 $parameters[] = $value;
             }
         }
@@ -293,7 +293,7 @@ abstract class AbstractRepository implements RepositoryInterface
         $clauses = [];
         foreach ($orderBy as $field => $direction) {
             $direction = strtoupper($direction) === 'DESC' ? 'DESC' : 'ASC';
-            $clauses[] = "{$field} {$direction}";
+            $clauses[] = "$field $direction";
         }
 
         return 'ORDER BY ' . implode(', ', $clauses);
@@ -307,11 +307,11 @@ abstract class AbstractRepository implements RepositoryInterface
         $clause = '';
 
         if ($limit !== null) {
-            $clause .= " LIMIT {$limit}";
+            $clause .= " LIMIT $limit";
         }
 
         if ($offset !== null) {
-            $clause .= " OFFSET {$offset}";
+            $clause .= " OFFSET $offset";
         }
 
         return $clause;

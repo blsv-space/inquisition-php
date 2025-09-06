@@ -2,14 +2,37 @@
 
 namespace Inquisition\Core\Application\Console\Command;
 
-abstract readonly class AbstractCommand implements CommandInterface
+abstract class AbstractCommand implements CommandInterface
 {
+    /** @var array<string, string> */
+    protected(set) array $parameters {
+        get {
+            return $this->parameters;
+        }
+    }
+
+    abstract public function __construct(array $parameters);
+
+    /**
+     * Get command alias
+     */
+    abstract public static function getAlias(): string;
+
+    /**
+     * Get command arguments
+     */
+    public static function getArguments(): array
+    {
+        return [];
+    }
+
     /**
      * Ask user for input
      */
     protected function ask(string $question): string
     {
         echo $question . ' ';
+
         return trim(fgets(STDIN));
     }
 
@@ -19,6 +42,7 @@ abstract readonly class AbstractCommand implements CommandInterface
     protected function confirm(string $question): bool
     {
         $response = $this->ask($question . ' (y/N):');
+
         return in_array(strtolower($response), ['y', 'yes', '1', 'true']);
     }
 
@@ -65,18 +89,5 @@ abstract readonly class AbstractCommand implements CommandInterface
     public function getHelp(): string
     {
         return 'No help provided.';
-    }
-
-    /**
-     * Get command alias
-     */
-    abstract public function getAlias(): string;
-
-    /**
-     * Get command arguments
-     */
-    public function getArguments(): array
-    {
-        return [];
     }
 }

@@ -8,7 +8,7 @@ class DuplicateRouteException extends RouterException
 {
     public function __construct(string $name)
     {
-        parent::__construct("Route with name '{$name}' already exists");
+        parent::__construct("Route with name '$name' already exists");
     }
 
 }

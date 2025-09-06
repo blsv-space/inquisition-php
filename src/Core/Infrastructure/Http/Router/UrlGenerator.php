@@ -117,7 +117,7 @@ final class UrlGenerator
             }
 
             if (!isset($allParameters[$paramName])) {
-                throw new InvalidArgumentException("Missing required parameter '{$paramName}'");
+                throw new InvalidArgumentException("Missing required parameter '$paramName'");
             }
 
             return (string) $allParameters[$paramName];

@@ -6,10 +6,13 @@ use Inquisition\Core\Application\Console\Command\MigrateCommand;
 
 final readonly class MigrationCommandProvider implements CommandProviderInterface
 {
+    /**
+     * @return class-string[]
+     */
     public function getCommands(): array
     {
         return [
-            MigrateCommand::class,
+            MigrateCommand::getAlias() => MigrateCommand::class,
         ];
     }
 }

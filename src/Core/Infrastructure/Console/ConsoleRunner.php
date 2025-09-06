@@ -3,16 +3,21 @@
 namespace Inquisition\Core\Infrastructure\Console;
 
 use Exception;
+use Inquisition\Core\Application\Console\Command\CommandInterface;
 use Inquisition\Core\Application\Console\Provider\CommandProviderInterface;
-use Inquisition\Core\Application\Console\Provider\CacheCommandProvider;
 use Inquisition\Core\Application\Console\Provider\MigrationCommandProvider;
-use Inquisition\Core\Application\Console\Provider\QueueCommandProvider;
 use InvalidArgumentException;
 use Throwable;
 
 final class ConsoleRunner
 {
+    /**
+     * @var class-string[]
+     */
     private array $commands = [];
+    /**
+     * @var CommandProviderInterface[]
+     */
     private array $providers = [];
 
     /**
@@ -29,11 +34,13 @@ final class ConsoleRunner
         $this->commands = array_merge($this->commands, $provider->getCommands());
     }
 
+    /**
+     * @return void
+     * @throws Exception
+     */
     public function bootstrap(): void
     {
         $this->addProvider(new MigrationCommandProvider());
-        $this->addProvider(new QueueCommandProvider());
-        $this->addProvider(new CacheCommandProvider());
     }
 
     /**
@@ -41,47 +48,46 @@ final class ConsoleRunner
      *
      * @param string $commandName The name of the command to run
      * @param array $arguments Command arguments and options
-     * @return mixed The result of the command execution
+     * @return void
      * @throws InvalidArgumentException If command is not found
      * @throws Exception|Throwable If job class doesn't exist or can't be instantiated
      */
-    public function run(string $commandName, array $arguments = []): mixed
+    public function run(string $commandName, array $arguments = []): void
     {
         if (!isset($this->commands[$commandName])) {
             throw new InvalidArgumentException(
-                "Command '{$commandName}' not found. Available commands:\r\n" .
+                "Command '$commandName' not found. Available commands:\r\n" .
                 implode(",\r\n", array_keys($this->commands))
             );
         }
 
-        $jobClass = $this->commands[$commandName];
+        $commandClass = $this->commands[$commandName];
 
-        if (!class_exists($jobClass)) {
-            throw new Exception("Job class '{$jobClass}' not found for command '{$commandName}'");
+        if (!class_exists($commandClass)
+            && is_subclass_of($commandClass, CommandInterface::class)
+        ) {
+            throw new Exception("Command class '$commandClass' not found for command '$commandName'");
         }
+        /**
+         * @var CommandInterface $command
+         */
+        $command = new $commandClass($arguments);
 
         try {
-            $payload = array_merge($arguments, [
-                'command' => $commandName,
-                'timestamp' => time()
-            ]);
-
-            $job = new $jobClass($payload);
-
-            echo "Executing command: {$commandName}\n";
+            echo "Executing command: $commandName\n";
             $startTime = microtime(true);
 
-            $result = $this->dispatcher->dispatch($job, $arguments);
+            $command->execute();
 
             $endTime = microtime(true);
             $executionTime = round(($endTime - $startTime) * 1000, 2);
 
-            echo "Command '{$commandName}' completed in {$executionTime}ms\n";
+            echo "Command '$commandName' completed in {$executionTime}ms\n";
 
-            return $result;
+            return;
 
         } catch (Throwable $exception) {
-            echo "Command '{$commandName}' failed: {$exception->getMessage()}\n";
+            echo "Command '$commandName' failed: {$exception->getMessage()}\n";
 
             if ($this->isDebugMode($arguments)) {
                 echo "Stack trace:\n{$exception->getTraceAsString()}\n";
@@ -92,7 +98,7 @@ final class ConsoleRunner
     }
 
     /**
-     * Get list of available commands
+     * Get a list of available commands
      *
      * @return array
      */
@@ -116,6 +122,7 @@ final class ConsoleRunner
                 'exists' => class_exists($jobClass)
             ];
         }
+
         return $info;
     }
 

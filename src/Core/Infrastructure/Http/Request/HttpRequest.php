@@ -4,6 +4,7 @@ namespace Inquisition\Core\Infrastructure\Http\Request;
 
 use Inquisition\Core\Application\Http\Request\RequestInterface;
 use Inquisition\Core\Infrastructure\Http\HttpMethod;
+use JsonException;
 
 final class HttpRequest implements RequestInterface
 {
@@ -63,7 +64,7 @@ final class HttpRequest implements RequestInterface
     }
 
     /**
-     * @return mixed[]
+     * @return array
      */
     public function getAllParameters(): array
     {
@@ -75,7 +76,7 @@ final class HttpRequest implements RequestInterface
      * @param $default
      * @return mixed|null
      */
-    public function getParameter(string $key, $default = null)
+    public function getParameter(string $key, $default = null): mixed
     {
         return $this->body[$key]
             ?? $this->query[$key]
@@ -122,7 +123,7 @@ final class HttpRequest implements RequestInterface
 
     /**
      * @return array|null
-     * @throws \JsonException
+     * @throws JsonException
      */
     public function getJsonBody(): ?array
     {
@@ -143,7 +144,7 @@ final class HttpRequest implements RequestInterface
     }
 
     /**
-     * @return mixed[]
+     * @return array
      */
     public function getFiles(): array
     {

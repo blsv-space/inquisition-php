@@ -2,6 +2,8 @@
 
 namespace Inquisition\Core\Domain\Event;
 
+use DateTimeImmutable;
+
 /**
  * Domain Event Interface
  * Defines the contract for domain events
@@ -11,7 +13,7 @@ interface DomainEventInterface
     /**
      * Get when the event occurred
      */
-    public function getOccurredOn(): \DateTimeImmutable;
+    public function getOccurredOn(): DateTimeImmutable;
 
     /**
      * Get the aggregate ID that triggered this event

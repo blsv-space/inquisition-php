@@ -23,7 +23,7 @@ class RouteGroup implements RouteGroupInterface
                 $this->middlewares[] = $value;
             } elseif (is_array($value)) {
                 $this->middlewares = array_merge($this->middlewares,
-                    array_filter($value, fn($m) => $m instanceof MiddlewareInterface));;
+                    array_filter($value, fn($m) => $m instanceof MiddlewareInterface));
             }
         }
     }

@@ -52,7 +52,7 @@ final class HttpResponse implements ResponseInterface
 
         // Send headers
         foreach ($this->headers as $name => $value) {
-            header("{$name}: {$value}");
+            header("$name: $value");
         }
 
         echo $this->content;

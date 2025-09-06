@@ -2,6 +2,8 @@
 
 namespace Inquisition\Core\Infrastructure\Http\Router;
 
+use _PHPStan_95d365e52\React\Dns\Model\Record;
+
 /**
  * Route Match Result
  * Represents the result of route matching
@@ -42,7 +44,7 @@ final readonly class RouteMatchResult
     /**
      * Get route handler
      */
-    public function getHandler(): mixed
+    public function getHandler(): RouteInterface
     {
         return $this->route;
     }

@@ -5,13 +5,17 @@ namespace Inquisition\Core\Application\Console\Command;
 use Inquisition\Core\Infrastructure\Migration\MigrationDiscovery;
 use Inquisition\Core\Infrastructure\Migration\MigrationRunner;
 
-final readonly class MigrateCommand extends AbstractCommand
+final class MigrateCommand extends AbstractCommand
 {
+    private const string ARGUMENT_DOWN = 'down';
+    private const string ARGUMENT_STEPS = 'steps';
+
     private MigrationRunner $migrationRunner;
     private MigrationDiscovery $migrationDiscovery;
 
-    public function __construct()
+    public function __construct($parameters = [])
     {
+        $this->parameters = $parameters;
         $this->migrationRunner = MigrationRunner::getInstance();
         $this->migrationDiscovery = MigrationDiscovery::getInstance();
     }
@@ -19,9 +23,20 @@ final readonly class MigrateCommand extends AbstractCommand
     /**
      * @return string
      */
-    public function getAlias(): string
+    public static function getAlias(): string
     {
         return 'migrate';
+    }
+
+    /**
+     * @return string[]
+     */
+    public static function getArguments(): array
+    {
+        return [
+            self::ARGUMENT_DOWN => 'Rollback the last migration',
+            self::ARGUMENT_STEPS => 'Number of migrations to rollback',
+        ];
     }
 
     /**
@@ -41,21 +56,23 @@ final readonly class MigrateCommand extends AbstractCommand
     }
 
     /**
-     * @return string[]
-     */
-    public function getArguments(): array
-    {
-        return [
-            'down' => 'Rollback the last migration',
-            'steps' => 'Number of migrations to rollback',
-        ];
-    }
-
-    /**
      * @return void
      */
     public function execute(): void
     {
+        if (isset($this->parameters[self::ARGUMENT_DOWN])) {
+            $steps = 1;
+            if (array_key_exists(self::ARGUMENT_STEPS, $this->parameters)
+                && is_numeric($this->parameters[self::ARGUMENT_STEPS])
+                && $this->parameters[self::ARGUMENT_STEPS] > 1
+            ) {
+                $steps = (int)$this->parameters[self::ARGUMENT_STEPS];
+            }
+            $this->down($steps);
+
+            return;
+        }
+
         $this->up();
     }
 
@@ -75,7 +92,7 @@ final readonly class MigrateCommand extends AbstractCommand
      *
      * @return void
      */
-    private function down(int $steps = 1): void
+    private function down(int $steps): void
     {
         echo "Rolling back migrations...\n";
         $this->discoveryAndRegistration();

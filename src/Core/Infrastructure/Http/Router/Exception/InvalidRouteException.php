@@ -6,7 +6,7 @@ class InvalidRouteException extends RouterException
 {
     public function __construct(string $message)
     {
-        parent::__construct("Invalid route: {$message}");
+        parent::__construct("Invalid route: $message");
     }
 
 }
