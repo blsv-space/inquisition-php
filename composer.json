@@ -1,5 +1,6 @@
 {
   "name": "blsv-space/inquisition-php",
+  "version": "0.0.2",
   "description": "description",
   "minimum-stability": "stable",
   "type": "library",

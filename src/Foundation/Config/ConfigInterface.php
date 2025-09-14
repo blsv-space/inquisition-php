@@ -9,6 +9,8 @@ interface ConfigInterface extends SingletonInterface
 
     public function load(array $config);
 
+    public function loadFromEnvironment(string $prefix = '', bool $merge = true);
+
     public function get(string $key, $default = null);
 
     public function getByPath(string $path, $default = null);
