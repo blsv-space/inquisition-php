@@ -10,7 +10,6 @@ use Inquisition\Core\Infrastructure\Persistence\DatabaseConnections;
 use Inquisition\Core\Infrastructure\Persistence\Exception\PersistenceException;
 use PDO;
 use Throwable;
-use function _PHPStan_781aefaf6\Symfony\Component\String\s;
 
 /**
  * Abstract Repository

@@ -30,6 +30,9 @@ interface ValueObjectInterface
 
     /**
      * Create value object from raw data
+     * @param mixed $data
+     * @return static
+     * @throws InvalidArgumentException
      */
     public static function fromRaw(mixed $data): static;
 
