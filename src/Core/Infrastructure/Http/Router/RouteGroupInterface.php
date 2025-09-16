@@ -3,6 +3,7 @@
 namespace Inquisition\Core\Infrastructure\Http\Router;
 
 use Inquisition\Core\Infrastructure\Http\HttpMethod;
+use Inquisition\Core\Infrastructure\Http\Middleware\MiddlewareInterface;
 
 /**
  * Route Group Interface
@@ -10,6 +11,10 @@ use Inquisition\Core\Infrastructure\Http\HttpMethod;
  */
 interface RouteGroupInterface
 {
+    public string $name {
+        get;
+    }
+
     /**
      * Set the group prefix
      */
@@ -17,16 +22,11 @@ interface RouteGroupInterface
 
     /**
      * Add middleware to the group
-     * @param string|array $middleware
+     * @param MiddlewareInterface|MiddlewareInterface[] $middleware
      *
      * @return self
      */
-    public function middleware(string|array $middleware): self;
-
-    /**
-     * Set the group namespace
-     */
-    public function namespace(string $namespace): self;
+    public function middleware(MiddlewareInterface|array $middleware): self;
 
     /**
      * Set the group name prefix
@@ -45,63 +45,70 @@ interface RouteGroupInterface
 
     /**
      * Create a route within this group
+     *
+     * @param string $path
+     * @param class-string $controller
+     * @param string $action
+     * @param HttpMethod[] $methods
+     * @param string|null $name
+     * @return RouteInterface
      */
     public function route(
         string $path,
-        mixed $handler = null,
-        array $methods = [HttpMethod::GET],
+        string $controller,
+        string $action,
+        array $methods,
         ?string $name = null
     ): RouteInterface;
 
     /**
      * Create a GET route within this group
      */
-    public function get(string $path, mixed $handler, ?string $name = null): RouteInterface;
+    public function get(string $path, string $controller, string $action, ?string $name = null): self;
 
     /**
      * Create a POST route within this group
      */
-    public function post(string $path, mixed $handler, ?string $name = null): RouteInterface;
+    public function post(string $path, string $controller, string $action, ?string $name = null): self;
 
     /**
      * Create a PUT route within this group
      */
-    public function put(string $path, mixed $handler, ?string $name = null): RouteInterface;
+    public function put(string $path, string $controller, string $action, ?string $name = null): self;
 
     /**
      * Create a DELETE route within this group
      */
-    public function delete(string $path, mixed $handler, ?string $name = null): RouteInterface;
+    public function delete(string $path, string $controller, string $action, ?string $name = null): self;
 
     /**
      * Create a PATCH route within this group
      */
-    public function patch(string $path, mixed $handler, ?string $name = null): RouteInterface;
+    public function patch(string $path, string $controller, string $action, ?string $name = null): self;
 
     /**
      * Create a route that matches any HTTP method
      */
-    public function any(string $path, mixed $handler, ?string $name = null): RouteInterface;
+    public function any(string $path, string $controller, string $action, ?string $name = null): self;
 
     /**
      * Create a route that matches specific HTTP methods
      */
-    public function match(array $methods, string $path, mixed $handler, ?string $name = null): RouteInterface;
+    public function match(array $methods, string $path, string $controller, string $action, ?string $name = null): self;
 
     /**
      * Create a nested group within this group
      */
-    public function group(callable $callback): self;
+    public function group(string $name): self;
 
     public string $prefix {
         get;
     }
 
+    /**
+     * @var MiddlewareInterface[]
+     */
     public array $middlewares {
-        get;
-    }
-
-    public null|string $namespace {
         get;
     }
 
@@ -124,11 +131,17 @@ interface RouteGroupInterface
 
     /**
      * Check if a group has middleware
+     *
+     * @param MiddlewareInterface $middleware
+     * @return bool
      */
-    public function hasMiddleware(string $middleware): bool;
+    public function hasMiddleware(MiddlewareInterface $middleware): bool;
 
     /**
      * Merge with a parent group
+     *
+     * @param RouteGroupInterface $parentGroup
+     * @return RouteGroupInterface
      */
     public function mergeWith(RouteGroupInterface $parentGroup): RouteGroupInterface;
 

@@ -2,8 +2,8 @@
 
 namespace Inquisition\Core\Infrastructure\Http\Middleware;
 
-use Inquisition\Core\Application\Http\Request\RequestInterface;
-use Inquisition\Core\Application\Http\Response\ResponseInterface;
+use Inquisition\Core\Infrastructure\Http\Request\RequestInterface;
+use Inquisition\Core\Infrastructure\Http\Response\ResponseInterface;
 
 /**
  * Middleware Interface

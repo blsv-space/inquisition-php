@@ -14,9 +14,9 @@ interface CommandInterface
 
     public function getHelp(): string;
 
-    protected(set) array $parameters
+    public array $parameters
     {
-        set;
+        get;
     }
 
 }

@@ -5,7 +5,7 @@ namespace Inquisition\Core\Application\Service;
 use Inquisition\Foundation\Config\Config;
 use Inquisition\Foundation\Singleton\SingletonTrait;
 
-final class Environment implements EnvironmentInterface
+final class Environment implements EnvironmentInterfaceApplication
 {
     use SingletonTrait;
 
@@ -18,7 +18,7 @@ final class Environment implements EnvironmentInterface
     private function __construct()
     {
         $config = Config::getInstance();
-        $this->mode = EnvironmentEnum::fromString($config->get('app.mode'));
+        $this->mode = EnvironmentEnum::fromString($config->getByPath('app.mode'));
     }
 
     /**

@@ -3,8 +3,10 @@
 namespace Inquisition\Core\Domain\Repository;
 
 use Inquisition\Core\Domain\Entity\EntityInterface;
+use Inquisition\Core\Domain\Entity\EntityWithIdInterface;
 use Inquisition\Core\Domain\ValueObject\ValueObjectInterface;
 use Inquisition\Core\Infrastructure\Persistence\DatabaseConnectionInterface;
+use Inquisition\Core\Infrastructure\Persistence\Repository\QueryCriteria;
 use Inquisition\Foundation\Singleton\SingletonInterface;
 
 /**
@@ -34,7 +36,7 @@ interface RepositoryInterface extends SingletonInterface
     /**
      * Find an entity by its identifier
      */
-    public function findById(ValueObjectInterface $id): ?EntityInterface;
+    public function findById(ValueObjectInterface $id): ?EntityWithIdInterface;
 
     /**
      * Find all entities
@@ -44,19 +46,20 @@ interface RepositoryInterface extends SingletonInterface
     /**
      * Save an entity (insert or update)
      */
-    public function save(EntityInterface $entity): void;
+    public function save(EntityWithIdInterface $entity): void;
 
     /**
-     * Remove an entity
-     */
-    public function remove(EntityInterface $entity): bool;
-
-    /**
-     * @param ValueObjectInterface $id
+     * @param EntityWithIdInterface $entity
      *
      * @return bool
      */
-    public function removeById(ValueObjectInterface $id): bool;
+    public function removeById(EntityWithIdInterface $entity): bool;
+
+    /**
+     * @param QueryCriteria[] $criteria
+     * @return int
+     */
+    public function removeBy(array $criteria): int;
 
     /**
      * Check if an entity exists by ID
@@ -77,5 +80,7 @@ interface RepositoryInterface extends SingletonInterface
      * Find one entity by criteria
      */
     public function findOneBy(array $criteria = []): ?EntityInterface;
+
+    public function getDatabaseName(): string;
 
 }

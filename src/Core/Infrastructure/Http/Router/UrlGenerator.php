@@ -61,6 +61,11 @@ final class UrlGenerator
 
     /**
      * Generate URL for a named route
+     *
+     * @param RouteInterface $route
+     * @param array $parameters
+     * @param array $options
+     * @return string
      */
     public function generate(RouteInterface $route, array $parameters = [], array $options = []): string
     {
@@ -81,6 +86,10 @@ final class UrlGenerator
 
     /**
      * Generate absolute URL
+     *
+     * @param RouteInterface $route
+     * @param array $parameters
+     * @return string
      */
     public function generateAbsolute(RouteInterface $route, array $parameters = []): string
     {
@@ -89,6 +98,10 @@ final class UrlGenerator
 
     /**
      * Generate relative URL
+     *
+     * @param RouteInterface $route
+     * @param array $parameters
+     * @return string
      */
     public function generateRelative(RouteInterface $route, array $parameters = []): string
     {
@@ -97,51 +110,21 @@ final class UrlGenerator
 
     /**
      * Build URL from route and parameters
+     *
+     * @param RouteInterface $route
+     * @param array $parameters
+     * @return string
      */
     private function buildUrl(RouteInterface $route, array $parameters = []): string
     {
         $path = $route->path;
 
-        // Merge route defaults with provided parameters
-        $allParameters = array_merge($route->defaults, $parameters);
+        foreach ($parameters as $key => $value) {
+            $path = str_replace("{{$key}}", $value, $path);
+        }
 
-        // Replace path parameters
-        $path = preg_replace_callback('/\{([^}]+)}/', function ($matches) use ($allParameters) {
-            $paramName = $matches[1];
-
-            // Handle optional parameters (ending with ?)
-            if (str_ends_with($paramName, '?')) {
-                $paramName = rtrim($paramName, '?');
-
-                return isset($allParameters[$paramName]) ? (string) $allParameters[$paramName] : '';
-            }
-
-            if (!isset($allParameters[$paramName])) {
-                throw new InvalidArgumentException("Missing required parameter '$paramName'");
-            }
-
-            return (string) $allParameters[$paramName];
-        }, $path);
-
-        // Clean up any double slashes
-        $path = preg_replace('#/+#', '/', $path);
-
-        // Ensure path starts with /
         if (!str_starts_with($path, '/')) {
             $path = '/' . $path;
-        }
-
-        // Add query parameters for any unused parameters
-        $usedParams = [];
-        preg_match_all('/\{([^}?]+)\??}/', $route->path, $matches);
-        if (isset($matches[1])) {
-            $usedParams = array_map(fn($param) => rtrim($param, '?'), $matches[1]);
-        }
-
-        $queryParams = array_diff_key($allParameters, array_flip($usedParams), $route->defaults);
-
-        if (!empty($queryParams)) {
-            $path .= '?' . http_build_query($queryParams);
         }
 
         return $path;
@@ -149,6 +132,9 @@ final class UrlGenerator
 
     /**
      * Make URL absolute
+     *
+     * @param string $url
+     * @return string
      */
     public function makeAbsolute(string $url): string
     {
@@ -178,6 +164,9 @@ final class UrlGenerator
 
     /**
      * Make URL relative (strip scheme and host)
+     *
+     * @param string $url
+     * @return string
      */
     public function makeRelative(string $url): string
     {
@@ -195,6 +184,8 @@ final class UrlGenerator
 
     /**
      * Detect the current scheme and host from the environment
+     *
+     * @return void
      */
     private function detectCurrentSchemeAndHost(): void
     {
@@ -202,16 +193,19 @@ final class UrlGenerator
             $this->host = $_SERVER['HTTP_HOST'];
         }
 
-        if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+        $SERVER_PORT = $_SERVER['SERVER_PORT'] ?? 80;
+        $HTTPS = $_SERVER['HTTPS'] ?? null;
+        $HTTP_X_FORWARDED_PROTO = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null;
+        if ($HTTPS === 'on') {
             $this->scheme = HttpSchema::HTTPS;
-        } elseif (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+        } elseif ($HTTP_X_FORWARDED_PROTO === 'https') {
             $this->scheme = HttpSchema::HTTPS;
-        } elseif (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] === '443') {
+        } elseif ($SERVER_PORT === '443') {
             $this->scheme = HttpSchema::HTTPS;
         } else {
             $this->scheme = HttpSchema::HTTP;
         }
 
-        $this->port = $_SERVER['SERVER_PORT'];
+        $this->port = $SERVER_PORT;
     }
 }

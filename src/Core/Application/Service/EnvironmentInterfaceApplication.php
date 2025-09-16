@@ -2,7 +2,7 @@
 
 namespace Inquisition\Core\Application\Service;
 
-interface EnvironmentInterface extends ServiceInterface
+interface EnvironmentInterfaceApplication extends ApplicationServiceInterface
 {
     protected(set) EnvironmentEnum $mode {
         get;

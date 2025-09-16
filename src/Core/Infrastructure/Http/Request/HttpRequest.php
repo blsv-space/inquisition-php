@@ -2,11 +2,13 @@
 
 namespace Inquisition\Core\Infrastructure\Http\Request;
 
-use Inquisition\Core\Application\Http\Request\RequestInterface;
 use Inquisition\Core\Infrastructure\Http\HttpMethod;
 use JsonException;
 
-final class HttpRequest implements RequestInterface
+final class
+
+
+HttpRequest implements RequestInterface
 {
     /** @var array<string,string|string[]> */
     protected(set) array $headers {
@@ -42,10 +44,6 @@ final class HttpRequest implements RequestInterface
     {
         $this->headers = $this->normaliseHeaders($headers);
     }
-
-    /* -----------------------------------------------------------------
-     |  RequestInterface
-     * -----------------------------------------------------------------*/
 
     /**
      * @return HttpMethod
@@ -159,12 +157,11 @@ final class HttpRequest implements RequestInterface
         return $this->clientIp;
     }
 
-    /* -----------------------------------------------------------------
-     |  Helpers
-     * -----------------------------------------------------------------*/
 
     /**
      * Build a request object from PHP super-globals.
+     *
+     * @return self
      */
     public static function createFromGlobals(): self
     {
@@ -197,7 +194,7 @@ final class HttpRequest implements RequestInterface
     {
         $normalised = [];
         foreach ($headers as $key => $value) {
-            $normalised[strtolower($key)] = $value;
+            $normalised[strtolower($key)] = trim($value);
         }
 
         return $normalised;
@@ -213,6 +210,7 @@ final class HttpRequest implements RequestInterface
         if (function_exists('getallheaders')) {
             /** @var array<string,string> $headers */
             $headers = getallheaders();
+
             return $headers;
         }
 

@@ -22,7 +22,10 @@
   "autoload": {
     "psr-4": {
       "Inquisition\\": "src/"
-    }
+    },
+    "files": [
+      "src/Foundation/helpers.php"
+    ]
   },
   "autoload-dev": {
     "psr-4": {

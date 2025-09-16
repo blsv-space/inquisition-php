@@ -3,6 +3,7 @@
 namespace Inquisition\Core\Infrastructure\Migration;
 
 use Exception;
+use Inquisition\Core\Infrastructure\Persistence\DatabaseManagerFactory;
 use Inquisition\Core\Infrastructure\Persistence\Repository\MigrationRepository;
 use Inquisition\Foundation\Singleton\SingletonInterface;
 use Inquisition\Foundation\Singleton\SingletonTrait;
@@ -29,21 +30,43 @@ final class MigrationRunner implements SingletonInterface
     }
 
     /**
+     * @return void
+     */
+    private function prepareDatabase(): void
+    {
+        try {
+            $databaseManager = DatabaseManagerFactory::getInstance()
+                ->getManager($this->migrationRepository->getConnection());
+            if (!$databaseManager->exists()) {
+                $databaseManager->create();
+            }
+        } catch (Exception $e) {
+        }
+
+        $this->migrationRepository->createMigrationsTableIfNotExists();
+    }
+
+    /**
      * @param MigrationInterface[]|null $migrations
      */
-    public function runUp(?array $migrations = null): void
+    public function runUp(?array $migrations = null, bool $silent = false): void
     {
+        $this->prepareDatabase();
         $migrations = $migrations ?? $this->migrations;
 
         $this->sortMigrationsByVersion($migrations);
 
         foreach ($migrations as $migration) {
-            if (!$this->migrationRepository->hasRun($migration->getVersion())) {
+            if (!$this->migrationRepository->hasRun($migration)) {
                 $this->executeMigration($migration, 'up');
-                $this->migrationRepository->markAsRun($migration->getVersion());
-                echo "✓ Migrated: {$migration->getVersion()} - {$migration->getDescription()}\n";
+                $this->migrationRepository->markAsRun($migration);
+                if (!$silent) {
+                    echo "✓ Migrated: {$migration->getVersion()} - {$migration->getDescription()}\n";
+                }
             } else {
-                echo "- Already migrated: {$migration->getVersion()}\n";
+                if (!$silent) {
+                    echo "- Already migrated: {$migration->getVersion()}\n";
+                }
             }
         }
     }
@@ -53,6 +76,7 @@ final class MigrationRunner implements SingletonInterface
      */
     public function runDown(int $steps = 1, ?array $migrations = null): void
     {
+        $this->prepareDatabase();
         $migrations = $migrations ?? $this->migrations;
         $this->sortMigrationsByVersion($migrations, false);
 
@@ -69,7 +93,7 @@ final class MigrationRunner implements SingletonInterface
             }
 
             $this->executeMigration($migration, 'down');
-            $this->migrationRepository->markAsNotRun($migration->getVersion());
+            $this->migrationRepository->markAsNotRun($migration);
             echo "✓ Rolled back: {$migration->getVersion()} - {$migration->getDescription()}\n";
             $count++;
         }

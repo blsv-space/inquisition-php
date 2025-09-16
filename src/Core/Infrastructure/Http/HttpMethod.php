@@ -103,12 +103,9 @@ enum HttpMethod: string
             self::GET => [HttpStatusCode::OK, HttpStatusCode::PARTIAL_CONTENT],
             self::POST => [HttpStatusCode::OK, HttpStatusCode::CREATED, HttpStatusCode::ACCEPTED],
             self::PUT => [HttpStatusCode::OK, HttpStatusCode::CREATED, HttpStatusCode::NO_CONTENT],
-            self::PATCH => [HttpStatusCode::OK, HttpStatusCode::NO_CONTENT],
+            self::PATCH, self::OPTIONS => [HttpStatusCode::OK, HttpStatusCode::NO_CONTENT],
             self::DELETE => [HttpStatusCode::OK, HttpStatusCode::NO_CONTENT, HttpStatusCode::ACCEPTED],
-            self::HEAD => [HttpStatusCode::OK],
-            self::OPTIONS => [HttpStatusCode::OK, HttpStatusCode::NO_CONTENT],
-            self::TRACE => [HttpStatusCode::OK],
-            self::CONNECT => [HttpStatusCode::OK],
+            self::HEAD, self::TRACE, self::CONNECT => [HttpStatusCode::OK],
         };
     }
 

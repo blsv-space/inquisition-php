@@ -2,7 +2,7 @@
 
 namespace Inquisition\Core\Infrastructure\Http\Router;
 
-use Inquisition\Core\Application\Http\Request\RequestInterface;
+use Inquisition\Core\Infrastructure\Http\Request\RequestInterface;
 use Inquisition\Foundation\Singleton\SingletonInterface;
 
 /**
@@ -14,11 +14,7 @@ interface RouterInterface extends SingletonInterface
     /**
      * Find a route that matches the given request
      */
-    public function routeByRequest(RequestInterface $request): ?RouteMatchResult;
-
-    public array $routes {
-        get;
-    }
+    public function routeByRequest(RequestInterface $request): ?NavigatorResult;
 
     /**
      * Get route by name
@@ -54,5 +50,33 @@ interface RouterInterface extends SingletonInterface
      * Clear all routes
      */
     public function clearRoutes(): void;
+
+    /**
+     * @param string $name
+     * @return RouteGroupInterface
+     */
+    public function group(string $name): RouteGroupInterface;
+
+    /**
+     * @param RouteGroupInterface $routeGroup
+     * @return void
+     */
+    public function groupRegistry(RouteGroupInterface $routeGroup): void;
+
+    /**
+     * @param string $name
+     * @return RouteGroupInterface|null
+     */
+    public function getGroup(string $name): ?RouteGroupInterface;
+
+    /**
+     * @return RouteGroupInterface[]
+     */
+    public function getRoutes(): array;
+
+    /**
+     * @return array<string, RouteInterface>
+     */
+    public function getNamedRoutes(): array;
 
 }
