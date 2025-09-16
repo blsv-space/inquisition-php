@@ -7,18 +7,6 @@ use InvalidArgumentException;
 
 abstract class BaseEntity implements EntityInterface
 {
-    public ValueObjectInterface $id {
-        get {
-            return $this->id;
-        }
-        set {
-            if (!$value instanceof ValueObjectInterface) {
-                throw new InvalidArgumentException('ID must be a ValueObjectInterface');
-            }
-            $this->id = $value;
-        }
-    }
-
     public function getAsArray(): array
     {
         $vars = get_object_vars($this);
