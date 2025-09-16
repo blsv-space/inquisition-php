@@ -7,7 +7,7 @@ use Inquisition\Core\Domain\ValueObject\ValueObjectInterface;
 
 interface EntityWithIdInterface extends EntityInterface
 {
-    public ValueObjectInterface $id {
+    public ?ValueObjectInterface $id {
         get;
         set;
     }

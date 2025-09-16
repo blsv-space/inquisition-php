@@ -14,6 +14,9 @@ abstract class BaseEntityWithId extends BaseEntity
         if (!$other instanceof static) {
             return false;
         }
+        if (is_null($this->id) || is_null($other->id)) {
+            return false;
+        }
 
         return $this->id === $other->id;
     }
