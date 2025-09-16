@@ -6,7 +6,7 @@ use JsonException;
 
 abstract class AbstractValueObject implements ValueObjectInterface
 {
-    protected mixed $value;
+    protected(set) mixed $value;
 
     protected function __construct(mixed $data)
     {
