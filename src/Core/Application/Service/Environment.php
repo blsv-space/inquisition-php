@@ -5,7 +5,7 @@ namespace Inquisition\Core\Application\Service;
 use Inquisition\Foundation\Config\Config;
 use Inquisition\Foundation\Singleton\SingletonTrait;
 
-final class Environment implements EnvironmentInterface
+final class Environment implements EnvironmentInterfaceApplication
 {
     use SingletonTrait;
 
