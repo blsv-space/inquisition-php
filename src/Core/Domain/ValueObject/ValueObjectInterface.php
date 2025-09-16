@@ -29,11 +29,11 @@ interface ValueObjectInterface
     /**
      * Create value object from raw data
      */
-    public static function fromRaw($data): static;
+    public static function fromRaw(mixed $data): static;
 
     /**
      * Validate the value object data
      * Should throw InvalidArgumentException if invalid
      */
-    public function validate(): void;
+    public static function validate(mixed $data): void;
 }

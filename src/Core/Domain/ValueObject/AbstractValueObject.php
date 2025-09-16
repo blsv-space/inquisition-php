@@ -41,5 +41,5 @@ abstract class AbstractValueObject implements ValueObjectInterface
     /**
      * @inheritDoc
      */
-    abstract public function validate(): void;
+    abstract public static function validate(mixed $data): void;
 }
