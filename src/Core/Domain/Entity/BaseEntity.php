@@ -19,15 +19,6 @@ abstract class BaseEntity implements EntityInterface
         }
     }
 
-    public function __construct(?array $data = null)
-    {
-        if ($data) {
-            $this->load($data);
-        }
-    }
-
-    abstract protected function load(array $data): void;
-
     abstract public function getAsArray(): array;
 
     public function equals(EntityInterface $other): bool
