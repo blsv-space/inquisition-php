@@ -19,7 +19,18 @@ abstract class BaseEntity implements EntityInterface
         }
     }
 
-    abstract public function getAsArray(): array;
+    public function getAsArray(): array
+    {
+        $vars = get_object_vars($this);
+
+        return array_map(function ($var) {
+            if (!$var instanceof ValueObjectInterface) {
+                return null;
+            }
+
+            return $var->toRaw();
+        }, $vars);
+    }
 
     public function equals(EntityInterface $other): bool
     {
