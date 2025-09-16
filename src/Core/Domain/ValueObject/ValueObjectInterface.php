@@ -18,17 +18,18 @@ interface ValueObjectInterface
     /**
      * Get string representation of the value object
      */
-    public function toString(): string;
+    public function __toString(): string;
+
 
     /**
      * Get raw representation of the value object
      */
-    public function toRaw(): mixed;
+    public function toRaw();
 
     /**
      * Create value object from raw data
      */
-    public static function fromRaw(mixed $data): static;
+    public static function fromRaw($data): static;
 
     /**
      * Validate the value object data

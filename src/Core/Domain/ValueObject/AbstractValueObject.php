@@ -15,7 +15,7 @@ abstract class AbstractValueObject implements ValueObjectInterface
     public function equals(ValueObjectInterface $other): bool
     {
         return $this::class === $other::class
-            && $this->toString() === $other->toString();
+            && $this->__toString() === $other->__toString();
 
     }
 
@@ -23,7 +23,7 @@ abstract class AbstractValueObject implements ValueObjectInterface
      * @inheritDoc
      * @throws JsonException
      */
-    public function toString(): string
+    public function __toString(): string
     {
         return json_encode($this->toRaw(), JSON_THROW_ON_ERROR);
     }
