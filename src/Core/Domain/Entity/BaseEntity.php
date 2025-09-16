@@ -3,29 +3,28 @@
 namespace Inquisition\Core\Domain\Entity;
 
 use Inquisition\Core\Domain\ValueObject\ValueObjectInterface;
+use Inquisition\Core\Infrastructure\Support\StringHelper;
 use InvalidArgumentException;
 
 abstract class BaseEntity implements EntityInterface
 {
     public function getAsArray(): array
     {
-        $vars = get_object_vars($this);
+        $array = [];
 
-        return array_map(function ($var) {
-            if (!$var instanceof ValueObjectInterface) {
-                return null;
+        foreach (get_object_vars($this) as $key => $value) {
+            if ($value instanceof ValueObjectInterface === false) {
+                continue;
             }
+            $array[StringHelper::camelCaseToSnakeCase($key)] = $value->toRaw();
+        }
 
-            return $var->toRaw();
-        }, $vars);
+        return $array;
     }
 
-    public function equals(EntityInterface $other): bool
-    {
-        return $this->getEntityType() === $other->getEntityType()
-            && $this->id === $other->id;
-    }
-
+    /**
+     * @return string
+     */
     public function getEntityType(): string
     {
         return static::class;
