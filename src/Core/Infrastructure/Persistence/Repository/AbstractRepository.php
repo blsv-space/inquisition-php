@@ -10,6 +10,7 @@ use Inquisition\Core\Infrastructure\Persistence\DatabaseConnections;
 use Inquisition\Core\Infrastructure\Persistence\Exception\PersistenceException;
 use PDO;
 use Throwable;
+use function _PHPStan_781aefaf6\Symfony\Component\String\s;
 
 /**
  * Abstract Repository
@@ -19,6 +20,7 @@ abstract class AbstractRepository implements RepositoryInterface
 {
     protected const string DATABASE_NAME     = 'default';
     protected const string ENTITY_CLASS_NAME = '';
+    protected const string TABLE_NAME_PREFIX = '';
     protected const string TABLE_NAME        = '';
 
     public readonly DatabaseConnectionInterface $connection;
@@ -43,6 +45,10 @@ abstract class AbstractRepository implements RepositoryInterface
      */
     public static function getTableName(): string
     {
+        if (static::TABLE_NAME_PREFIX) {
+            return static::TABLE_NAME_PREFIX . '_' . static::TABLE_NAME;
+        }
+
         return static::TABLE_NAME;
     }
 
