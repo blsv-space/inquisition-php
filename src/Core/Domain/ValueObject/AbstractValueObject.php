@@ -8,6 +8,11 @@ abstract class AbstractValueObject implements ValueObjectInterface
 {
     protected mixed $value;
 
+    protected function __construct(mixed $data)
+    {
+        $this->value = $data;
+    }
+
     /**
      * @inheritDoc
      * @throws JsonException

@@ -2,6 +2,8 @@
 
 namespace Inquisition\Core\Domain\ValueObject;
 
+use InvalidArgumentException;
+
 /**
  * Value Object Interface
  * Defines the contract for all domain value objects
@@ -34,6 +36,10 @@ interface ValueObjectInterface
     /**
      * Validate the value object data
      * Should throw InvalidArgumentException if invalid
+     *
+     * @param mixed $data
+     * @return void
+     * @throws InvalidArgumentException
      */
     public static function validate(mixed $data): void;
 }
