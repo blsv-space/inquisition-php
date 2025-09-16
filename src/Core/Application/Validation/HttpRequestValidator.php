@@ -2,8 +2,8 @@
 
 namespace Inquisition\Core\Application\Validation;
 
-use Inquisition\Core\Application\Http\Request\RequestInterface;
 use Inquisition\Core\Application\Validation\Exception\ValidationException;
+use Inquisition\Core\Infrastructure\Http\Request\RequestInterface;
 
 class HttpRequestValidator implements ValidatorInterface
 {

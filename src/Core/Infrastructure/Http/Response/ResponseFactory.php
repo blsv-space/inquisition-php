@@ -2,7 +2,6 @@
 
 namespace Inquisition\Core\Infrastructure\Http\Response;
 
-use Inquisition\Core\Application\Http\Response\ResponseInterface;
 use Inquisition\Core\Infrastructure\Http\HttpStatusCode;
 use JsonException;
 

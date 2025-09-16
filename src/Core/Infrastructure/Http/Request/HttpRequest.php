@@ -2,7 +2,6 @@
 
 namespace Inquisition\Core\Infrastructure\Http\Request;
 
-use Inquisition\Core\Application\Http\Request\RequestInterface;
 use Inquisition\Core\Infrastructure\Http\HttpMethod;
 use JsonException;
 

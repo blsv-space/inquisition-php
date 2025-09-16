@@ -1,9 +1,9 @@
 <?php
 
-namespace Inquisition\Core\Application\Controller;
+namespace Inquisition\Core\Infrastructure\Http\Controller;
 
-use Inquisition\Core\Application\Http\Request\RequestInterface;
-use Inquisition\Core\Application\Http\Response\ResponseInterface;
+use Inquisition\Core\Infrastructure\Http\Request\RequestInterface;
+use Inquisition\Core\Infrastructure\Http\Response\ResponseInterface;
 
 /**
  * REST Controller Interface

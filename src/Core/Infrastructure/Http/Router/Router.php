@@ -2,7 +2,7 @@
 
 namespace Inquisition\Core\Infrastructure\Http\Router;
 
-use Inquisition\Core\Application\Http\Request\RequestInterface;
+use Inquisition\Core\Infrastructure\Http\Request\RequestInterface;
 use Inquisition\Foundation\Singleton\SingletonTrait;
 use InvalidArgumentException;
 
