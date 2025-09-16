@@ -36,7 +36,7 @@ abstract class AbstractValueObject implements ValueObjectInterface
     /**
      * @inheritDoc
      */
-    abstract public static function fromRaw($data): static;
+    abstract public static function fromRaw(mixed $data): static;
 
     /**
      * @inheritDoc
