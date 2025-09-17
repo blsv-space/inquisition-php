@@ -91,7 +91,7 @@ interface RouteGroupInterface
     /**
      * Create a nested group within this group
      */
-    public function group(callable $callback): self;
+    public function group(string $name): self;
 
     public string $prefix {
         get;

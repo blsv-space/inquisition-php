@@ -43,6 +43,20 @@ final class Router implements RouterInterface
     }
 
     /**
+     * @var RouteGroupInterface[] <string, RouteGroupInterface>
+     */
+    private array $routeGroups = [];
+
+    /**
+     * @var RouteInterface|null
+     */
+    protected(set) ?RouteInterface $currentRoute = null {
+        get {
+            return $this->currentRoute;
+        }
+    }
+
+    /**
      * @var array<string, RouteInterface>
      */
     protected(set) array $namedRoutes = [] {
@@ -135,6 +149,26 @@ final class Router implements RouterInterface
     public function addRoute(RouteInterface $route): void
     {
         $this->routes = $route;
+    }
+
+    /**
+     * @param string $name
+     * @return RouteGroupInterface
+     */
+    public function group(string $name): RouteGroupInterface
+    {
+        $this->routeGroups[$name] = new RouteGroup();
+
+        return new RouteGroup();
+    }
+
+    /**
+     * @param string $name
+     * @return RouteGroupInterface|null
+     */
+    public function getGroup(string $name): ?RouteGroupInterface
+    {
+        return $this->routeGroups[$name] ?? null;
     }
 
     /**

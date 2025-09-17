@@ -162,6 +162,7 @@ class RouteGroup implements RouteGroupInterface
         $route = new Route($fullPath, $fullHandler, $methods, $fullName);
         $this->applyToRoute($route);
         $this->routes = [$route];
+        Router::getInstance()->addRoute($route);
 
         return $route;
     }
@@ -231,12 +232,10 @@ class RouteGroup implements RouteGroupInterface
     /**
      * Create a nested group within this group
      */
-    public function group(callable $callback): self
+    public function group(string $name): self
     {
         $nestedGroup = new self();
         $nestedGroup = $nestedGroup->mergeWith($this);
-
-        $callback($nestedGroup);
 
         // Merge routes from the nested group
         $this->routes = array_merge($this->routes, $nestedGroup->routes);

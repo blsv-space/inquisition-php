@@ -16,7 +16,10 @@ interface RouterInterface extends SingletonInterface
      */
     public function routeByRequest(RequestInterface $request): ?RouteMatchResult;
 
-    public array $routes {
+    /**
+     * @var RouteInterface[]
+     */
+    protected(set) array $routes {
         get;
     }
 
@@ -54,5 +57,13 @@ interface RouterInterface extends SingletonInterface
      * Clear all routes
      */
     public function clearRoutes(): void;
+
+    /**
+     * @param string $name
+     * @return RouteGroupInterface
+     */
+    public function group(string $name): RouteGroupInterface;
+
+    public function getGroup(string $name): ?RouteGroupInterface;
 
 }

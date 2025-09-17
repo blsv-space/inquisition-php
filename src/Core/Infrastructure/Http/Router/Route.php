@@ -166,7 +166,6 @@ class Route implements RouteInterface
         return $this;
     }
 
-
     /**
      * @return array
      */
