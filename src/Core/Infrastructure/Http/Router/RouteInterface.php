@@ -22,14 +22,30 @@ interface RouteInterface
         get;
     }
 
+    /**
+     * @var string|null
+     */
     protected(set) null|string $name {
         get;
     }
 
-    protected(set) mixed $handler {
+    /**
+     * @var class-string
+     */
+    protected(set) string $controller {
         get;
     }
 
+    /**
+     * @var string
+     */
+    protected(set) string $action {
+        get;
+    }
+
+    /**
+     * @var array
+     */
     protected(set) array $constraints {
         get;
     }

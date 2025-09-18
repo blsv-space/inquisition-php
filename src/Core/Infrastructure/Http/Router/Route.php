@@ -4,6 +4,7 @@ namespace Inquisition\Core\Infrastructure\Http\Router;
 
 use Inquisition\Core\Infrastructure\Http\HttpMethod;
 use Inquisition\Core\Infrastructure\Http\Middleware\MiddlewareInterface;
+use InvalidArgumentException;
 
 /**
  * Route Implementation
@@ -14,18 +15,26 @@ class Route implements RouteInterface
     protected(set) string $path {
         get => $this->path;
     }
+
     /**
      * @var HttpMethod[]
      */
     protected(set) array $methods {
         get => $this->methods;
     }
+
     protected(set) ?string $name {
         get => $this->name;
     }
-    protected(set) mixed $handler {
-        get => $this->handler;
+
+    protected(set) string $controller {
+        get => $this->controller;
     }
+
+    protected(set) string $action {
+        get => $this->action;
+    }
+
     private array $parameters = [];
 
     /**
@@ -58,19 +67,29 @@ class Route implements RouteInterface
 
     /**
      * @param string $path
-     * @param mixed $handler
+     * @param string $controller
+     * @param string $action
      * @param array $methods
      * @param string|null $name
      */
     public function __construct(
         string  $path,
-        mixed   $handler,
+        string  $controller,
+        string  $action,
         array   $methods = [HttpMethod::GET],
         ?string $name = null,
     )
     {
+        if (!class_exists($controller)) {
+            throw new InvalidArgumentException("Controller class $controller does not exist");
+        }
+        if (!method_exists($controller, $action)) {
+            throw new InvalidArgumentException("Action $action does not exist in controller $controller");
+        }
+
         $this->path = trim($path, '/');
-        $this->handler = $handler;
+        $this->controller = $controller;
+        $this->action = $action;
         $this->methods = array_filter($methods, fn($m) => $m instanceof HttpMethod);
         $this->name = $name;
         $this->compilePattern();
@@ -196,6 +215,8 @@ class Route implements RouteInterface
 
     /**
      * Compile the route pattern into a regex
+     *
+     * @return void
      */
     private function compilePattern(): void
     {
@@ -228,57 +249,100 @@ class Route implements RouteInterface
 
     /**
      * Create a new route instance with the GET method
+     *
+     * @param string $path
+     * @param string $controller
+     * @param string $action
+     * @param string|null $name
+     * @return self
      */
-    public static function get(string $path, mixed $handler, ?string $name = null): self
+    public static function get(string $path, string $controller, string $action, ?string $name = null): self
     {
-        return new self($path, $handler, [HttpMethod::GET], $name);
+        return new self($path, $controller, $action, [HttpMethod::GET], $name);
     }
 
     /**
      * Create a new route instance with the POST method
+     *
+     * @param string $path
+     * @param string $controller
+     * @param string $action
+     * @param string|null $name
+     * @return self
      */
-    public static function post(string $path, mixed $handler, ?string $name = null): self
+    public static function post(string $path, string $controller, string $action, ?string $name = null): self
     {
-        return new self($path, $handler, [HttpMethod::POST], $name);
+        return new self($path, $controller, $action, [HttpMethod::POST], $name);
     }
 
     /**
      * Create a new route instance with the PUT method
+     *
+     * @param string $path
+     * @param string $controller
+     * @param string $action
+     * @param string|null $name
+     * @return self
      */
-    public static function put(string $path, mixed $handler, ?string $name = null): self
+    public static function put(string $path, string $controller, string $action, ?string $name = null): self
     {
-        return new self($path, $handler, [HttpMethod::PUT], $name);
+        return new self($path, $controller, $action, [HttpMethod::PUT], $name);
     }
 
     /**
      * Create a new route instance with the DELETE method
+     *
+     * @param string $path
+     * @param string $controller
+     * @param string $action
+     * @param string|null $name
+     * @return self
      */
-    public static function delete(string $path, mixed $handler, ?string $name = null): self
+    public static function delete(string $path, string $controller, string $action, ?string $name = null): self
     {
-        return new self($path, $handler, [HttpMethod::DELETE], $name);
+        return new self($path, $controller, $action, [HttpMethod::DELETE], $name);
     }
 
     /**
      * Create a new route instance with the PATCH method
+     *
+     * @param string $path
+     * @param string $controller
+     * @param string $action
+     * @param string|null $name
+     * @return self
      */
-    public static function patch(string $path, mixed $handler, ?string $name = null): self
+    public static function patch(string $path, string $controller, string $action, ?string $name = null): self
     {
-        return new self($path, $handler, [HttpMethod::PATCH], $name);
+        return new self($path, $controller, $action, [HttpMethod::PATCH], $name);
     }
 
     /**
      * Create a new route instance with multiple methods
+     *
+     * @param string $path
+     * @param string $controller
+     * @param string $action
+     * @param string|null $name
+     * @return self
      */
-    public static function any(string $path, mixed $handler, ?string $name = null): self
+    public static function any(string $path, string $controller, string $action, ?string $name = null): self
     {
-        return new self($path, $handler, [HttpMethod::GET, HttpMethod::POST, HttpMethod::PUT, HttpMethod::DELETE, HttpMethod::PATCH], $name);
+        return new self($path, $controller, $action, [HttpMethod::GET, HttpMethod::POST, HttpMethod::PUT, HttpMethod::DELETE, HttpMethod::PATCH], $name);
     }
 
     /**
      * Create a new route instance with custom methods
+     *
+     * @param array $methods
+     * @param string $path
+     * @param string $controller
+     * @param string $action
+     * @param string|null $name
+     * @return self
      */
-    public static function match(array $methods, string $path, mixed $handler, ?string $name = null): self
+    public static function match(array $methods, string $path, string $controller, string $action, ?string $name = null): self
     {
-        return new self($path, $handler, $methods, $name);
+        return new self($path, $controller, $action, $methods, $name);
     }
 }

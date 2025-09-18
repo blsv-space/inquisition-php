@@ -24,11 +24,6 @@ interface RouteGroupInterface
     public function middleware(string|array $middleware): self;
 
     /**
-     * Set the group namespace
-     */
-    public function namespace(string $namespace): self;
-
-    /**
      * Set the group name prefix
      */
     public function namePrefix(string $namePrefix): self;
@@ -45,10 +40,18 @@ interface RouteGroupInterface
 
     /**
      * Create a route within this group
+     *
+     * @param string $path
+     * @param class-string $controller
+     * @param string $action
+     * @param array $methods
+     * @param string|null $name
+     * @return RouteInterface
      */
     public function route(
         string $path,
-        mixed $handler = null,
+        string $controller,
+        string $action,
         array $methods = [HttpMethod::GET],
         ?string $name = null
     ): RouteInterface;
@@ -56,37 +59,37 @@ interface RouteGroupInterface
     /**
      * Create a GET route within this group
      */
-    public function get(string $path, mixed $handler, ?string $name = null): RouteInterface;
+    public function get(string $path, string $controller, string $action, ?string $name = null): RouteInterface;
 
     /**
      * Create a POST route within this group
      */
-    public function post(string $path, mixed $handler, ?string $name = null): RouteInterface;
+    public function post(string $path, string $controller, string $action, ?string $name = null): RouteInterface;
 
     /**
      * Create a PUT route within this group
      */
-    public function put(string $path, mixed $handler, ?string $name = null): RouteInterface;
+    public function put(string $path, string $controller, string $action, ?string $name = null): RouteInterface;
 
     /**
      * Create a DELETE route within this group
      */
-    public function delete(string $path, mixed $handler, ?string $name = null): RouteInterface;
+    public function delete(string $path, string $controller, string $action, ?string $name = null): RouteInterface;
 
     /**
      * Create a PATCH route within this group
      */
-    public function patch(string $path, mixed $handler, ?string $name = null): RouteInterface;
+    public function patch(string $path, string $controller, string $action, ?string $name = null): RouteInterface;
 
     /**
      * Create a route that matches any HTTP method
      */
-    public function any(string $path, mixed $handler, ?string $name = null): RouteInterface;
+    public function any(string $path, string $controller, string $action, ?string $name = null): RouteInterface;
 
     /**
      * Create a route that matches specific HTTP methods
      */
-    public function match(array $methods, string $path, mixed $handler, ?string $name = null): RouteInterface;
+    public function match(array $methods, string $path, string $controller, string $action, ?string $name = null): RouteInterface;
 
     /**
      * Create a nested group within this group
@@ -98,10 +101,6 @@ interface RouteGroupInterface
     }
 
     public array $middlewares {
-        get;
-    }
-
-    public null|string $namespace {
         get;
     }
 
