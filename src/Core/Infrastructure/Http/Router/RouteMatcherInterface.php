@@ -2,6 +2,7 @@
 
 namespace Inquisition\Core\Infrastructure\Http\Router;
 
+use Inquisition\Core\Infrastructure\Http\HttpMethod;
 use Inquisition\Core\Infrastructure\Http\Request\RequestInterface;
 
 /**
@@ -23,7 +24,7 @@ interface RouteMatcherInterface
     /**
      * Check if a route matches the request
      */
-    public function matchRoute(RouteInterface $route, string $method, string $path): ?array;
+    public function matchRoute(RouteInterface $route, HttpMethod $method, string $path): ?array;
 
     /**
      * Extract parameters from a path using a route pattern

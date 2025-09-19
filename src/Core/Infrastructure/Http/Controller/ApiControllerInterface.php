@@ -2,6 +2,7 @@
 
 namespace Inquisition\Core\Infrastructure\Http\Controller;
 
+use Inquisition\Core\Infrastructure\Http\HttpStatusCode;
 use Inquisition\Core\Infrastructure\Http\Response\ResponseInterface;
 
 /**
@@ -13,15 +14,27 @@ interface ApiControllerInterface extends ControllerInterface
     /**
      * Return JSON success response
      */
-    public function jsonResponse(array $data, int $statusCode = 200): ResponseInterface;
+    public function jsonResponse(
+        array $data,
+        HttpStatusCode $statusCode = HttpStatusCode::OK
+    ): ResponseInterface;
 
     /**
      * Return JSON error response
      */
-    public function jsonErrorResponse(string $message, int $statusCode = 400, array $errors = []): ResponseInterface;
+    public function jsonErrorResponse(
+        string $message,
+        HttpStatusCode $statusCode = HttpStatusCode::BAD_REQUEST,
+        array $errors = []
+    ): ResponseInterface;
 
     /**
      * Return paginated JSON response
      */
-    public function jsonPaginatedResponse(array $data, int $total, int $page, int $perPage): ResponseInterface;
+    public function jsonPaginatedResponse(
+        array $data,
+        int $total,
+        int $page,
+        int $perPage
+    ): ResponseInterface;
 }

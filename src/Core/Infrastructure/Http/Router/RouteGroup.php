@@ -137,12 +137,6 @@ class RouteGroup implements RouteGroupInterface
         $fullPath = $this->buildFullPath($path);
         $fullName = $this->buildFullName($name);
 
-        foreach ($methods as $method) {
-            if (!($method instanceof HttpMethod)) {
-                throw new InvalidArgumentException('Method must be an instance of HttpMethod');
-            }
-        }
-
         $route = new Route($fullPath, $controller, $action, $methods, $fullName);
         $this->applyToRoute($route);
         $this->routes = [$route];

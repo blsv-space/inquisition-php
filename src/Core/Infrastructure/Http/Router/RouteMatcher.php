@@ -2,6 +2,7 @@
 
 namespace Inquisition\Core\Infrastructure\Http\Router;
 
+use Inquisition\Core\Infrastructure\Http\HttpMethod;
 use Inquisition\Core\Infrastructure\Http\Request\RequestInterface;
 use Inquisition\Foundation\Singleton\SingletonInterface;
 use Inquisition\Foundation\Singleton\SingletonTrait;
@@ -10,6 +11,7 @@ final readonly class RouteMatcher
     implements RouteMatcherInterface, SingletonInterface
 {
     use SingletonTrait;
+
     private const string PARAMETER_PATTERN = '/\{([a-zA-Z_][a-zA-Z0-9_]*)}/';
     private const string OPTIONAL_PARAMETER_PATTERN = '/\{([a-zA-Z_][a-zA-Z0-9_]*)\?}/';
     private const array CONSTRAINT_PATTERN_MAP = [
@@ -21,18 +23,22 @@ final readonly class RouteMatcher
         'uuid' => '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}',
     ];
 
+    /**
+     * @param RequestInterface $request
+     * @param RouteGroupInterface $routeGroup
+     * @return RouteMatchResult|null
+     */
     public function matchByRouteGroup(RequestInterface $request, RouteGroupInterface $routeGroup): ?RouteMatchResult
     {
-        $method = $request->getMethod()->value;
+        $method = $request->getMethod();
         $path = $this->normalizePath($request->getUri());
 
         foreach ($routeGroup->routes as $route) {
-            $matchResult = $this->matchRoute($route, $method, $path);
-            if ($matchResult !== null) {
+            $parameters = $this->matchRoute($route, $method, $path);
+            if ($parameters !== null) {
                 return new RouteMatchResult(
                     route: $route,
-                    parameters: $matchResult,
-                    middlewares: $routeGroup->middlewares
+                    parameters: $parameters,
                 );
             }
         }
@@ -47,46 +53,48 @@ final readonly class RouteMatcher
      */
     public function match(RequestInterface $request, RouteInterface $route): ?RouteMatchResult
     {
-        $method = $request->getMethod()->value;
+        $method = $request->getMethod();
         $path = $this->normalizePath($request->getUri());
 
-        $matchResult = $this->matchRoute($route, $method, $path);
-        if ($matchResult !== null) {
+        $parameters = $this->matchRoute($route, $method, $path);
+        if ($parameters !== null) {
             return new RouteMatchResult(
                 route: $route,
-                parameters: $matchResult,
-                middlewares: $route->middlewares
+                parameters: $parameters,
             );
         }
 
         return null;
     }
 
-    public function matchRoute(RouteInterface $route, string $method, string $path): ?array
+    /**
+     * @param RouteInterface $route
+     * @param HttpMethod $method
+     * @param string $path
+     * @return array<string, string>|null
+     */
+    public function matchRoute(RouteInterface $route, HttpMethod $method, string $path): ?array
     {
-        // Check if the route supports the requested HTTP method
         if (!$this->routeSupportsMethod($route, $method)) {
             return null;
         }
 
-        // Get the compiled pattern for the route
         $pattern = $this->compilePattern($route->path, $route->constraints ?? []);
-
-        // Normalize the route path for matching
         $normalizedPath = $this->normalizePath($path);
 
-        // Attempt to match the path against the pattern
         if (!preg_match($pattern, $normalizedPath, $matches)) {
             return null;
         }
-
-        // Extract parameters from the matches
         $parameters = $this->extractParametersFromMatches($matches, $route->path);
 
-        // Merge with default values
         return array_merge($route->defaults, $parameters);
     }
 
+    /**
+     * @param string $pattern
+     * @param string $path
+     * @return array
+     */
     public function extractParameters(string $pattern, string $path): array
     {
         $compiledPattern = $this->compilePattern($pattern);
@@ -99,11 +107,15 @@ final readonly class RouteMatcher
         return $this->extractParametersFromMatches($matches, $pattern);
     }
 
+    /**
+     * @param string $pattern
+     * @param array $constraints
+     * @return string
+     */
     public function compilePattern(string $pattern, array $constraints = []): string
     {
         $normalizedPattern = $this->normalizePath($pattern);
 
-        // Handle optional parameters first
         $compiledPattern = preg_replace_callback(
             self::OPTIONAL_PARAMETER_PATTERN,
             function ($matches) use ($constraints) {
@@ -115,7 +127,6 @@ final readonly class RouteMatcher
             $normalizedPattern
         );
 
-        // Handle required parameters
         $compiledPattern = preg_replace_callback(
             self::PARAMETER_PATTERN,
             function ($matches) use ($constraints) {
@@ -127,40 +138,48 @@ final readonly class RouteMatcher
             $compiledPattern
         );
 
-        // Escape special regex characters except those we want to keep
         $compiledPattern = str_replace(['(', ')'], ['\(', '\)'], $compiledPattern);
         $compiledPattern = str_replace(['\(', '\)'], ['(', ')'], $compiledPattern);
 
         return '#^' . $compiledPattern . '$#i';
     }
 
+    /**
+     * @param string $path
+     * @return string
+     */
     public function normalizePath(string $path): string
     {
-        // Remove query string if present
         $path = strtok($path, '?') ?: $path;
 
-        // Normalize slashes
         $path = '/' . trim($path, '/');
 
-        // Handle root path
         if ($path === '/') {
             return '/';
         }
 
-        // Remove trailing slash for non-root paths
         return rtrim($path, '/');
     }
 
-    private function routeSupportsMethod(RouteInterface $route, string $method): bool
+    /**
+     * @param RouteInterface $route
+     * @param HttpMethod $method
+     * @return bool
+     */
+    private function routeSupportsMethod(RouteInterface $route, HttpMethod $method): bool
     {
-        return array_any($route->methods, fn($routeMethod) => $routeMethod->value === strtoupper($method));
-
+        return in_array($method, $route->methods, true);
     }
 
+    /**
+     * @param string $paramName
+     * @param array $constraints
+     * @return string
+     */
     private function getConstraintPattern(string $paramName, array $constraints): string
     {
         if (!isset($constraints[$paramName])) {
-            return '[^/]+'; // Default pattern - match anything except slash
+            return '[^/]+';
         }
 
         $constraint = $constraints[$paramName];
@@ -175,15 +194,19 @@ final readonly class RouteMatcher
             return $constraint;
         }
 
-        return '[^/]+'; // Fallback to default
+        return '[^/]+';
     }
 
+    /**
+     * @param string[] $matches
+     * @param string $originalPattern
+     * @return array<string, string>
+     */
     private function extractParametersFromMatches(array $matches, string $originalPattern): array
     {
         $parameters = [];
-        $paramIndex = 1; // Skip the full match at index 0
+        $paramIndex = 1;
 
-        // Find all parameter names in the original pattern
         preg_match_all('/\{([a-zA-Z_][a-zA-Z0-9_]*)\??}/', $originalPattern, $paramNames);
 
         foreach ($paramNames[1] as $index => $paramName) {

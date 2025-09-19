@@ -86,6 +86,14 @@ class Route implements RouteInterface
         if (!method_exists($controller, $action)) {
             throw new InvalidArgumentException("Action $action does not exist in controller $controller");
         }
+        if (empty($methods)) {
+            throw new InvalidArgumentException('At least one method is required');
+        }
+        foreach ($methods as $method) {
+            if (!($method instanceof HttpMethod)) {
+                throw new InvalidArgumentException('Method must be an instance of HttpMethod');
+            }
+        }
 
         $this->path = trim($path, '/');
         $this->controller = $controller;

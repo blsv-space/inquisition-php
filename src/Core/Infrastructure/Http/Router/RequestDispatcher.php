@@ -1,0 +1,49 @@
+<?php
+
+namespace Inquisition\Core\Infrastructure\Http\Router;
+
+use Inquisition\Core\Infrastructure\Http\Controller\ControllerInterface;
+use Inquisition\Core\Infrastructure\Http\Request\RequestInterface;
+use Inquisition\Core\Infrastructure\Http\Response\ResponseInterface;
+use Inquisition\Core\Infrastructure\Http\Router\Exception\RouteNotFoundException;
+use Inquisition\Foundation\Singleton\SingletonInterface;
+use Inquisition\Foundation\Singleton\SingletonTrait;
+
+class RequestDispatcher implements SingletonInterface
+{
+    use SingletonTrait;
+
+    private RouterInterface $router;
+
+    private function __construct()
+    {
+        $this->router = Router::getInstance();
+    }
+
+    /**
+     * @param RequestInterface $request
+     * @return ResponseInterface
+     * @throws RouteNotFoundException
+     */
+    public function handle(RequestInterface $request): ResponseInterface
+    {
+        $routeMatchResult = $this->router->routeByRequest($request);
+
+        if ($routeMatchResult === null) {
+            throw new RouteNotFoundException($request->getMethod()->value,'No route found for request');
+        }
+
+        $route = $routeMatchResult->getRoute();
+        $controllerClass = $route->controller;
+        $actionMethod = $route->action;
+        $parameters = $routeMatchResult->getParameters();
+
+        /**
+         * @var ControllerInterface $controller
+         */
+        $controller = new $controllerClass();
+
+        return $controller->{$actionMethod}($request, $parameters);
+    }
+
+}

@@ -5,7 +5,10 @@ namespace Inquisition\Core\Infrastructure\Http\Request;
 use Inquisition\Core\Infrastructure\Http\HttpMethod;
 use JsonException;
 
-final class HttpRequest implements RequestInterface
+final class
+
+
+HttpRequest implements RequestInterface
 {
     /** @var array<string,string|string[]> */
     protected(set) array $headers {

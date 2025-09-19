@@ -61,6 +61,11 @@ final class UrlGenerator
 
     /**
      * Generate URL for a named route
+     *
+     * @param RouteInterface $route
+     * @param array $parameters
+     * @param array $options
+     * @return string
      */
     public function generate(RouteInterface $route, array $parameters = [], array $options = []): string
     {
@@ -81,6 +86,10 @@ final class UrlGenerator
 
     /**
      * Generate absolute URL
+     *
+     * @param RouteInterface $route
+     * @param array $parameters
+     * @return string
      */
     public function generateAbsolute(RouteInterface $route, array $parameters = []): string
     {
@@ -89,6 +98,10 @@ final class UrlGenerator
 
     /**
      * Generate relative URL
+     *
+     * @param RouteInterface $route
+     * @param array $parameters
+     * @return string
      */
     public function generateRelative(RouteInterface $route, array $parameters = []): string
     {
@@ -97,6 +110,10 @@ final class UrlGenerator
 
     /**
      * Build URL from route and parameters
+     *
+     * @param RouteInterface $route
+     * @param array $parameters
+     * @return string
      */
     private function buildUrl(RouteInterface $route, array $parameters = []): string
     {
@@ -149,6 +166,9 @@ final class UrlGenerator
 
     /**
      * Make URL absolute
+     *
+     * @param string $url
+     * @return string
      */
     public function makeAbsolute(string $url): string
     {
@@ -178,6 +198,9 @@ final class UrlGenerator
 
     /**
      * Make URL relative (strip scheme and host)
+     *
+     * @param string $url
+     * @return string
      */
     public function makeRelative(string $url): string
     {
@@ -195,6 +218,8 @@ final class UrlGenerator
 
     /**
      * Detect the current scheme and host from the environment
+     *
+     * @return void
      */
     private function detectCurrentSchemeAndHost(): void
     {

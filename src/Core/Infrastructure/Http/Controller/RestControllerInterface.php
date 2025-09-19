@@ -9,30 +9,50 @@ use Inquisition\Core\Infrastructure\Http\Response\ResponseInterface;
  * REST Controller Interface
  * Defines RESTful resource operations
  */
-interface RestControllerInterface extends ControllerInterface
+interface RestControllerInterface extends ApiControllerInterface
 {
     /**
      * GET /resource - List all resources
+     *
+     * @param RequestInterface $request
+     * @param array<string, string> $parameters
+     * @return ResponseInterface
      */
-    public function index(RequestInterface $request): ResponseInterface;
+    public function index(RequestInterface $request, array $parameters): ResponseInterface;
 
     /**
      * GET /resource/{id} - Show a specific resource
+     *
+     * @param RequestInterface $request
+     * @param array $parameters
+     * @return ResponseInterface
      */
-    public function show(RequestInterface $request, int $id): ResponseInterface;
+    public function show(RequestInterface $request, array $parameters): ResponseInterface;
 
     /**
      * POST /resource - Create a new resource
+     *
+     * @param RequestInterface $request
+     * @param array $parameters
+     * @return ResponseInterface
      */
-    public function store(RequestInterface $request): ResponseInterface;
+    public function store(RequestInterface $request, array $parameters): ResponseInterface;
 
     /**
      * PUT/PATCH /resource/{id} - Update existing resource
+     *
+     * @param RequestInterface $request
+     * @param array $parameters
+     * @return ResponseInterface
      */
-    public function update(RequestInterface $request, int $id): ResponseInterface;
+    public function update(RequestInterface $request, array $parameters): ResponseInterface;
 
     /**
      * DELETE /resource/{id} - Delete resource
+     *
+     * @param RequestInterface $request
+     * @param array $parameters
+     * @return ResponseInterface
      */
-    public function destroy(RequestInterface $request, int $id): ResponseInterface;
+    public function destroy(RequestInterface $request, array $parameters): ResponseInterface;
 }
