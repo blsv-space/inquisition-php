@@ -2,6 +2,7 @@
 
 namespace Inquisition\Core\Infrastructure\Http\Controller;
 
+use http\Exception\RuntimeException;
 use Inquisition\Core\Infrastructure\Http\Request\RequestInterface;
 use Inquisition\Core\Infrastructure\Http\Response\ResponseInterface;
 
@@ -29,7 +30,10 @@ abstract class AbstractRestController extends AbstractApiController
      * @param array<string, string> $parameters
      * @return ResponseInterface
      */
-    abstract public function index(RequestInterface $request, array $parameters): ResponseInterface;
+    public function index(RequestInterface $request, array $parameters): ResponseInterface
+    {
+        throw new RuntimeException('Not implemented');
+    }
 
     /**
      * GET /resource/{id} - Show a specific resource
@@ -38,7 +42,10 @@ abstract class AbstractRestController extends AbstractApiController
      * @param array $parameters
      * @return ResponseInterface
      */
-    abstract public function show(RequestInterface $request, array $parameters): ResponseInterface;
+    public function show(RequestInterface $request, array $parameters): ResponseInterface
+    {
+        throw new RuntimeException('Not implemented');
+    }
 
     /**
      * POST /resource - Create a new resource
@@ -47,7 +54,10 @@ abstract class AbstractRestController extends AbstractApiController
      * @param array $parameters
      * @return ResponseInterface
      */
-    abstract public function store(RequestInterface $request, array $parameters): ResponseInterface;
+    public function store(RequestInterface $request, array $parameters): ResponseInterface
+    {
+        throw new RuntimeException('Not implemented');
+    }
 
     /**
      * PUT/PATCH /resource/{id} - Update existing resource
@@ -56,7 +66,10 @@ abstract class AbstractRestController extends AbstractApiController
      * @param array $parameters
      * @return ResponseInterface
      */
-    abstract public function update(RequestInterface $request, array $parameters): ResponseInterface;
+    public function update(RequestInterface $request, array $parameters): ResponseInterface
+    {
+        throw new RuntimeException('Not implemented');
+    }
 
     /**
      * DELETE /resource/{id} - Delete resource
@@ -65,7 +78,10 @@ abstract class AbstractRestController extends AbstractApiController
      * @param array $parameters
      * @return ResponseInterface
      */
-    abstract public function destroy(RequestInterface $request, array $parameters): ResponseInterface;
+    public function destroy(RequestInterface $request, array $parameters): ResponseInterface
+    {
+        throw new RuntimeException('Not implemented');
+    }
 
     /**
      * Extract resource ID from parameters
