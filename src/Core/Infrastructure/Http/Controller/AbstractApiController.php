@@ -2,6 +2,7 @@
 
 namespace Inquisition\Core\Infrastructure\Http\Controller;
 
+use Inquisition\Core\Domain\Entity\EntityInterface;
 use Inquisition\Core\Infrastructure\Http\HttpStatusCode;
 use Inquisition\Core\Infrastructure\Http\Response\ResponseFactory;
 use Inquisition\Core\Infrastructure\Http\Response\ResponseInterface;
@@ -21,6 +22,19 @@ abstract readonly class AbstractApiController implements ApiControllerInterface
     public function jsonResponse(array $data, HttpStatusCode $statusCode = HttpStatusCode::OK): ResponseInterface
     {
         return ResponseFactory::json($data, $statusCode);
+    }
+
+    /**
+     * @param EntityInterface[]|EntityInterface $data
+     * @return array
+     */
+    public function normalizeResponse(array | EntityInterface $data): array
+    {
+        if (is_array($data)) {
+            return array_map(fn(EntityInterface $entity) => $entity->getAsArray(), $data);
+        }
+
+        return $data->getAsArray();
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Inquisition\Core\Infrastructure\Http\Controller;
 
+use Inquisition\Core\Domain\Entity\EntityInterface;
 use Inquisition\Core\Infrastructure\Http\HttpStatusCode;
 use Inquisition\Core\Infrastructure\Http\Response\ResponseInterface;
 
@@ -37,4 +38,12 @@ interface ApiControllerInterface extends ControllerInterface
         int $page,
         int $perPage
     ): ResponseInterface;
+
+    /**
+     *  Return normalized response data
+     *
+     * @param array|EntityInterface $data
+     * @return array
+     */
+    public function normalizeResponse(array | EntityInterface $data): array;
 }

@@ -45,10 +45,6 @@ HttpRequest implements RequestInterface
         $this->headers = $this->normaliseHeaders($headers);
     }
 
-    /* -----------------------------------------------------------------
-     |  RequestInterface
-     * -----------------------------------------------------------------*/
-
     /**
      * @return HttpMethod
      */
@@ -161,9 +157,6 @@ HttpRequest implements RequestInterface
         return $this->clientIp;
     }
 
-    /* -----------------------------------------------------------------
-     |  Helpers
-     * -----------------------------------------------------------------*/
 
     /**
      * Build a request object from PHP super-globals.
@@ -215,6 +208,7 @@ HttpRequest implements RequestInterface
         if (function_exists('getallheaders')) {
             /** @var array<string,string> $headers */
             $headers = getallheaders();
+
             return $headers;
         }
 
