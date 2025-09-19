@@ -28,7 +28,7 @@ abstract readonly class AbstractApiController implements ApiControllerInterface
      * @param EntityInterface[]|EntityInterface $data
      * @return array
      */
-    public function normalizeResponse(array | EntityInterface $data): array
+    public function normalizeData(array | EntityInterface $data): array
     {
         if (is_array($data)) {
             return array_map(fn(EntityInterface $entity) => $entity->getAsArray(), $data);

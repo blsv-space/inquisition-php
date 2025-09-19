@@ -45,5 +45,5 @@ interface ApiControllerInterface extends ControllerInterface
      * @param array|EntityInterface $data
      * @return array
      */
-    public function normalizeResponse(array | EntityInterface $data): array;
+    public function normalizeData(array | EntityInterface $data): array;
 }
