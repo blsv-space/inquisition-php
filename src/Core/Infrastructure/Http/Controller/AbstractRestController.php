@@ -2,7 +2,7 @@
 
 namespace Inquisition\Core\Infrastructure\Http\Controller;
 
-use http\Exception\RuntimeException;
+use RuntimeException;
 use Inquisition\Core\Infrastructure\Http\Request\RequestInterface;
 use Inquisition\Core\Infrastructure\Http\Response\ResponseInterface;
 
@@ -10,7 +10,7 @@ use Inquisition\Core\Infrastructure\Http\Response\ResponseInterface;
  * Abstract REST Controller
  * Base implementation for RESTful API controllers
  */
-abstract class AbstractRestController extends AbstractApiController
+abstract readonly class AbstractRestController extends AbstractApiController
     implements RestControllerInterface
 {
 

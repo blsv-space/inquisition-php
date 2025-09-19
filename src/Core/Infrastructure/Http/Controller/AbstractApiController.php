@@ -11,7 +11,7 @@ use JsonException;
  * Abstract API Controller
  * Base implementation for API controllers with JSON responses
  */
-abstract class AbstractApiController implements ApiControllerInterface
+abstract readonly class AbstractApiController implements ApiControllerInterface
 {
     /**
      * Return JSON success response
