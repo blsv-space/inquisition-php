@@ -11,6 +11,12 @@ use Inquisition\Core\Infrastructure\Http\Response\ResponseInterface;
  */
 interface RestControllerInterface extends ApiControllerInterface
 {
+    public const string ACTION_INDEX = 'index';
+    public const string ACTION_SHOW  = 'show';
+    public const string ACTION_STORE = 'store';
+    public const string ACTION_UPDATE = 'update';
+    public const string ACTION_DESTROY = 'destroy';
+
     /**
      * GET /resource - List all resources
      *
