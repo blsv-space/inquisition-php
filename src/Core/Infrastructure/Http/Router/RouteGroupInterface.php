@@ -10,6 +10,10 @@ use Inquisition\Core\Infrastructure\Http\HttpMethod;
  */
 interface RouteGroupInterface
 {
+    protected(set) string $name {
+        get;
+    }
+
     /**
      * Set the group prefix
      */
@@ -44,7 +48,7 @@ interface RouteGroupInterface
      * @param string $path
      * @param class-string $controller
      * @param string $action
-     * @param array $methods
+     * @param HttpMethod[] $methods
      * @param string|null $name
      * @return RouteInterface
      */
@@ -52,7 +56,7 @@ interface RouteGroupInterface
         string $path,
         string $controller,
         string $action,
-        array $methods = [HttpMethod::GET],
+        array $methods,
         ?string $name = null
     ): RouteInterface;
 

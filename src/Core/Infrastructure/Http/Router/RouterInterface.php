@@ -64,6 +64,16 @@ interface RouterInterface extends SingletonInterface
      */
     public function group(string $name): RouteGroupInterface;
 
+    /**
+     * @param RouteGroupInterface $routeGroup
+     * @return void
+     */
+    public function groupRegistry(RouteGroupInterface $routeGroup): void;
+
+    /**
+     * @param string $name
+     * @return RouteGroupInterface|null
+     */
     public function getGroup(string $name): ?RouteGroupInterface;
 
 }

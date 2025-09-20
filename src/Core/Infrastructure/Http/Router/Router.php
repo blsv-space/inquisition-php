@@ -157,9 +157,16 @@ final class Router implements RouterInterface
      */
     public function group(string $name): RouteGroupInterface
     {
-        $this->routeGroups[$name] = new RouteGroup();
+        return new RouteGroup($name);
+    }
 
-        return new RouteGroup();
+    /**
+     * @param RouteGroupInterface $routeGroup
+     * @return void
+     */
+    public function groupRegistry(RouteGroupInterface $routeGroup): void
+    {
+        $this->routeGroups[$routeGroup->name] = $routeGroup;
     }
 
     /**
