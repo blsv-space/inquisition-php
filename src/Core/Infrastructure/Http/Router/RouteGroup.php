@@ -217,7 +217,7 @@ class RouteGroup implements RouteGroupInterface
             controller: $controller,
             action: $action,
             methods: [HttpMethod::GET],
-            name: $name
+            name: $name ?? $this->buildRouteName($action),
         );
     }
 
@@ -237,7 +237,7 @@ class RouteGroup implements RouteGroupInterface
             controller: $controller,
             action: $action,
             methods: [HttpMethod::POST],
-            name: $name
+            name: $name ?? $this->buildRouteName($action),
         );
     }
 
@@ -257,7 +257,7 @@ class RouteGroup implements RouteGroupInterface
             controller: $controller,
             action: $action,
             methods: [HttpMethod::PUT],
-            name: $name
+            name: $name ?? $this->buildRouteName($action),
         );
     }
 
@@ -277,7 +277,7 @@ class RouteGroup implements RouteGroupInterface
             controller: $controller,
             action: $action,
             methods: [HttpMethod::DELETE],
-            name: $name
+            name: $name ?? $this->buildRouteName($action),
         );
     }
 
@@ -297,7 +297,7 @@ class RouteGroup implements RouteGroupInterface
             controller: $controller,
             action: $action,
             methods: [HttpMethod::PATCH],
-            name: $name
+            name: $name ?? $this->buildRouteName($action),
         );
     }
 
@@ -323,7 +323,7 @@ class RouteGroup implements RouteGroupInterface
                 HttpMethod::DELETE,
                 HttpMethod::PATCH,
             ],
-            name: $name
+            name: $name ?? $this->buildRouteName($action),
         );
     }
 
@@ -344,8 +344,17 @@ class RouteGroup implements RouteGroupInterface
             controller: $controller,
             action: $action,
             methods: $methods,
-            name: $name
+            name: $name ?? $this->buildRouteName($action),
         );
+    }
+
+    /**
+     * @param string $action
+     * @return string
+     */
+    private function buildRouteName(string $action): string
+    {
+        return $this->name . '->' . $action;
     }
 
     /**

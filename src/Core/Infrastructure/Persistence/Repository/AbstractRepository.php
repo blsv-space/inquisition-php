@@ -17,10 +17,10 @@ use Throwable;
  */
 abstract class AbstractRepository implements RepositoryInterface
 {
-    protected const string DATABASE_NAME     = 'default';
+    protected const string DATABASE_NAME = 'default';
     protected const string ENTITY_CLASS_NAME = '';
     protected const string TABLE_NAME_PREFIX = '';
-    protected const string TABLE_NAME        = '';
+    protected const string TABLE_NAME = '';
 
     public readonly DatabaseConnectionInterface $connection;
 
@@ -97,7 +97,8 @@ abstract class AbstractRepository implements RepositoryInterface
         ?array $orderBy = null,
         ?int   $limit = null,
         ?int   $offset = null,
-    ): array {
+    ): array
+    {
         $whereClause = $this->buildWhereClause($criteria);
         $orderByClause = $this->buildOrderByClause($orderBy);
         $limitClause = $this->buildLimitClause($limit, $offset);
@@ -196,7 +197,7 @@ abstract class AbstractRepository implements RepositoryInterface
 
         $stmt->execute($whereClause['parameters']);
 
-        return (int) $stmt->fetchColumn();
+        return (int)$stmt->fetchColumn();
     }
 
     /**
@@ -270,14 +271,14 @@ abstract class AbstractRepository implements RepositoryInterface
         $parameters = [];
 
         foreach ($criteria as $field => $value) {
-            if (is_array($value)) {
-                $placeholders = str_repeat('?,', count($value) - 1) . '?';
-                $conditions[] = "`$field` IN ({$placeholders})";
-                $parameters = array_merge($parameters, $value);
-            } else {
-                $conditions[] = "`$field` = ?";
-                $parameters[] = $value;
+            if ($value instanceof QueryCriteria) {
+                $conditions[] = $value->compile();
+                $parameters = array_merge($parameters, $value->getParameters());
+                continue;
             }
+
+            $conditions[] = "`$field` = :$field";
+            $parameters[":$field"] = $value;
         }
 
         return [
