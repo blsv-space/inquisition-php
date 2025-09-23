@@ -3,6 +3,7 @@
 namespace Inquisition\Core\Infrastructure\Persistence\Repository;
 
 use Inquisition\Core\Domain\Entity\EntityInterface;
+use Inquisition\Core\Domain\Entity\EntityWithIdInterface;
 use Inquisition\Core\Domain\Repository\RepositoryInterface;
 use Inquisition\Core\Domain\ValueObject\ValueObjectInterface;
 use Inquisition\Core\Infrastructure\Persistence\DatabaseConnectionInterface;
@@ -70,17 +71,24 @@ abstract class AbstractRepository implements RepositoryInterface
     }
 
     /**
-     * Find entity by ID
+     * @param ValueObjectInterface $id
+     * @return EntityWithIdInterface|null
+     * @throws PersistenceException
      */
-    public function findById(ValueObjectInterface $id): ?EntityInterface
+    public function findById(ValueObjectInterface $id): ?EntityWithIdInterface
     {
-        return $this->findOneBy(['id' => $id->toRaw()]);
+        return $this->findOneBy([
+            new QueryCriteria(
+                field: 'id',
+                operator: QueryOperatorEnum::EQUALS,
+                value: $id,
+            )
+        ]);
     }
 
     /**
-     * Find all entities
-     *
      * @return EntityInterface[]
+     * @throws PersistenceException
      */
     public function findAll(): array
     {
@@ -88,9 +96,12 @@ abstract class AbstractRepository implements RepositoryInterface
     }
 
     /**
-     * Find entities by criteria
-     *
+     * @param QueryCriteria[] $criteria
+     * @param array|null $orderBy
+     * @param int|null $limit
+     * @param int|null $offset
      * @return EntityInterface[]
+     * @throws PersistenceException
      */
     public function findBy(
         array  $criteria = [],
@@ -126,8 +137,12 @@ abstract class AbstractRepository implements RepositoryInterface
 
     /**
      * Find one entity by criteria
+     *
+     * @param array $criteria
+     * @return EntityInterface|EntityWithIdInterface|null
+     * @throws PersistenceException
      */
-    public function findOneBy(array $criteria = []): ?EntityInterface
+    public function findOneBy(array $criteria = []): EntityInterface | EntityWithIdInterface | null
     {
         return $this->findBy($criteria, null, 1)[0] ?? null;
     }
@@ -135,56 +150,46 @@ abstract class AbstractRepository implements RepositoryInterface
     /**
      * Save entity (insert or update)
      *
-     * @throws Throwable
+     * @param EntityWithIdInterface $entity
+     * @return void
+     * @throws PersistenceException
      */
-    public function save(EntityInterface $entity): void
+    public function save(EntityWithIdInterface $entity): void
     {
-        $rawData = $this->mapEntityToRow($entity);
         $exists = $this->count(['id' => $entity->id->toRaw()]) !== 0;
 
         if ($exists) {
-            $stmt = $this->connection->connect()->prepare('
-                UPDATE ' . static::getTableName() . '
-                SET ' . implode(', ', array_map(fn($field) => "`$field` = :$field", array_keys($rawData))) . '
-                WHERE id = :id;
-            ');
-            $stmt->execute($rawData);
+            $this->updateById($entity);
 
             return;
         }
 
-        $stmt = $this->connection->connect()->prepare('
-                INSERT INTO `' . static::getTableName() . '` 
-                (`' . implode('`, `', array_keys($rawData)) . '`)
-                VALUES (' . implode(', ', array_fill(0, count($rawData), '?')) . ');
-            ');
-        $stmt->execute(array_values($rawData));
+        $this->insert($entity);
     }
 
     /**
      * Delete entity
+     *
+     * @param EntityWithIdInterface $entity
+     * @return bool
      */
-    public function remove(EntityInterface $entity): bool
-    {
-        return $this->removeById($entity->id);
-    }
-
-    /**
-     * Delete entity by ID
-     */
-    public function removeById(ValueObjectInterface $id): bool
+    public function removeById(EntityWithIdInterface $entity): bool
     {
         $stmt = $this->connection->connect()->prepare('
             DELETE FROM `' . static::getTableName() . '`
             WHERE `id` = :id;
         ');
-        $execute = $stmt->execute(['id' => $id->toRaw()]);
+        $execute = $stmt->execute(['id' => $entity->id->toRaw()]);
 
         return $stmt->rowCount() > 0 && $execute;
     }
 
     /**
      * Count entities
+     *
+     * @param QueryCriteria[] $criteria
+     * @return int
+     * @throws PersistenceException
      */
     public function count(array $criteria = []): int
     {
@@ -202,14 +207,68 @@ abstract class AbstractRepository implements RepositoryInterface
 
     /**
      * Check if entity exists
+     *
+     * @param ValueObjectInterface $id
+     * @return bool
+     * @throws PersistenceException
      */
     public function exists(ValueObjectInterface $id): bool
     {
-        return $this->count(['id' => $id->toRaw()]) === 1;
+        return $this->count([
+                new QueryCriteria(
+                    field: 'id',
+                    operator: QueryOperatorEnum::EQUALS,
+                    value: $id->toRaw())
+            ]) === 1;
+    }
+
+    /**
+     * @param EntityWithIdInterface $entity
+     * @return void
+     * @throws PersistenceException
+     */
+    public function updateById(EntityWithIdInterface $entity): void
+    {
+        $rawData = $this->mapEntityToRow($entity);
+
+        $stmt = $this->connection->connect()->prepare('
+                UPDATE ' . static::getTableName() . '
+                SET ' . implode(', ', array_map(fn($field) => "`$field` = :$field", array_keys($rawData))) . '
+                WHERE id = :id;
+            ');
+
+        $stmt->execute($rawData);
+
+        if(!$stmt->rowCount()) {
+            throw new PersistenceException("Failed to update");
+        }
+    }
+
+    /**
+     * @param EntityInterface $entity
+     * @return void
+     * @throws PersistenceException
+     */
+    public function insert(EntityInterface $entity): void
+    {
+        $rawData = $this->mapEntityToRow($entity);
+
+        $stmt = $this->connection->connect()->prepare('
+                INSERT INTO `' . static::getTableName() . '` 
+                (`' . implode('`, `', array_keys($rawData)) . '`)
+                VALUES (' . implode(', ', array_fill(0, count($rawData), '?')) . ');
+            ');
+        $stmt->execute(array_values($rawData));
+
+        if (!$stmt->rowCount()) {
+            throw new PersistenceException("Failed to insert");
+        }
     }
 
     /**
      * Begin database transaction
+     *
+     * @return void
      */
     protected function beginTransaction(): void
     {
@@ -218,6 +277,8 @@ abstract class AbstractRepository implements RepositoryInterface
 
     /**
      * Commit database transaction
+     *
+     * @return void
      */
     protected function commit(): void
     {
@@ -226,6 +287,8 @@ abstract class AbstractRepository implements RepositoryInterface
 
     /**
      * Rollback database transaction
+     *
+     * @return void
      */
     protected function rollback(): void
     {
@@ -254,31 +317,40 @@ abstract class AbstractRepository implements RepositoryInterface
 
     /**
      * Map database row to entity
+     *
+     * @param array $row
+     * @return EntityInterface
      */
     abstract protected function mapRowToEntity(array $row): EntityInterface;
 
     /**
      * Map entity to database row
+     *
+     * @param EntityInterface $entity
+     * @return array
      */
     abstract protected function mapEntityToRow(EntityInterface $entity): array;
 
     /**
      * Build WHERE clause from criteria
+     *
+     * @param array $criteria
+     *
+     * @return array
+     * @throws PersistenceException
      */
     protected function buildWhereClause(array $criteria): array
     {
         $conditions = [];
         $parameters = [];
 
-        foreach ($criteria as $field => $value) {
-            if ($value instanceof QueryCriteria) {
-                $conditions[] = $value->compile();
-                $parameters = array_merge($parameters, $value->getParameters());
-                continue;
+        foreach ($criteria as $criterion) {
+            if (!$criterion instanceof QueryCriteria) {
+                throw new PersistenceException('Criteria must implement QueryCriteria');
             }
 
-            $conditions[] = "`$field` = :$field";
-            $parameters[":$field"] = $value;
+            $conditions[] = $criterion->compile();
+            $parameters = array_merge($parameters, $criterion->getParameters());
         }
 
         return [
@@ -289,6 +361,9 @@ abstract class AbstractRepository implements RepositoryInterface
 
     /**
      * Build ORDER BY clause
+     *
+     * @param array|null $orderBy
+     * @return string
      */
     protected function buildOrderByClause(?array $orderBy): string
     {
@@ -307,6 +382,10 @@ abstract class AbstractRepository implements RepositoryInterface
 
     /**
      * Build LIMIT and OFFSET clause
+     *
+     * @param int|null $limit
+     * @param int|null $offset
+     * @return string
      */
     protected function buildLimitClause(?int $limit, ?int $offset): string
     {

@@ -2,44 +2,50 @@
 
 namespace Inquisition\Core\Infrastructure\Persistence\Repository;
 
+use Inquisition\Core\Domain\ValueObject\ValueObjectInterface;
 use InvalidArgumentException;
 
 final readonly class QueryCriteria
 {
-    public string $alias;
+    private string $paramName;
 
+    /**
+     * @param string|ValueObjectInterface $field
+     * @param QueryOperatorEnum $operator
+     * @param mixed $value
+     */
     public function __construct(
-        public string            $field,
-        public QueryOperatorEnum $operator,
-        public mixed             $value,
-        ?string                  $alias = null,
+        public string|ValueObjectInterface $field,
+        public QueryOperatorEnum           $operator,
+        public mixed                       $value
     )
     {
-        $this->alias = $alias ?? $this->field;
-
         $this->validate();
+
+        $this->paramName = str_replace(['.'], '_', $this->field);
     }
 
-    private function validate()
+    /**
+     * @return void
+     */
+    private function validate(): void
     {
-        if (empty($this->field)) {
+        $field = $this->field instanceof ValueObjectInterface ? $this->field->toRaw() : $this->field;
+
+        if (empty($field)) {
             throw new InvalidArgumentException('Field cannot be empty');
         }
 
-        if (str_contains($this->field, '.')) {
-            throw new InvalidArgumentException('Field cannot contain dots');
+        if (str_contains($this->field, '`')
+            || str_contains($this->field, '(')
+            || str_contains($this->field, ')')
+            || str_contains($this->field, ':')
+            || str_contains($this->field, ';')
+            || str_contains($this->field, '"')
+            || str_contains($this->field, "'")
+        ) {
+            throw new InvalidArgumentException('Field cannot contain special characters');
         }
-
-        if ($this->field !== $this->alias) {
-            if (empty($this->alias)) {
-                throw new InvalidArgumentException('Alias cannot be empty');
-            }
-
-            if (str_contains($this->alias, ' ')) {
-                throw new InvalidArgumentException('Field or Alias cannot contain spaces');
-            }
-        }
-
 
         switch ($this->operator) {
             case QueryOperatorEnum::IN:
@@ -56,34 +62,46 @@ final readonly class QueryCriteria
                     throw new InvalidArgumentException('Value must be numeric');
                 }
                 break;
+            case QueryOperatorEnum::EQUALS:
+            case QueryOperatorEnum::NOT_EQUALS:
+            case QueryOperatorEnum::LIKE:
+            case QueryOperatorEnum::NOT_LIKE:
+                break;
         }
     }
 
+    /**
+     * @return string
+     */
     public function compile(): string
     {
+        $paramName = $this->getParamName();
+
         switch ($this->operator) {
             case QueryOperatorEnum::EQUALS:
-                return "`$this->alias` = :$this->alias";
+                return "`$this->field` = :$paramName";
             case QueryOperatorEnum::NOT_EQUALS:
-                return "`$this->alias` != :$this->alias";
+                return "`$this->field` != :$paramName";
             case QueryOperatorEnum::LESS_THAN:
-                return "`$this->alias` < :$this->alias";
+                return "`$this->field` < :$paramName";
             case QueryOperatorEnum::LESS_THAN_OR_EQUALS:
-                return "`$this->alias` <= :$this->alias";
+                return "`$this->field` <= :$paramName";
             case QueryOperatorEnum::GREATER_THAN:
-                return "`$this->alias` > :$this->alias";
+                return "`$this->field` > :$paramName";
             case QueryOperatorEnum::GREATER_THAN_OR_EQUALS:
-                return "`$this->alias` >= :$this->alias";
+                return "`$this->field` >= :$paramName";
             case QueryOperatorEnum::LIKE:
-                return "`$this->alias` LIKE :$this->alias";
+                return "`$this->field` LIKE :$paramName";
             case QueryOperatorEnum::NOT_LIKE:
-                return "`$this->alias` NOT LIKE :$this->alias";
+                return "`$this->field` NOT LIKE :$paramName";
             case QueryOperatorEnum::IN:
                 $paramNames = array_keys($this->getParameters());
-                return "`$this->alias` IN (:" . implode(', :', $paramNames) . ")";
+
+                return "`$this->field` IN (:" . implode(', :', $paramNames) . ")";
             case QueryOperatorEnum::NOT_IN:
                 $paramNames = array_keys($this->getParameters());
-                return "`$this->alias` NOT IN (:" . implode(', :', $paramNames) . ")";
+
+                return "`$this->field` NOT IN (:" . implode(', :', $paramNames) . ")";
 
             default:
                 throw new InvalidArgumentException('Invalid operator');
@@ -112,8 +130,11 @@ final readonly class QueryCriteria
         ];
     }
 
+    /**
+     * @return string
+     */
     private function getParamName(): string
     {
-        return $this->alias;
+        return $this->paramName;
     }
 }
