@@ -6,6 +6,7 @@ use Inquisition\Core\Domain\Entity\EntityInterface;
 use Inquisition\Core\Domain\Entity\EntityWithIdInterface;
 use Inquisition\Core\Domain\ValueObject\ValueObjectInterface;
 use Inquisition\Core\Infrastructure\Persistence\DatabaseConnectionInterface;
+use Inquisition\Core\Infrastructure\Persistence\Repository\QueryCriteria;
 use Inquisition\Foundation\Singleton\SingletonInterface;
 
 /**
@@ -53,6 +54,12 @@ interface RepositoryInterface extends SingletonInterface
      * @return bool
      */
     public function removeById(EntityWithIdInterface $entity): bool;
+
+    /**
+     * @param QueryCriteria[] $criteria
+     * @return int
+     */
+    public function removeBy(array $criteria): int;
 
     /**
      * Check if an entity exists by ID

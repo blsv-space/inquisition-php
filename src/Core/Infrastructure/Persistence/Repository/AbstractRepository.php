@@ -184,6 +184,24 @@ abstract class AbstractRepository implements RepositoryInterface
     }
 
     /**
+     * @param QueryCriteria[] $criteria
+     * @return int
+     * @throws PersistenceException
+     */
+    public function removeBy(array $criteria): int
+    {
+        $whereClause = $this->buildWhereClause($criteria);
+
+        $stmt = $this->connection->connect()->prepare('
+            DELETE FROM `' . static::getTableName() . '`
+             WHERE ' . $whereClause['conditions']
+        );
+        $stmt->execute($whereClause['parameters']);
+
+        return $stmt->rowCount();
+    }
+
+    /**
      * Count entities
      *
      * @param QueryCriteria[] $criteria
