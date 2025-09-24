@@ -16,8 +16,8 @@ final readonly class QueryCriteria
      */
     public function __construct(
         public string|ValueObjectInterface $field,
-        public QueryOperatorEnum           $operator,
-        public mixed                       $value
+        public mixed                       $value,
+        public QueryOperatorEnum           $operator = QueryOperatorEnum::EQUALS,
     )
     {
         $this->validate();

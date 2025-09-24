@@ -80,7 +80,6 @@ abstract class AbstractRepository implements RepositoryInterface
         return $this->findOneBy([
             new QueryCriteria(
                 field: 'id',
-                operator: QueryOperatorEnum::EQUALS,
                 value: $id,
             )
         ]);
@@ -217,7 +216,6 @@ abstract class AbstractRepository implements RepositoryInterface
         return $this->count([
                 new QueryCriteria(
                     field: 'id',
-                    operator: QueryOperatorEnum::EQUALS,
                     value: $id->toRaw())
             ]) === 1;
     }
