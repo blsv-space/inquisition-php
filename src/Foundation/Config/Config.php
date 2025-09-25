@@ -12,6 +12,7 @@ final class Config implements ConfigInterface
 
     /**
      * @param array $config
+     *
      * @return void
      */
     public function load(array $config): void
@@ -21,11 +22,18 @@ final class Config implements ConfigInterface
 
     /**
      * @param array $config
+     * @param bool|null $override
+     *
      * @return void
      */
-    public function merge(array $config): void
+    public function merge(array $config, ?bool $override = false): void
     {
-        $this->config = array_merge_recursive($this->config, $config);
+        if ($override) {
+            $this->config = array_merge_recursive($this->config, $config);
+
+            return;
+        }
+        $this->config = array_merge_recursive($config, $this->config);
     }
 
     /**
@@ -38,7 +46,9 @@ final class Config implements ConfigInterface
         $envConfig = [];
 
         foreach ($_ENV as $key => $value) {
-            if ($prefix && !str_starts_with($key, $prefix)) {
+            if (($prefix && !str_starts_with($key, $prefix))
+                || empty($value)
+            ) {
                 continue;
             }
 

@@ -160,6 +160,8 @@ HttpRequest implements RequestInterface
 
     /**
      * Build a request object from PHP super-globals.
+     *
+     * @return self
      */
     public static function createFromGlobals(): self
     {

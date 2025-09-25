@@ -30,4 +30,13 @@ abstract class BaseEntity implements EntityInterface
         return static::class;
     }
 
+    /**
+     * @param EntityInterface $other
+     * @return bool
+     */
+    public function equals(EntityInterface $other): bool
+    {
+        return json_encode($this->getAsArray()) === json_encode($other->getAsArray());
+    }
+
 }
