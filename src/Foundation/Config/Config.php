@@ -20,6 +20,15 @@ final class Config implements ConfigInterface
     }
 
     /**
+     * @param array $config
+     * @return void
+     */
+    public function merge(array $config): void
+    {
+        $this->config = array_merge_recursive($this->config, $config);
+    }
+
+    /**
      * @param string $prefix
      * @param bool $merge
      * @return void
