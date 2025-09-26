@@ -194,7 +194,7 @@ HttpRequest implements RequestInterface
     {
         $normalised = [];
         foreach ($headers as $key => $value) {
-            $normalised[strtolower($key)] = $value;
+            $normalised[strtolower($key)] = trim($value);
         }
 
         return $normalised;
