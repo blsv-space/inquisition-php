@@ -10,14 +10,14 @@ final readonly class QueryCriteria
     private string $paramName;
 
     /**
-     * @param string|ValueObjectInterface $field
+     * @param string $field
      * @param QueryOperatorEnum $operator
-     * @param mixed $value
+     * @param mixed|ValueObjectInterface $value
      */
     public function __construct(
-        public string|ValueObjectInterface $field,
-        public mixed                       $value,
-        public QueryOperatorEnum           $operator = QueryOperatorEnum::EQUALS,
+        public string            $field,
+        public mixed             $value,
+        public QueryOperatorEnum $operator = QueryOperatorEnum::EQUALS,
     )
     {
         $this->validate();
@@ -30,9 +30,7 @@ final readonly class QueryCriteria
      */
     private function validate(): void
     {
-        $field = $this->field instanceof ValueObjectInterface ? $this->field->toRaw() : $this->field;
-
-        if (empty($field)) {
+        if (empty($this->field)) {
             throw new InvalidArgumentException('Field cannot be empty');
         }
 
@@ -119,14 +117,22 @@ final readonly class QueryCriteria
             $values = array_values($this->value);
             $parameters = [];
             for ($i = 0; $i < count($values); $i++) {
-                $parameters[$paramName . '_' . $i] = (string)$values[$i];
+                $value = $values[$i] instanceof ValueObjectInterface
+                    ? $values[$i]->toRaw()
+                    : $values[$i];
+
+                $parameters[$paramName . '_' . $i] = (string)$value;
             }
 
             return $parameters;
         }
 
+        $value = $this->value instanceof ValueObjectInterface
+            ? $this->value->toRaw()
+            : $this->value;
+
         return [
-            $paramName => (string)$this->value,
+            $paramName => (string)$value,
         ];
     }
 
