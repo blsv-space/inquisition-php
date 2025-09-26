@@ -7,10 +7,10 @@ use JsonException;
 
 class HttpResponse implements ResponseInterface
 {
-    private HttpStatusCode $statusCode = HttpStatusCode::OK;
-    private string         $content    = '';
-    private array          $headers    = [];
-    private bool           $sent       = false {
+    protected HttpStatusCode $statusCode = HttpStatusCode::OK;
+    protected string         $content    = '';
+    protected array          $headers    = [];
+    protected bool           $sent       = false {
         get {
             return $this->sent;
         }
