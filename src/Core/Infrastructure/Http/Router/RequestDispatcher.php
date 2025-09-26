@@ -14,7 +14,7 @@ class RequestDispatcher implements SingletonInterface
     use SingletonTrait;
 
     private RouterInterface $router;
-    private ?RequestInterface $request = null {
+    private(set) ?RequestInterface $request = null {
         get {
             return $this->request;
         }
@@ -36,7 +36,7 @@ class RequestDispatcher implements SingletonInterface
         $routeMatchResult = $this->router->routeByRequest($request);
 
         if ($routeMatchResult === null) {
-            throw new RouteNotFoundException($request->getMethod()->value,'No route found for request');
+            throw new RouteNotFoundException($request->getMethod()->value, 'No route found for request');
         }
 
         $route = $routeMatchResult->getRoute();
