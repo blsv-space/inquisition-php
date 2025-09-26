@@ -5,7 +5,7 @@ namespace Inquisition\Core\Infrastructure\Http\Response;
 use Inquisition\Core\Infrastructure\Http\HttpStatusCode;
 use JsonException;
 
-final class HttpResponse implements ResponseInterface
+class HttpResponse implements ResponseInterface
 {
     private HttpStatusCode $statusCode = HttpStatusCode::OK;
     private string         $content    = '';
