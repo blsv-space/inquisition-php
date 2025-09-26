@@ -14,6 +14,11 @@ class RequestDispatcher implements SingletonInterface
     use SingletonTrait;
 
     private RouterInterface $router;
+    private ?RequestInterface $request = null {
+        get {
+            return $this->request;
+        }
+    }
 
     private function __construct()
     {
@@ -27,6 +32,7 @@ class RequestDispatcher implements SingletonInterface
      */
     public function handle(RequestInterface $request): ResponseInterface
     {
+        $this->request = $request;
         $routeMatchResult = $this->router->routeByRequest($request);
 
         if ($routeMatchResult === null) {
