@@ -40,16 +40,56 @@ class RequestDispatcher implements SingletonInterface
         }
 
         $route = $routeMatchResult->getRoute();
-        $controllerClass = $route->controller;
-        $actionMethod = $route->action;
-        $parameters = $routeMatchResult->getParameters();
 
-        /**
-         * @var ControllerInterface $controller
-         */
-        $controller = new $controllerClass();
+        $pipeline = $this->buildMiddlewarePipeline(
+            $route->middlewares,
+            $this->createControllerHandler($route, $routeMatchResult->getParameters())
+        );
 
-        return $controller->{$actionMethod}($request, $parameters);
+        return $pipeline($request);
+    }
+
+    /**
+     * Build a middleware pipeline that chains all middleware together
+     *
+     * @param array $middlewares
+     * @param callable $finalHandler
+     * @return callable
+     */
+    private function buildMiddlewarePipeline(array $middlewares, callable $finalHandler): callable
+    {
+        $pipeline = $finalHandler;
+
+        foreach (array_reverse($middlewares) as $middleware) {
+            $currentPipeline = $pipeline;
+            $pipeline = function (RequestInterface $request) use ($middleware, $currentPipeline): ResponseInterface {
+                return $middleware->process($request, $currentPipeline);
+            };
+        }
+
+        return $pipeline;
+    }
+
+    /**
+     * Create the final handler that calls the controller
+     *
+     * @param RouteInterface $route
+     * @param array $parameters
+     * @return callable
+     */
+    private function createControllerHandler(RouteInterface $route, array $parameters): callable
+    {
+        return function (RequestInterface $request) use ($route, $parameters): ResponseInterface {
+            $controllerClass = $route->controller;
+            $actionMethod = $route->action;
+
+            /**
+             * @var ControllerInterface $controller
+             */
+            $controller = new $controllerClass();
+
+            return $controller->{$actionMethod}($request, $parameters);
+        };
     }
 
 }

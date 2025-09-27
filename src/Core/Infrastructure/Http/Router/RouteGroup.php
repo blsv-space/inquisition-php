@@ -123,10 +123,10 @@ class RouteGroup implements RouteGroupInterface
     /**
      * Add middleware to the group
      *
-     * @param string|array $middleware
+     * @param MiddlewareInterface|MiddlewareInterface[] $middleware
      * @return $this
      */
-    public function middleware(string|array $middleware): self
+    public function middleware(MiddlewareInterface|array $middleware): self
     {
         $this->middlewares = $middleware;
 
@@ -397,12 +397,12 @@ class RouteGroup implements RouteGroupInterface
     /**
      * Check if a group has middleware
      *
-     * @param string $middleware
+     * @param MiddlewareInterface $middleware
      * @return bool
      */
-    public function hasMiddleware(string $middleware): bool
+    public function hasMiddleware(MiddlewareInterface $middleware): bool
     {
-        return in_array($middleware, $this->middlewares, true);
+        return array_any($this->middlewares, fn (MiddlewareInterface $m) => $m::class === $middleware::class);
     }
 
     /**

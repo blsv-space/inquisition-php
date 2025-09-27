@@ -69,8 +69,11 @@ interface RouteInterface
 
     /**
      * Add middleware to the route (fluent interface)
+     *
+     * @param MiddlewareInterface|MiddlewareInterface[] $middleware
+     * @return self
      */
-    public function middleware(string|array $middleware): self;
+    public function middleware(MiddlewareInterface|array $middleware): self;
 
     /**
      * Check if the route matches the given method and path

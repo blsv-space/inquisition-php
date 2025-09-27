@@ -3,6 +3,7 @@
 namespace Inquisition\Core\Infrastructure\Http\Router;
 
 use Inquisition\Core\Infrastructure\Http\HttpMethod;
+use Inquisition\Core\Infrastructure\Http\Middleware\MiddlewareInterface;
 
 /**
  * Route Group Interface
@@ -21,11 +22,11 @@ interface RouteGroupInterface
 
     /**
      * Add middleware to the group
-     * @param string|array $middleware
+     * @param MiddlewareInterface|MiddlewareInterface[] $middleware
      *
      * @return self
      */
-    public function middleware(string|array $middleware): self;
+    public function middleware(MiddlewareInterface|array $middleware): self;
 
     /**
      * Set the group name prefix
@@ -104,6 +105,9 @@ interface RouteGroupInterface
         get;
     }
 
+    /**
+     * @var MiddlewareInterface[]
+     */
     public array $middlewares {
         get;
     }
@@ -127,11 +131,17 @@ interface RouteGroupInterface
 
     /**
      * Check if a group has middleware
+     *
+     * @param MiddlewareInterface $middleware
+     * @return bool
      */
-    public function hasMiddleware(string $middleware): bool;
+    public function hasMiddleware(MiddlewareInterface $middleware): bool;
 
     /**
      * Merge with a parent group
+     *
+     * @param RouteGroupInterface $parentGroup
+     * @return RouteGroupInterface
      */
     public function mergeWith(RouteGroupInterface $parentGroup): RouteGroupInterface;
 
