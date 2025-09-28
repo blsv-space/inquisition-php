@@ -2,7 +2,7 @@
 
 namespace Inquisition\Core\Infrastructure\Http\Router;
 
-interface RouterRegistry
+interface RouterRegistryInterface
 {
     public static function register(): void;
 }
