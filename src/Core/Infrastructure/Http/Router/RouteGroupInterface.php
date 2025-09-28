@@ -64,37 +64,37 @@ interface RouteGroupInterface
     /**
      * Create a GET route within this group
      */
-    public function get(string $path, string $controller, string $action, ?string $name = null): RouteInterface;
+    public function get(string $path, string $controller, string $action, ?string $name = null): self;
 
     /**
      * Create a POST route within this group
      */
-    public function post(string $path, string $controller, string $action, ?string $name = null): RouteInterface;
+    public function post(string $path, string $controller, string $action, ?string $name = null): self;
 
     /**
      * Create a PUT route within this group
      */
-    public function put(string $path, string $controller, string $action, ?string $name = null): RouteInterface;
+    public function put(string $path, string $controller, string $action, ?string $name = null): self;
 
     /**
      * Create a DELETE route within this group
      */
-    public function delete(string $path, string $controller, string $action, ?string $name = null): RouteInterface;
+    public function delete(string $path, string $controller, string $action, ?string $name = null): self;
 
     /**
      * Create a PATCH route within this group
      */
-    public function patch(string $path, string $controller, string $action, ?string $name = null): RouteInterface;
+    public function patch(string $path, string $controller, string $action, ?string $name = null): self;
 
     /**
      * Create a route that matches any HTTP method
      */
-    public function any(string $path, string $controller, string $action, ?string $name = null): RouteInterface;
+    public function any(string $path, string $controller, string $action, ?string $name = null): self;
 
     /**
      * Create a route that matches specific HTTP methods
      */
-    public function match(array $methods, string $path, string $controller, string $action, ?string $name = null): RouteInterface;
+    public function match(array $methods, string $path, string $controller, string $action, ?string $name = null): self;
 
     /**
      * Create a nested group within this group

@@ -208,17 +208,20 @@ class RouteGroup implements RouteGroupInterface
      * @param string $controller
      * @param string $action
      * @param string|null $name
-     * @return RouteInterface
+     *
+     * @return self
      */
-    public function get(string $path, string $controller, string $action, ?string $name = null): RouteInterface
+    public function get(string $path, string $controller, string $action, ?string $name = null): self
     {
-        return $this->route(
+        $this->route(
             path: $path,
             controller: $controller,
             action: $action,
             methods: [HttpMethod::GET],
             name: $name ?? $this->buildRouteName($action),
         );
+
+        return $this;
     }
 
     /**
@@ -228,17 +231,20 @@ class RouteGroup implements RouteGroupInterface
      * @param string $controller
      * @param string $action
      * @param string|null $name
-     * @return RouteInterface
+     *
+     * @return self
      */
-    public function post(string $path, string $controller, string $action, ?string $name = null): RouteInterface
+    public function post(string $path, string $controller, string $action, ?string $name = null): self
     {
-        return $this->route(
+        $this->route(
             path: $path,
             controller: $controller,
             action: $action,
             methods: [HttpMethod::POST],
             name: $name ?? $this->buildRouteName($action),
         );
+
+        return $this;
     }
 
     /**
@@ -248,17 +254,20 @@ class RouteGroup implements RouteGroupInterface
      * @param string $controller
      * @param string $action
      * @param string|null $name
-     * @return RouteInterface
+     *
+     * @return self
      */
-    public function put(string $path, string $controller, string $action, ?string $name = null): RouteInterface
+    public function put(string $path, string $controller, string $action, ?string $name = null): self
     {
-        return $this->route(
+        $this->route(
             path: $path,
             controller: $controller,
             action: $action,
             methods: [HttpMethod::PUT],
             name: $name ?? $this->buildRouteName($action),
         );
+
+        return $this;
     }
 
     /**
@@ -268,17 +277,20 @@ class RouteGroup implements RouteGroupInterface
      * @param string $controller
      * @param string $action
      * @param string|null $name
-     * @return RouteInterface
+     *
+     * @return self
      */
-    public function delete(string $path, string $controller, string $action, ?string $name = null): RouteInterface
+    public function delete(string $path, string $controller, string $action, ?string $name = null): self
     {
-        return $this->route(
+        $this->route(
             path: $path,
             controller: $controller,
             action: $action,
             methods: [HttpMethod::DELETE],
             name: $name ?? $this->buildRouteName($action),
         );
+
+        return $this;
     }
 
     /**
@@ -288,17 +300,20 @@ class RouteGroup implements RouteGroupInterface
      * @param string $controller
      * @param string $action
      * @param string|null $name
-     * @return RouteInterface
+     *
+     * @return self
      */
-    public function patch(string $path, string $controller, string $action, ?string $name = null): RouteInterface
+    public function patch(string $path, string $controller, string $action, ?string $name = null): self
     {
-        return $this->route(
+        $this->route(
             path: $path,
             controller: $controller,
             action: $action,
             methods: [HttpMethod::PATCH],
             name: $name ?? $this->buildRouteName($action),
         );
+
+        return $this;
     }
 
     /**
@@ -308,11 +323,12 @@ class RouteGroup implements RouteGroupInterface
      * @param string $controller
      * @param string $action
      * @param string|null $name
-     * @return RouteInterface
+     *
+     * @return self
      */
-    public function any(string $path, string $controller, string $action, ?string $name = null): RouteInterface
+    public function any(string $path, string $controller, string $action, ?string $name = null): self
     {
-        return $this->route(
+        $this->route(
             path: $path,
             controller: $controller,
             action: $action,
@@ -325,6 +341,8 @@ class RouteGroup implements RouteGroupInterface
             ],
             name: $name ?? $this->buildRouteName($action),
         );
+
+        return $this;
     }
 
     /**
@@ -335,17 +353,20 @@ class RouteGroup implements RouteGroupInterface
      * @param string $controller
      * @param string $action
      * @param string|null $name
-     * @return RouteInterface
+     *
+     * @return self
      */
-    public function match(array $methods, string $path, string $controller, string $action, ?string $name = null): RouteInterface
+    public function match(array $methods, string $path, string $controller, string $action, ?string $name = null): self
     {
-        return $this->route(
+        $this->route(
             path: $path,
             controller: $controller,
             action: $action,
             methods: $methods,
             name: $name ?? $this->buildRouteName($action),
         );
+
+        return $this;
     }
 
     /**
