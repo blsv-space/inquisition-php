@@ -22,12 +22,6 @@ abstract readonly class AbstractMigration implements MigrationInterface
         $this->connection = DatabaseConnections::getInstance()->connect(static::DATABASE_NAME);
     }
 
-    abstract public function up(): void;
-
-    public function down(): void
-    {
-    }
-
     abstract public function getVersion(): string;
 
     abstract public function getDescription(): string;

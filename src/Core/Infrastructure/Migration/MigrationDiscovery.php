@@ -19,7 +19,7 @@ final class MigrationDiscovery implements SingletonInterface
     }
 
     private function load(): void {
-        $paths = Config::getInstance()->get('migration.paths', $this->paths);
+        $paths = Config::getInstance()->get('database.migration.paths', $this->paths);
         if (empty($paths) || !is_array($paths)) {
             throw new RuntimeException('No migration paths defined in config. Set an array to "migration.paths"');
         }
