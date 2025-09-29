@@ -6,20 +6,21 @@ use PDO;
 
 class DatabaseConnection implements DatabaseConnectionInterface
 {
-    private ?PDO    $connection = null;
+    private ?PDO $connection = null;
     private ?string $dsn = null;
 
     public function __construct(
-        private readonly string  $driver,
-        private readonly string  $database,
-        private readonly ?string $host,
-        private readonly ?string $unix_socket,
-        private readonly ?int    $port = null,
-        private readonly ?string $charset = null,
-        private readonly ?string $username = null,
-        private readonly ?string $password = null,
-        private readonly ?array  $options = null,
-    ) {
+        private readonly DbDriverEnum $driver,
+        private readonly string       $database,
+        private readonly ?string      $host,
+        private readonly ?string      $unix_socket,
+        private readonly ?int         $port = null,
+        private readonly ?string      $charset = null,
+        private readonly ?string      $username = null,
+        private readonly ?string      $password = null,
+        private readonly ?array       $options = null,
+    )
+    {
     }
 
     /**
@@ -38,7 +39,7 @@ class DatabaseConnection implements DatabaseConnectionInterface
     private function getOptions(): array
     {
         $options = [
-            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         ];
         if (!is_null($this->options)) {
@@ -51,7 +52,7 @@ class DatabaseConnection implements DatabaseConnectionInterface
     private function getDsn(): string
     {
         if (is_null($this->dsn)) {
-            $this->dsn = "$this->driver:";
+            $this->dsn = $this->driver->dsn();
 
             if ($this->unix_socket) {
                 $this->dsn .= "unix_socket={$this->unix_socket}";

@@ -96,7 +96,7 @@ final class DatabaseConnections implements DatabaseConnectionsInterface
         $this->validateConnectionSettings($name, $connectionConfig);
 
         $this->connections[$name] = new DatabaseConnection(
-            driver     : $connectionConfig['driver'],
+            driver     : DbDriverEnum::from($connectionConfig['driver']),
             database   : $connectionConfig['database'],
             host       : $connectionConfig['host'] ?? null,
             unix_socket: $connectionConfig['unix_socket'] ?? null,
@@ -119,6 +119,10 @@ final class DatabaseConnections implements DatabaseConnectionsInterface
     {
         if (!isset($connectionConfig['driver'])) {
             throw new InvalidConnectionConfig($name, 'No database driver specified');
+        }
+
+        if (!DbDriverEnum::isSupported($connectionConfig['driver'])) {
+            throw new InvalidConnectionConfig($name, 'Database driver not supported');
         }
 
         if (!isset($connectionConfig['host']) || !isset($connectionConfig['unix_socket'])) {

@@ -30,8 +30,9 @@ abstract class AbstractRepository implements RepositoryInterface
      */
     protected function __construct()
     {
-        if (!class_exists(static::getEntityClassName()) || !is_subclass_of(static::getEntityClassName(),
-                EntityInterface::class)) {
+        if (!class_exists(static::getEntityClassName())
+            || !is_subclass_of(static::getEntityClassName(),EntityInterface::class)
+        ) {
             throw new PersistenceException("Entity class does not exist or is not a subclass of EntityInterface");
         }
 
