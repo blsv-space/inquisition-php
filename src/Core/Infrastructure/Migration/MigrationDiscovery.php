@@ -10,7 +10,7 @@ use RuntimeException;
 
 final class MigrationDiscovery implements SingletonInterface
 {
-    private array $paths = [];
+    private(set) array $paths = [];
 
     use SingletonTrait;
 
