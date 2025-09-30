@@ -13,6 +13,7 @@ interface RouteInterface
 {
     protected(set) string $path {
         get;
+        set;
     }
 
     /**

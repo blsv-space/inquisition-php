@@ -13,6 +13,7 @@ interface RouteGroupInterface
 {
     protected(set) string $name {
         get;
+        set;
     }
 
     /**

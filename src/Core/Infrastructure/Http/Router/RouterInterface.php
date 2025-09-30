@@ -21,6 +21,7 @@ interface RouterInterface extends SingletonInterface
      */
     protected(set) array $routes {
         get;
+        set;
     }
 
     /**
