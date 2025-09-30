@@ -27,10 +27,11 @@ final class ConsoleRunner
      */
     public function addProvider(CommandProviderInterface $provider): void
     {
-        if (isset($this->providers[$provider::class])) {
-            throw new Exception("Provider '{$provider::class}' already registered");
+        $class = $provider::class;
+        if (isset($this->providers[$class])) {
+            throw new Exception("Provider '$class' already registered");
         }
-        $this->providers[$provider::class] = $provider;
+        $this->providers[$class] = $provider;
         $this->commands = array_merge($this->commands, $provider->getCommands());
     }
 
