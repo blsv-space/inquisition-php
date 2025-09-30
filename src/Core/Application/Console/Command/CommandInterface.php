@@ -16,7 +16,7 @@ interface CommandInterface
 
     protected(set) array $parameters
     {
-        set;
+        get;
     }
 
 }
