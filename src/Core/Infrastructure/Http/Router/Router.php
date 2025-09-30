@@ -122,7 +122,7 @@ final class Router implements RouterInterface
         $route = $this->getRouteByName($name);
 
         if ($route === null) {
-            throw new InvalidArgumentException("Route '{$name}' not found");
+            throw new InvalidArgumentException("Route '$name' not found");
         }
 
         return $this->generateUrlByRoute($route, $parameters);

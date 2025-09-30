@@ -55,12 +55,12 @@ class DatabaseConnection implements DatabaseConnectionInterface
             $this->dsn = $this->driver->dsn();
 
             if ($this->unix_socket) {
-                $this->dsn .= "unix_socket={$this->unix_socket}";
+                $this->dsn .= "unix_socket=$this->unix_socket";
             } elseif ($this->host) {
-                $this->dsn .= "host={$this->host}";
+                $this->dsn .= "host=$this->host";
             }
 
-            $this->dsn .= ";dbname={$this->database}";
+            $this->dsn .= ";dbname=$this->database";
 
             if (!is_null($this->port)) {
                 $this->dsn .= ';port=' . $this->port;
