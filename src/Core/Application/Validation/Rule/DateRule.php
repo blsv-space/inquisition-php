@@ -2,7 +2,6 @@
 
 namespace Inquisition\Core\Application\Validation\Rule;
 
-use DateTime;
 use DateTimeImmutable;
 use Inquisition\Core\Application\Validation\RuleInterface;
 

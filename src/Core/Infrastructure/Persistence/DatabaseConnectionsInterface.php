@@ -3,7 +3,6 @@
 namespace Inquisition\Core\Infrastructure\Persistence;
 
 use Inquisition\Foundation\Singleton\SingletonInterface;
-use PDO;
 
 interface DatabaseConnectionsInterface extends SingletonInterface
 {

@@ -2,9 +2,6 @@
 
 namespace Inquisition\Core\Infrastructure\Http\Router;
 
-use _PHPStan_95d365e52\React\Dns\Model\Record;
-use Inquisition\Core\Infrastructure\Http\Request\RequestInterface;
-
 /**
  * Route Match Result
  * Represents the result of route matching

@@ -4,7 +4,6 @@ namespace Inquisition\Core\Domain\Entity;
 
 use Inquisition\Core\Domain\ValueObject\ValueObjectInterface;
 use Inquisition\Core\Infrastructure\Support\StringHelper;
-use InvalidArgumentException;
 
 abstract class BaseEntity implements EntityInterface
 {

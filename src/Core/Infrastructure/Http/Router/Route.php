@@ -159,10 +159,10 @@ class Route implements RouteInterface
     }
 
     /**
-     * @param string|array $middleware
+     * @param MiddlewareInterface|array $middleware
      * @return $this
      */
-    public function middleware(string|array $middleware): self
+    public function middleware(MiddlewareInterface|array $middleware): self
     {
         $this->middlewares = $middleware;
 

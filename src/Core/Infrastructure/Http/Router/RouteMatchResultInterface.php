@@ -2,8 +2,6 @@
 
 namespace Inquisition\Core\Infrastructure\Http\Router;
 
-use Inquisition\Core\Infrastructure\Http\Request\RequestInterface;
-
 interface RouteMatchResultInterface
 {
     public function getRoute(): RouteInterface;
