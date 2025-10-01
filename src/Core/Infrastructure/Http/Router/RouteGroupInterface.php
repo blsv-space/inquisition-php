@@ -11,7 +11,7 @@ use Inquisition\Core\Infrastructure\Http\Middleware\MiddlewareInterface;
  */
 interface RouteGroupInterface
 {
-    protected(set) string $name {
+    public string $name {
         get;
     }
 
