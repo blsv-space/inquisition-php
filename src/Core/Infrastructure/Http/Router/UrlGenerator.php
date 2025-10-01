@@ -227,16 +227,19 @@ final class UrlGenerator
             $this->host = $_SERVER['HTTP_HOST'];
         }
 
-        if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+        $SERVER_PORT = $_SERVER['SERVER_PORT'] ?? 80;
+        $HTTPS = $_SERVER['HTTPS'] ?? null;
+        $HTTP_X_FORWARDED_PROTO = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null;
+        if ($HTTPS === 'on') {
             $this->scheme = HttpSchema::HTTPS;
-        } elseif (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+        } elseif ($HTTP_X_FORWARDED_PROTO === 'https') {
             $this->scheme = HttpSchema::HTTPS;
-        } elseif (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] === '443') {
+        } elseif ($SERVER_PORT === '443') {
             $this->scheme = HttpSchema::HTTPS;
         } else {
             $this->scheme = HttpSchema::HTTP;
         }
 
-        $this->port = $_SERVER['SERVER_PORT'];
+        $this->port = $SERVER_PORT;
     }
 }
