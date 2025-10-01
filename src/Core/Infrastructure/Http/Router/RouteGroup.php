@@ -124,6 +124,10 @@ class RouteGroup implements RouteGroupInterface
      */
     public function middleware(MiddlewareInterface|array $middleware): self
     {
+        if ($middleware instanceof MiddlewareInterface) {
+            $middleware = [$middleware];
+        }
+
         $this->middlewares = $middleware;
 
         return $this;
