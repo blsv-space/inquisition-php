@@ -7,7 +7,7 @@ use Inquisition\Core\Infrastructure\Http\Request\RequestInterface;
 use Inquisition\Foundation\Singleton\SingletonInterface;
 use Inquisition\Foundation\Singleton\SingletonTrait;
 
-final readonly class RouteMatcher
+final class RouteMatcher
     implements RouteMatcherInterface, SingletonInterface
 {
     use SingletonTrait;
