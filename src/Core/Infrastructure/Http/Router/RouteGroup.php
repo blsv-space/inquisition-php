@@ -34,12 +34,8 @@ class RouteGroup implements RouteGroupInterface
             return $this->middlewares;
         }
         set {
-            if ($value instanceof MiddlewareInterface) {
-                $this->middlewares[] = $value;
-            } elseif (is_array($value)) {
-                $this->middlewares = array_merge($this->middlewares,
-                    array_filter($value, fn($m) => $m instanceof MiddlewareInterface));
-            }
+            $this->middlewares = array_merge($this->middlewares,
+                array_filter($value, fn($m) => $m instanceof MiddlewareInterface));
         }
     }
 
