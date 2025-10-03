@@ -24,7 +24,7 @@ final class MigrationDiscovery implements SingletonInterface
             throw new RuntimeException('No migration paths defined in config. Set an array to "database.migration.paths"');
         }
 
-        $paths = array_filter($paths, fn ($p) => is_string($paths));
+        $paths = array_filter($paths, fn ($p) => is_string($p));
 
         $this->paths = $paths;
     }
