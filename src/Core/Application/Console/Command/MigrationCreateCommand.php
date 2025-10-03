@@ -114,7 +114,7 @@ class MigrationCreateCommand extends AbstractCommand
         $dir = $this->migrationDiscovery->paths[$this->parameters[self::ARGUMENT_PATH]];
         $namespace = $this->pathToNamespaceFromComposer($dir);
         $className = $this->getClassName();
-        $path = $dir . '/' . $className . '.php';
+        $path = str_replace('/', DIRECTORY_SEPARATOR,$dir . '/' . $className . '.php');
 
         if (file_exists($path)) {
             throw new RuntimeException("Migration file already exists: $path");
