@@ -34,11 +34,13 @@ final class Router implements RouterInterface
                     throw new InvalidArgumentException("Route must be an instance of RouteInterface");
                 }
                 $this->routes[] = $value;
+
+                if ($route->name !== null) {
+                    $this->namedRoutes = $value;
+                }
             }
 
-            if ($value->name !== null) {
-                $this->namedRoutes = $value;
-            }
+
         }
     }
 
