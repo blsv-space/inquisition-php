@@ -127,7 +127,7 @@ namespace $namespace;
 
 use Inquisition\Core\Infrastructure\Migration\AbstractMigration;
 
-class $className extends AbstractMigration
+final readonly class $className extends AbstractMigration
 {
 
     public function getVersion(): string
