@@ -18,7 +18,7 @@ final class Environment implements EnvironmentInterfaceApplication
     private function __construct()
     {
         $config = Config::getInstance();
-        $this->mode = EnvironmentEnum::fromString($config->get('app.mode'));
+        $this->mode = EnvironmentEnum::fromString($config->getByPath('app.mode'));
     }
 
     /**

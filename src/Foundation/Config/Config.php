@@ -124,7 +124,7 @@ final class Config implements ConfigInterface
      * @param $default
      * @return array|mixed|null
      */
-    public function getByPath(string $path, $default = null)
+    public function getByPath(string $path, $default = null): mixed
     {
         $path = explode('.', $path);
         $value = $this->config;
@@ -143,7 +143,7 @@ final class Config implements ConfigInterface
      * @param $default
      * @return mixed|null
      */
-    public function get(string $key, $default = null)
+    public function get(string $key, $default = null): mixed
     {
         return $this->config[$key] ?? $default;
     }
