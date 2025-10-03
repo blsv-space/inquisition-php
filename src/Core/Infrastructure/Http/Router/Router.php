@@ -20,29 +20,7 @@ final class Router implements RouterInterface
     /**
      * @var RouteInterface[]
      */
-    protected(set) array $routes = [] {
-        get {
-            return $this->routes;
-        }
-
-        set(RouteInterface|array $value) {
-            if (!is_array($value)) {
-                $value = [$value];
-            }
-            $named = [];
-            foreach ($value as $route) {
-                if (!$route instanceof RouteInterface) {
-                    throw new InvalidArgumentException("Route must be an instance of RouteInterface");
-                }
-                $this->routes[] = $value;
-
-                if ($route->name !== null) {
-                    $named[$route->name] = $route;
-                }
-            }
-            $named && $this->namedRoutes = $named;
-        }
-    }
+    protected array $routes = [];
 
     /**
      * @var RouteGroupInterface[] <string, RouteGroupInterface>
@@ -61,20 +39,7 @@ final class Router implements RouterInterface
     /**
      * @var array<string, RouteInterface>
      */
-    protected(set) array $namedRoutes = [] {
-        get {
-            return $this->namedRoutes;
-        }
-
-        set {
-            foreach ($value as $route) {
-                if ($this->hasRoute($route->name)) {
-                    throw new InvalidArgumentException("Route name '$route->name' already exists");
-                }
-                $this->namedRoutes[$route->name] = $route;
-            }
-        }
-    }
+    protected(set) array $namedRoutes = [];
 
     private function __construct()
     {
@@ -117,7 +82,7 @@ final class Router implements RouterInterface
      * Generate URL for a named route
      *
      * @param string $name
-     * @param array  $parameters
+     * @param array $parameters
      *
      * @return string
      */
@@ -136,7 +101,7 @@ final class Router implements RouterInterface
      * Generate URL for a route
      *
      * @param RouteInterface $route
-     * @param array          $parameters
+     * @param array $parameters
      *
      * @return string
      */
@@ -152,7 +117,13 @@ final class Router implements RouterInterface
      */
     public function addRoute(RouteInterface $route): void
     {
-        $this->routes = $route;
+        $this->routes[] = $route;
+        if ($route->name) {
+            if (array_key_exists($route->name, $this->namedRoutes)) {
+                throw new InvalidArgumentException("Route with name '$route->name' already exists");
+            }
+            $this->namedRoutes[$route->name] = $route;
+        }
     }
 
     /**
@@ -211,9 +182,8 @@ final class Router implements RouterInterface
         $route = $this->namedRoutes[$name];
         unset($this->namedRoutes[$name]);
 
-        // Remove from routes array
         $this->routes = array_filter($this->routes, fn($r) => $r !== $route);
-        $this->routes = array_values($this->routes); // Re-index array
+        $this->routes = array_values($this->routes);
 
         return true;
     }

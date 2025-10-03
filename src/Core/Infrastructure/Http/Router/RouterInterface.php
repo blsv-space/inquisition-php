@@ -17,13 +17,6 @@ interface RouterInterface extends SingletonInterface
     public function routeByRequest(RequestInterface $request): ?RouteMatchResult;
 
     /**
-     * @var RouteInterface[]
-     */
-    public array $routes {
-        get;
-    }
-
-    /**
      * Get route by name
      */
     public function getRouteByName(string $name): ?RouteInterface;
