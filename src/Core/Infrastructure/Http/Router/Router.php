@@ -29,6 +29,7 @@ final class Router implements RouterInterface
             if (!is_array($value)) {
                 $value = [$value];
             }
+            $named = [];
             foreach ($value as $route) {
                 if (!$route instanceof RouteInterface) {
                     throw new InvalidArgumentException("Route must be an instance of RouteInterface");
@@ -36,11 +37,10 @@ final class Router implements RouterInterface
                 $this->routes[] = $value;
 
                 if ($route->name !== null) {
-                    $this->namedRoutes = $value;
+                    $named[$route->name] = $route;
                 }
             }
-
-
+            $named && $this->namedRoutes = $named;
         }
     }
 
