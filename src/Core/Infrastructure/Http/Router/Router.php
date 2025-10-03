@@ -39,7 +39,7 @@ final class Router implements RouterInterface
     /**
      * @var array<string, RouteInterface>
      */
-    protected(set) array $namedRoutes = [];
+    protected array $namedRoutes = [];
 
     private function __construct()
     {
@@ -197,5 +197,21 @@ final class Router implements RouterInterface
     {
         $this->routes = [];
         $this->namedRoutes = [];
+    }
+
+    /**
+     * @return RouteInterface[]
+     */
+    public function getRoutes(): array
+    {
+        return $this->routes;
+    }
+
+    /**
+     * @return array<string, RouteInterface>
+     */
+    public function getNamedRoutes(): array
+    {
+        return $this->namedRoutes;
     }
 }

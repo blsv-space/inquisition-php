@@ -69,4 +69,14 @@ interface RouterInterface extends SingletonInterface
      */
     public function getGroup(string $name): ?RouteGroupInterface;
 
+    /**
+     * @return RouteGroupInterface[]
+     */
+    public function getRoutes(): array;
+
+    /**
+     * @return array<string, RouteInterface>
+     */
+    public function getNamedRoutes(): array;
+
 }
