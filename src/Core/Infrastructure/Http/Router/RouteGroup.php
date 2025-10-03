@@ -196,7 +196,6 @@ class RouteGroup implements RouteGroupInterface
         $route = new Route($fullPath, $controller, $action, $methods, $fullName);
         $this->applyToRoute($route);
         $this->routes = [$route];
-        Router::getInstance()->addRoute($route);
 
         return $route;
     }
