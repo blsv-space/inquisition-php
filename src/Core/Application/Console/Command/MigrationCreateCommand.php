@@ -111,7 +111,7 @@ class MigrationCreateCommand extends AbstractCommand
      */
     private function createMigration(): void
     {
-        $dir = $this->parameters[self::ARGUMENT_PATH];
+        $dir = $this->migrationDiscovery->paths[$this->parameters[self::ARGUMENT_PATH]];
         $namespace = $this->pathToNamespaceFromComposer($dir);
         $className = $this->getClassName();
         $path = $dir . '/' . $className . '.php';
