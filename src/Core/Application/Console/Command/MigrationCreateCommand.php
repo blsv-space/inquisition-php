@@ -85,12 +85,18 @@ class MigrationCreateCommand extends AbstractCommand
             return;
         }
 
+        $missing = [];
+
         if (!array_key_exists(self::ARGUMENT_PATH, $this->parameters)) {
-            throw new RuntimeException('Missing required arguments' . self::ARGUMENT_PATH);
+            $missing[] = self::ARGUMENT_PATH;
         }
 
         if (!array_key_exists(self::ARGUMENT_NAME, $this->parameters)) {
-            throw new RuntimeException('Missing required arguments: ' . self::ARGUMENT_PATH);
+            $missing[] = self::ARGUMENT_NAME;
+        }
+
+        if (!empty($missing)) {
+            throw new RuntimeException('Missing required arguments: ' . implode(', ', $missing));
         }
 
         $pathName = $this->parameters[self::ARGUMENT_PATH];
