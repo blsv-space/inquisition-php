@@ -2,23 +2,26 @@
 
 namespace Inquisition\Core\Infrastructure\Http\Router;
 
-use _PHPStan_95d365e52\React\Dns\Model\Record;
-
 /**
  * Route Match Result
  * Represents the result of route matching
  */
-final readonly class RouteMatchResult
+final readonly class NavigatorResult
 {
     public function __construct(
         private RouteInterface $route,
+        /**
+         * @var array<string, string>
+         */
         private array          $parameters = [],
-        private array          $middlewares = [],
-    ) {
+    )
+    {
     }
 
     /**
      * Get the matched route
+     *
+     * @return RouteInterface
      */
     public function getRoute(): RouteInterface
     {
@@ -27,6 +30,8 @@ final readonly class RouteMatchResult
 
     /**
      * Get extracted parameters
+     *
+     * @return array<string, string>
      */
     public function getParameters(): array
     {
@@ -35,30 +40,21 @@ final readonly class RouteMatchResult
 
     /**
      * Get specific parameter
+     *
+     * @param string $name
+     * @param string|null $default
+     *
+     * @return ?string
      */
-    public function getParameter(string $name, mixed $default = null): mixed
+    public function getParameter(string $name, ?string $default = null): ?string
     {
         return $this->parameters[$name] ?? $default;
     }
 
     /**
-     * Get route handler
-     */
-    public function getHandler(): RouteInterface
-    {
-        return $this->route;
-    }
-
-    /**
-     * Get all middlewares (route + group middlewares)
-     */
-    public function getMiddlewares(): array
-    {
-        return array_merge($this->middlewares, $this->route->middlewares);
-    }
-
-    /**
      * Get a route name
+     *
+     * @return string|null
      */
     public function getRouteName(): ?string
     {
@@ -67,6 +63,9 @@ final readonly class RouteMatchResult
 
     /**
      * Check if parameter exists
+     *
+     * @param string $name
+     * @return bool
      */
     public function hasParameter(string $name): bool
     {
@@ -75,6 +74,8 @@ final readonly class RouteMatchResult
 
     /**
      * Get a route path
+     *
+     * @return string
      */
     public function getPath(): string
     {
@@ -83,6 +84,8 @@ final readonly class RouteMatchResult
 
     /**
      * Get route methods
+     *
+     * @return array
      */
     public function getMethods(): array
     {

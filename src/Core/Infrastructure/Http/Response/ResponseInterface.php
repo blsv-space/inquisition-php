@@ -1,6 +1,6 @@
 <?php
 
-namespace Inquisition\Core\Application\Http\Response;
+namespace Inquisition\Core\Infrastructure\Http\Response;
 
 use Inquisition\Core\Infrastructure\Http\HttpStatusCode;
 

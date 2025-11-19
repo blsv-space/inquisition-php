@@ -3,42 +3,38 @@
 namespace Inquisition\Core\Domain\Entity;
 
 use Inquisition\Core\Domain\ValueObject\ValueObjectInterface;
-use InvalidArgumentException;
 
 abstract class BaseEntity implements EntityInterface
 {
-    public ValueObjectInterface $id {
-        get {
-            return $this->id;
-        }
-        set {
-            if (!$value instanceof ValueObjectInterface) {
-                throw new InvalidArgumentException('ID must be a ValueObjectInterface');
+    public function getAsArray(): array
+    {
+        $array = [];
+
+        foreach (get_object_vars($this) as $key => $value) {
+            if ($value instanceof ValueObjectInterface === false) {
+                continue;
             }
-            $this->id = $value;
+            $array[$key] = $value->toRaw();
         }
+
+        return $array;
     }
 
-    public function __construct(?array $data = null)
-    {
-        if ($data) {
-            $this->load($data);
-        }
-    }
-
-    abstract protected function load(array $data): void;
-
-    abstract public function getAsArray(): array;
-
-    public function equals(EntityInterface $other): bool
-    {
-        return $this->getEntityType() === $other->getEntityType()
-            && $this->id === $other->id;
-    }
-
+    /**
+     * @return string
+     */
     public function getEntityType(): string
     {
         return static::class;
+    }
+
+    /**
+     * @param EntityInterface $other
+     * @return bool
+     */
+    public function equals(EntityInterface $other): bool
+    {
+        return json_encode($this->getAsArray()) === json_encode($other->getAsArray());
     }
 
 }

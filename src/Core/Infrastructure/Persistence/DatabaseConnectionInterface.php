@@ -6,7 +6,7 @@ use PDO;
 
 interface DatabaseConnectionInterface
 {
-    public function connect(): PDO;
+    public function connect(bool $reconnect = false): PDO;
 
     /**
      * Begin a database transaction
@@ -23,4 +23,6 @@ interface DatabaseConnectionInterface
      */
     public function rollback(): void;
 
+    public function getDatabaseName(): string;
+    public function getDatabaseDriver(): DbDriverEnum;
 }

@@ -2,6 +2,8 @@
 
 namespace Inquisition\Core\Domain\ValueObject;
 
+use InvalidArgumentException;
+
 /**
  * Value Object Interface
  * Defines the contract for all domain value objects
@@ -18,21 +20,29 @@ interface ValueObjectInterface
     /**
      * Get string representation of the value object
      */
-    public function toString(): string;
+    public function __toString(): string;
+
 
     /**
      * Get raw representation of the value object
      */
-    public function toRaw(): mixed;
+    public function toRaw();
 
     /**
      * Create value object from raw data
+     * @param mixed $data
+     * @return static
+     * @throws InvalidArgumentException
      */
     public static function fromRaw(mixed $data): static;
 
     /**
      * Validate the value object data
      * Should throw InvalidArgumentException if invalid
+     *
+     * @param mixed $data
+     * @return void
+     * @throws InvalidArgumentException
      */
-    public function validate(): void;
+    public static function validate(mixed $data): void;
 }

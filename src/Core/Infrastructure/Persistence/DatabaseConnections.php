@@ -14,7 +14,7 @@ final class DatabaseConnections implements DatabaseConnectionsInterface
     /**
      * @var DatabaseConnection[]
      */
-    private array  $connections;
+    private array $connections;
     private Config $config;
     private string $defaultConnectionName;
 
@@ -71,7 +71,7 @@ final class DatabaseConnections implements DatabaseConnectionsInterface
      */
     private function loadDefaultConnection(): void
     {
-        $name = $name ?? $this->config->getByPath('database.default');
+        $name = $this->config->getByPath('database.default');
 
         if (is_null($name)) {
             throw new PersistenceException('No database connection name specified');
@@ -96,21 +96,21 @@ final class DatabaseConnections implements DatabaseConnectionsInterface
         $this->validateConnectionSettings($name, $connectionConfig);
 
         $this->connections[$name] = new DatabaseConnection(
-            driver     : $connectionConfig['driver'],
-            database   : $connectionConfig['database'],
-            host       : $connectionConfig['host'] ?? null,
+            driver: DbDriverEnum::from($connectionConfig['driver']),
+            database: $connectionConfig['database'],
+            host: $connectionConfig['host'] ?? null,
             unix_socket: $connectionConfig['unix_socket'] ?? null,
-            port       : $connectionConfig['port'] ?? null,
-            charset    : $connectionConfig['charset'] ?? null,
-            username   : $connectionConfig['username'] ?? null,
-            password   : $connectionConfig['password'] ?? null,
-            options    : $connectionConfig['options'] ?? null,
+            port: $connectionConfig['port'] ?? null,
+            charset: $connectionConfig['charset'] ?? null,
+            username: $connectionConfig['username'] ?? null,
+            password: $connectionConfig['password'] ?? null,
+            options: $connectionConfig['options'] ?? null,
         );
     }
 
     /**
      * @param string $name
-     * @param array  $connectionConfig
+     * @param array $connectionConfig
      *
      * @return void
      * @throws InvalidConnectionConfig
@@ -121,11 +121,25 @@ final class DatabaseConnections implements DatabaseConnectionsInterface
             throw new InvalidConnectionConfig($name, 'No database driver specified');
         }
 
-        if (!isset($connectionConfig['host']) || !isset($connectionConfig['unix_socket'])) {
-            throw new InvalidConnectionConfig($name, 'No database host or unix_socket specified');
-        } elseif (isset($connectionConfig['host'], $connectionConfig['unix_socket'])) {
-            throw new InvalidConnectionConfig($name, 'Both host and unix_socket specified');
+        if (!DbDriverEnum::isSupported($connectionConfig['driver'])) {
+            throw new InvalidConnectionConfig($name, "Database driver '{$connectionConfig['driver']}' not supported");
         }
+
+        $dbDriverEnum = DbDriverEnum::from($connectionConfig['driver']);
+
+        switch ($dbDriverEnum) {
+            case DbDriverEnum::MYSQL:
+            case DbDriverEnum::PGSQL:
+            {
+                if (!isset($connectionConfig['host']) || !isset($connectionConfig['unix_socket'])) {
+                    throw new InvalidConnectionConfig($name, 'No database host or unix_socket specified');
+                } elseif (isset($connectionConfig['host'], $connectionConfig['unix_socket'])) {
+                    throw new InvalidConnectionConfig($name, 'Both host and unix_socket specified');
+                }
+            }
+            default:
+        }
+
 
         if (!isset($connectionConfig['database'])) {
             throw new InvalidConnectionConfig($name, 'No database name specified');

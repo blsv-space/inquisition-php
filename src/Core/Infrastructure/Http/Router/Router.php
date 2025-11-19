@@ -2,7 +2,7 @@
 
 namespace Inquisition\Core\Infrastructure\Http\Router;
 
-use Inquisition\Core\Application\Http\Request\RequestInterface;
+use Inquisition\Core\Infrastructure\Http\Request\RequestInterface;
 use Inquisition\Foundation\Singleton\SingletonTrait;
 use InvalidArgumentException;
 
@@ -15,68 +15,51 @@ final class Router implements RouterInterface
     use SingletonTrait;
 
     private readonly UrlGeneratorInterface $urlGenerator;
-    private readonly RouteMatcherInterface $routeMatcher;
+    private readonly NavigatorInterface $navigator;
 
     /**
      * @var RouteInterface[]
      */
-    protected(set) array $routes = [] {
+    protected array $routes = [];
+
+    /**
+     * @var RouteGroupInterface[] <string, RouteGroupInterface>
+     */
+    private array $routeGroups = [];
+
+    /**
+     * @var RouteInterface|null
+     */
+    protected(set) ?RouteInterface $currentRoute = null {
         get {
-            return $this->routes;
-        }
-
-        set(RouteInterface|array $value) {
-            if (!is_array($value)) {
-                $value = [$value];
-            }
-            foreach ($value as $route) {
-                if (!$route instanceof RouteInterface) {
-                    throw new InvalidArgumentException("Route must be an instance of RouteInterface");
-                }
-                $this->routes[] = $value;
-            }
-
-            if ($value->name !== null) {
-                $this->namedRoutes = $value;
-            }
+            return $this->currentRoute;
         }
     }
 
     /**
      * @var array<string, RouteInterface>
      */
-    protected(set) array $namedRoutes = [] {
-        get {
-            return $this->namedRoutes;
-        }
-
-        set {
-            if ($this->hasRoute($value->name)) {
-                throw new InvalidArgumentException("Route name '$value->name' already exists");
-            }
-            $this->namedRoutes[$value->name] = $value;
-        }
-    }
+    protected array $namedRoutes = [];
 
     private function __construct()
     {
         $this->urlGenerator = UrlGenerator::getInstance();
-        $this->routeMatcher = RouteMatcher::getInstance();
+        $this->navigator = Navigator::getInstance();
     }
 
     /**
      * Find a route that matches the given request
      *
      * @param RequestInterface $request
-     *
-     * @return RouteMatchResult|null
+     * @return NavigatorResult|null
+     * @throws Exception\RouterException
      */
-    public function routeByRequest(RequestInterface $request): ?RouteMatchResult
+    public function routeByRequest(RequestInterface $request): ?NavigatorResult
     {
         foreach ($this->routes as $route) {
-            $routeMatchResult = $this->routeMatcher->match($request, $route);
-            if ($routeMatchResult) {
-                return new RouteMatchResult($route, $route->getParameters());
+            $navigatorResult = $this->navigator->navigate($request, $route);
+            if ($navigatorResult) {
+                return $navigatorResult;
             }
         }
 
@@ -99,7 +82,7 @@ final class Router implements RouterInterface
      * Generate URL for a named route
      *
      * @param string $name
-     * @param array  $parameters
+     * @param array $parameters
      *
      * @return string
      */
@@ -108,7 +91,7 @@ final class Router implements RouterInterface
         $route = $this->getRouteByName($name);
 
         if ($route === null) {
-            throw new InvalidArgumentException("Route '{$name}' not found");
+            throw new InvalidArgumentException("Route '$name' not found");
         }
 
         return $this->generateUrlByRoute($route, $parameters);
@@ -118,7 +101,7 @@ final class Router implements RouterInterface
      * Generate URL for a route
      *
      * @param RouteInterface $route
-     * @param array          $parameters
+     * @param array $parameters
      *
      * @return string
      */
@@ -134,7 +117,40 @@ final class Router implements RouterInterface
      */
     public function addRoute(RouteInterface $route): void
     {
-        $this->routes = $route;
+        $this->routes[] = $route;
+        if ($route->name) {
+            if (array_key_exists($route->name, $this->namedRoutes)) {
+                throw new InvalidArgumentException("Route with name '$route->name' already exists");
+            }
+            $this->namedRoutes[$route->name] = $route;
+        }
+    }
+
+    /**
+     * @param string $name
+     * @return RouteGroupInterface
+     */
+    public function group(string $name): RouteGroupInterface
+    {
+        return new RouteGroup($name);
+    }
+
+    /**
+     * @param RouteGroupInterface $routeGroup
+     * @return void
+     */
+    public function groupRegistry(RouteGroupInterface $routeGroup): void
+    {
+        $this->routeGroups[$routeGroup->name] = $routeGroup;
+    }
+
+    /**
+     * @param string $name
+     * @return RouteGroupInterface|null
+     */
+    public function getGroup(string $name): ?RouteGroupInterface
+    {
+        return $this->routeGroups[$name] ?? null;
     }
 
     /**
@@ -166,9 +182,8 @@ final class Router implements RouterInterface
         $route = $this->namedRoutes[$name];
         unset($this->namedRoutes[$name]);
 
-        // Remove from routes array
         $this->routes = array_filter($this->routes, fn($r) => $r !== $route);
-        $this->routes = array_values($this->routes); // Re-index array
+        $this->routes = array_values($this->routes);
 
         return true;
     }
@@ -182,5 +197,21 @@ final class Router implements RouterInterface
     {
         $this->routes = [];
         $this->namedRoutes = [];
+    }
+
+    /**
+     * @return RouteInterface[]
+     */
+    public function getRoutes(): array
+    {
+        return $this->routes;
+    }
+
+    /**
+     * @return array<string, RouteInterface>
+     */
+    public function getNamedRoutes(): array
+    {
+        return $this->namedRoutes;
     }
 }

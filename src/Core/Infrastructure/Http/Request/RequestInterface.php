@@ -1,6 +1,6 @@
 <?php
 
-namespace Inquisition\Core\Application\Http\Request;
+namespace Inquisition\Core\Infrastructure\Http\Request;
 
 use Inquisition\Core\Infrastructure\Http\HttpMethod;
 

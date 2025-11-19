@@ -8,38 +8,49 @@ use InvalidArgumentException;
 
 class RouteGroup implements RouteGroupInterface
 {
+    /**
+     * @var string
+     */
+    protected(set) string $name {
+        get {
+            return $this->name;
+        }
+    }
+
+    /**
+     * @var string
+     */
     protected(set) string $prefix = '' {
         get {
             return $this->prefix;
         }
     }
 
+    /**
+     * @var array
+     */
     protected(set) array $middlewares = [] {
         get {
             return $this->middlewares;
         }
         set {
-            if ($value instanceof MiddlewareInterface) {
-                $this->middlewares[] = $value;
-            } elseif (is_array($value)) {
-                $this->middlewares = array_merge($this->middlewares,
-                    array_filter($value, fn($m) => $m instanceof MiddlewareInterface));
-            }
+            $this->middlewares = array_merge($this->middlewares,
+                array_filter($value, fn($m) => $m instanceof MiddlewareInterface));
         }
     }
 
-    protected(set) ?string $namespace = null {
-        get {
-            return $this->namespace;
-        }
-    }
-
+    /**
+     * @var string|null
+     */
     protected(set) ?string $namePrefix = null {
         get {
             return $this->namePrefix;
         }
     }
 
+    /**
+     * @var array
+     */
     protected(set) array $constraints = [] {
         get {
             return $this->constraints;
@@ -54,6 +65,9 @@ class RouteGroup implements RouteGroupInterface
         }
     }
 
+    /**
+     * @var array
+     */
     protected(set) array $attributes = [] {
         get {
             return $this->attributes;
@@ -64,6 +78,9 @@ class RouteGroup implements RouteGroupInterface
         }
     }
 
+    /**
+     * @var array
+     */
     protected(set) array $routes = [] {
         get {
             return $this->routes;
@@ -80,8 +97,17 @@ class RouteGroup implements RouteGroupInterface
         }
     }
 
+    public function __construct(string $name)
+    {
+        $this->name = $name;
+        Router::getInstance()->groupRegistry($this);
+    }
+
     /**
      * Set the group prefix
+     *
+     * @param string $prefix
+     * @return $this
      */
     public function prefix(string $prefix): self
     {
@@ -92,26 +118,26 @@ class RouteGroup implements RouteGroupInterface
 
     /**
      * Add middleware to the group
+     *
+     * @param MiddlewareInterface|MiddlewareInterface[] $middleware
+     * @return $this
      */
-    public function middleware(string|array $middleware): self
+    public function middleware(MiddlewareInterface|array $middleware): self
     {
+        if ($middleware instanceof MiddlewareInterface) {
+            $middleware = [$middleware];
+        }
+
         $this->middlewares = $middleware;
 
         return $this;
     }
 
     /**
-     * Set the group namespace
-     */
-    public function namespace(string $namespace): self
-    {
-        $this->namespace = $namespace;
-
-        return $this;
-    }
-
-    /**
      * Set the group name prefix
+     *
+     * @param string $namePrefix
+     * @return $this
      */
     public function namePrefix(string $namePrefix): self
     {
@@ -122,6 +148,9 @@ class RouteGroup implements RouteGroupInterface
 
     /**
      * Add constraints to the group
+     *
+     * @param string|array $constraints
+     * @return $this
      */
     public function where(string|array $constraints): self
     {
@@ -132,6 +161,9 @@ class RouteGroup implements RouteGroupInterface
 
     /**
      * Set group attributes
+     *
+     * @param array $attributes
+     * @return $this
      */
     public function attributes(array $attributes): self
     {
@@ -142,24 +174,26 @@ class RouteGroup implements RouteGroupInterface
 
     /**
      * Create a route within this group
+     *
+     * @param string $path
+     * @param string $controller
+     * @param string $action
+     * @param array $methods
+     * @param string|null $name
+     * @return RouteInterface
      */
     public function route(
         string  $path,
-        mixed   $handler = null,
-        array   $methods = [HttpMethod::GET],
+        string  $controller,
+        string  $action,
+        array   $methods,
         ?string $name = null,
-    ): RouteInterface {
+    ): RouteInterface
+    {
         $fullPath = $this->buildFullPath($path);
         $fullName = $this->buildFullName($name);
-        $fullHandler = $this->buildFullHandler($handler);
 
-        foreach ($methods as $method) {
-            if (!($method instanceof HttpMethod)) {
-                throw new InvalidArgumentException('Method must be an instance of HttpMethod');
-            }
-        }
-
-        $route = new Route($fullPath, $fullHandler, $methods, $fullName);
+        $route = new Route($fullPath, $controller, $action, $methods, $fullName);
         $this->applyToRoute($route);
         $this->routes = [$route];
 
@@ -168,84 +202,202 @@ class RouteGroup implements RouteGroupInterface
 
     /**
      * Create a GET route within this group
+     *
+     * @param string $path
+     * @param string $controller
+     * @param string $action
+     * @param string|null $name
+     *
+     * @return self
      */
-    public function get(string $path, mixed $handler, ?string $name = null): RouteInterface
+    public function get(string $path, string $controller, string $action, ?string $name = null): self
     {
-        return $this->route($path, $handler, [HttpMethod::GET], $name);
-    }
-
-    /**
-     * Create a POST route within this group
-     */
-    public function post(string $path, mixed $handler, ?string $name = null): RouteInterface
-    {
-        return $this->route($path, $handler, [HttpMethod::POST], $name);
-    }
-
-    /**
-     * Create a PUT route within this group
-     */
-    public function put(string $path, mixed $handler, ?string $name = null): RouteInterface
-    {
-        return $this->route($path, $handler, [HttpMethod::PUT], $name);
-    }
-
-    /**
-     * Create a DELETE route within this group
-     */
-    public function delete(string $path, mixed $handler, ?string $name = null): RouteInterface
-    {
-        return $this->route($path, $handler, [HttpMethod::DELETE], $name);
-    }
-
-    /**
-     * Create a PATCH route within this group
-     */
-    public function patch(string $path, mixed $handler, ?string $name = null): RouteInterface
-    {
-        return $this->route($path, $handler, [HttpMethod::PATCH], $name);
-    }
-
-    /**
-     * Create a route that matches any HTTP method
-     */
-    public function any(string $path, mixed $handler, ?string $name = null): RouteInterface
-    {
-        return $this->route($path, $handler, [
-            HttpMethod::GET,
-            HttpMethod::POST,
-            HttpMethod::PUT,
-            HttpMethod::DELETE,
-            HttpMethod::PATCH,
-        ], $name);
-    }
-
-    /**
-     * Create a route that matches specific HTTP methods
-     */
-    public function match(array $methods, string $path, mixed $handler, ?string $name = null): RouteInterface
-    {
-        return $this->route($path, $handler, $methods, $name);
-    }
-
-    /**
-     * Create a nested group within this group
-     */
-    public function group(callable $callback): self
-    {
-        $nestedGroup = new self();
-        $nestedGroup = $nestedGroup->mergeWith($this);
-
-        $callback($nestedGroup);
-
-        // Merge routes from the nested group
-        $this->routes = array_merge($this->routes, $nestedGroup->routes);
+        $this->route(
+            path: $path,
+            controller: $controller,
+            action: $action,
+            methods: [HttpMethod::GET],
+            name: $name ?? $this->buildRouteName($action),
+        );
 
         return $this;
     }
 
     /**
+     * Create a POST route within this group
+     *
+     * @param string $path
+     * @param string $controller
+     * @param string $action
+     * @param string|null $name
+     *
+     * @return self
+     */
+    public function post(string $path, string $controller, string $action, ?string $name = null): self
+    {
+        $this->route(
+            path: $path,
+            controller: $controller,
+            action: $action,
+            methods: [HttpMethod::POST],
+            name: $name ?? $this->buildRouteName($action),
+        );
+
+        return $this;
+    }
+
+    /**
+     * Create a PUT route within this group
+     *
+     * @param string $path
+     * @param string $controller
+     * @param string $action
+     * @param string|null $name
+     *
+     * @return self
+     */
+    public function put(string $path, string $controller, string $action, ?string $name = null): self
+    {
+        $this->route(
+            path: $path,
+            controller: $controller,
+            action: $action,
+            methods: [HttpMethod::PUT],
+            name: $name ?? $this->buildRouteName($action),
+        );
+
+        return $this;
+    }
+
+    /**
+     * Create a DELETE route within this group
+     *
+     * @param string $path
+     * @param string $controller
+     * @param string $action
+     * @param string|null $name
+     *
+     * @return self
+     */
+    public function delete(string $path, string $controller, string $action, ?string $name = null): self
+    {
+        $this->route(
+            path: $path,
+            controller: $controller,
+            action: $action,
+            methods: [HttpMethod::DELETE],
+            name: $name ?? $this->buildRouteName($action),
+        );
+
+        return $this;
+    }
+
+    /**
+     * Create a PATCH route within this group
+     *
+     * @param string $path
+     * @param string $controller
+     * @param string $action
+     * @param string|null $name
+     *
+     * @return self
+     */
+    public function patch(string $path, string $controller, string $action, ?string $name = null): self
+    {
+        $this->route(
+            path: $path,
+            controller: $controller,
+            action: $action,
+            methods: [HttpMethod::PATCH],
+            name: $name ?? $this->buildRouteName($action),
+        );
+
+        return $this;
+    }
+
+    /**
+     * Create a route that matches any HTTP method
+     *
+     * @param string $path
+     * @param string $controller
+     * @param string $action
+     * @param string|null $name
+     *
+     * @return self
+     */
+    public function any(string $path, string $controller, string $action, ?string $name = null): self
+    {
+        $this->route(
+            path: $path,
+            controller: $controller,
+            action: $action,
+            methods: [
+                HttpMethod::GET,
+                HttpMethod::POST,
+                HttpMethod::PUT,
+                HttpMethod::DELETE,
+                HttpMethod::PATCH,
+            ],
+            name: $name ?? $this->buildRouteName($action),
+        );
+
+        return $this;
+    }
+
+    /**
+     * Create a route that matches specific HTTP methods
+     *
+     * @param array $methods
+     * @param string $path
+     * @param string $controller
+     * @param string $action
+     * @param string|null $name
+     *
+     * @return self
+     */
+    public function match(array $methods, string $path, string $controller, string $action, ?string $name = null): self
+    {
+        $this->route(
+            path: $path,
+            controller: $controller,
+            action: $action,
+            methods: $methods,
+            name: $name ?? $this->buildRouteName($action),
+        );
+
+        return $this;
+    }
+
+    /**
+     * @param string $action
+     * @return string
+     */
+    private function buildRouteName(string $action): string
+    {
+        return $this->name . '->' . $action;
+    }
+
+    /**
+     * Create a nested group within this group
+     *
+     * @param string $name
+     * @return $this
+     */
+    public function group(string $name): self
+    {
+        $name = $this->name . '.' . $name;
+
+        $nestedGroup = new self($name);
+        $nestedGroup->mergeWith($this);
+
+        return $nestedGroup;
+    }
+
+    /**
      * Apply group attributes to the route
+     *
+     * @param RouteInterface $route
+     * @return RouteInterface
      */
     public function applyToRoute(RouteInterface $route): RouteInterface
     {
@@ -264,42 +416,37 @@ class RouteGroup implements RouteGroupInterface
 
     /**
      * Check if a group has middleware
+     *
+     * @param MiddlewareInterface $middleware
+     * @return bool
      */
-    public function hasMiddleware(string $middleware): bool
+    public function hasMiddleware(MiddlewareInterface $middleware): bool
     {
-        return in_array($middleware, $this->middlewares, true);
+        return array_any($this->middlewares, fn (MiddlewareInterface $m) => $m::class === $middleware::class);
     }
 
     /**
      * Merge with a parent group
+     *
+     * @param RouteGroupInterface $parentGroup
+     * @return RouteGroupInterface
      */
-    public function mergeWith(RouteGroupInterface $parentGroup): RouteGroupInterface
+    public function mergeWith(RouteGroupInterface $parentGroup): self
     {
-        $merged = new self();
+        $this->prefix = $this->buildMergedPrefix($parentGroup->prefix, $this->prefix);
+        $this->middlewares = array_merge($parentGroup->middlewares, $this->middlewares);
+        $this->namePrefix = $this->buildMergedNamePrefix($parentGroup->namePrefix, $this->namePrefix);
+        $this->constraints = array_merge($parentGroup->constraints, $this->constraints);
+        $this->attributes = array_merge($parentGroup->attributes, $this->attributes);
 
-        // Merge prefix
-        $merged->prefix = $this->buildMergedPrefix($parentGroup->prefix, $this->prefix);
-
-        // Merge middlewares
-        $merged->middlewares = array_merge($parentGroup->middlewares, $this->middlewares);
-
-        // Merge namespace
-        $merged->namespace = $this->buildMergedNamespace($parentGroup->namespace, $this->namespace);
-
-        // Merge name prefix
-        $merged->namePrefix = $this->buildMergedNamePrefix($parentGroup->namePrefix, $this->namePrefix);
-
-        // Merge constraints
-        $merged->constraints = array_merge($parentGroup->constraints, $this->constraints);
-
-        // Merge attributes
-        $merged->attributes = array_merge($parentGroup->attributes, $this->attributes);
-
-        return $merged;
+        return $this;
     }
 
     /**
      * Build the full path by combining group prefix with the route path
+     *
+     * @param string $path
+     * @return string
      */
     private function buildFullPath(string $path): string
     {
@@ -314,6 +461,9 @@ class RouteGroup implements RouteGroupInterface
 
     /**
      * Build the full name by combining the group name prefix with route name
+     *
+     * @param string|null $name
+     * @return string|null
      */
     private function buildFullName(?string $name): ?string
     {
@@ -329,19 +479,11 @@ class RouteGroup implements RouteGroupInterface
     }
 
     /**
-     * Build the full handler by combining group namespace with handler
-     */
-    private function buildFullHandler(mixed $handler): mixed
-    {
-        if ($this->namespace !== null && is_string($handler)) {
-            return $this->namespace . '\\' . $handler;
-        }
-
-        return $handler;
-    }
-
-    /**
      * Build merged prefix from parent and current
+     *
+     * @param string $parentPrefix
+     * @param string $currentPrefix
+     * @return string
      */
     private function buildMergedPrefix(string $parentPrefix, string $currentPrefix): string
     {
@@ -357,23 +499,11 @@ class RouteGroup implements RouteGroupInterface
     }
 
     /**
-     * Build merged namespace from parent and current
-     */
-    private function buildMergedNamespace(?string $parentNamespace, ?string $currentNamespace): ?string
-    {
-        if ($parentNamespace === null) {
-            return $currentNamespace;
-        }
-
-        if ($currentNamespace === null) {
-            return $parentNamespace;
-        }
-
-        return $parentNamespace . '\\' . $currentNamespace;
-    }
-
-    /**
      * Build merged name prefix from parent and current
+     *
+     * @param string|null $parentNamePrefix
+     * @param string|null $currentNamePrefix
+     * @return string|null
      */
     private function buildMergedNamePrefix(?string $parentNamePrefix, ?string $currentNamePrefix): ?string
     {
@@ -386,12 +516,5 @@ class RouteGroup implements RouteGroupInterface
         }
 
         return $parentNamePrefix . '.' . $currentNamePrefix;
-    }
-
-    public function setNamespace(?string $namespace): RouteGroup
-    {
-        $this->namespace = $namespace;
-
-        return $this;
     }
 }

@@ -3,6 +3,7 @@
 namespace Inquisition\Foundation\Config;
 
 use Inquisition\Foundation\Singleton\SingletonTrait;
+use RuntimeException;
 
 final class Config implements ConfigInterface
 {
@@ -12,11 +13,28 @@ final class Config implements ConfigInterface
 
     /**
      * @param array $config
+     *
      * @return void
      */
     public function load(array $config): void
     {
         $this->config = $config;
+    }
+
+    /**
+     * @param array $config
+     * @param bool|null $override
+     *
+     * @return void
+     */
+    public function merge(array $config, ?bool $override = false): void
+    {
+        if ($override) {
+            $this->config = array_merge_recursive($this->config, $config);
+
+            return;
+        }
+        $this->config = array_merge_recursive($config, $this->config);
     }
 
     /**
@@ -29,7 +47,9 @@ final class Config implements ConfigInterface
         $envConfig = [];
 
         foreach ($_ENV as $key => $value) {
-            if ($prefix && !str_starts_with($key, $prefix)) {
+            if (($prefix && !str_starts_with($key, $prefix))
+                || empty($value)
+            ) {
                 continue;
             }
 
@@ -40,10 +60,66 @@ final class Config implements ConfigInterface
         }
 
         if ($merge) {
-            $this->config = array_merge_recursive($this->config, $envConfig);
+            $this->config = $this->arrayMergeRecursiveOverwrite($this->config, $envConfig);
         } else {
             $this->config = $envConfig;
         }
+    }
+
+    /**
+     * @param string $path
+     * @param bool $override
+     * @return void
+     */
+    public function loadEnvFromFile(string $path, bool $override = false): void
+    {
+        if (!is_file($path)) {
+            throw new RuntimeException("Environment file not found: {$path}");
+        }
+
+        $data = parse_ini_file($path, false, INI_SCANNER_RAW);
+
+        if ($data === false) {
+            throw new RuntimeException("Failed to parse environment file: {$path}");
+        }
+
+        foreach ($data as $key => $value) {
+            $key = trim($key);
+            $value = trim((string)$value);
+
+            if ($key === ''
+                || str_starts_with($key, '#')
+                || str_starts_with($value, '#')
+            ) {
+                continue;
+            }
+
+            if (!$override && (getenv($key) !== false || isset($_ENV[$key]))) {
+                continue;
+            }
+
+            putenv("{$key}={$value}");
+            $_ENV[$key] = $value;
+            $_SERVER[$key] = $value;
+        }
+    }
+
+    /**
+     * @param array $array1
+     * @param array $array2
+     * @return array
+     */
+    private function arrayMergeRecursiveOverwrite(array $array1, array $array2): array
+    {
+        foreach ($array2 as $key => $value) {
+            if (isset($array1[$key]) && is_array($array1[$key]) && is_array($value)) {
+                $array1[$key] = $this->arrayMergeRecursiveOverwrite($array1[$key], $value);
+            } else {
+                $array1[$key] = $value;
+            }
+        }
+
+        return $array1;
     }
 
     /**
@@ -66,7 +142,7 @@ final class Config implements ConfigInterface
         }
 
         if (is_numeric($value)) {
-            return str_contains($value, '.') ? (float) $value : (int) $value;
+            return str_contains($value, '.') ? (float)$value : (int)$value;
         }
 
         if (str_starts_with($value, '{') || str_starts_with($value, '[')) {
@@ -105,7 +181,7 @@ final class Config implements ConfigInterface
      * @param $default
      * @return array|mixed|null
      */
-    public function getByPath(string $path, $default = null)
+    public function getByPath(string $path, $default = null): mixed
     {
         $path = explode('.', $path);
         $value = $this->config;
@@ -124,7 +200,7 @@ final class Config implements ConfigInterface
      * @param $default
      * @return mixed|null
      */
-    public function get(string $key, $default = null)
+    public function get(string $key, $default = null): mixed
     {
         return $this->config[$key] ?? $default;
     }

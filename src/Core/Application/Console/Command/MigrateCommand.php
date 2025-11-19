@@ -25,7 +25,7 @@ final class MigrateCommand extends AbstractCommand
      */
     public static function getAlias(): string
     {
-        return 'migrate';
+        return 'migration:migrate';
     }
 
     /**
