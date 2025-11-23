@@ -2,10 +2,12 @@
 
 namespace Inquisition\Core\Infrastructure\Http\Controller;
 
+use Inquisition\Core\Application\DTO\EntityResponseInterface;
 use Inquisition\Core\Domain\Entity\EntityInterface;
 use Inquisition\Core\Infrastructure\Http\HttpStatusCode;
 use Inquisition\Core\Infrastructure\Http\Response\ResponseFactory;
 use Inquisition\Core\Infrastructure\Http\Response\ResponseInterface;
+use InvalidArgumentException;
 use JsonException;
 
 /**
@@ -26,15 +28,30 @@ abstract readonly class AbstractApiController implements ApiControllerInterface
 
     /**
      * @param EntityInterface[]|EntityInterface $data
+     * @param string|null $entityResponseClassName
+     *
      * @return array
      */
-    public function normalizeData(array | EntityInterface $data): array
+    public function normalizeData(array | EntityInterface $data, ?string $entityResponseClassName = null): array
     {
-        if (is_array($data)) {
-            return array_map(fn(EntityInterface $entity) => $entity->getAsArray(), $data);
+        if (!is_null($entityResponseClassName)
+            && (!class_exists($entityResponseClassName)
+                || !is_subclass_of($entityResponseClassName, EntityResponseInterface::class)
+            )
+        ) {
+            throw new InvalidArgumentException(
+                'Entity response class name must be a valid class name which implements EntityResponseInterface');
         }
 
-        return $data->getAsArray();
+        $normalizer = is_null($entityResponseClassName)
+            ? fn(EntityInterface $entity) => $entity->getAsArray()
+            : fn(EntityInterface $entity) => $entityResponseClassName::fromEntity($entity)->getAsArray();
+
+        if (is_array($data)) {
+            return array_map($normalizer, $data);
+        }
+
+        return $normalizer($data);
     }
 
     /**

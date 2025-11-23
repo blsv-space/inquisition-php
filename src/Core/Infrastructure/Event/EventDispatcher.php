@@ -20,6 +20,9 @@ final class EventDispatcher implements EventDispatcherInterface
     public function registry(EventHandlerInterface $handler): void
     {
         foreach ($handler->getHandledEvents() as $eventClass) {
+            if (!isset($this->handlers[$eventClass])) {
+                $this->handlers[$eventClass] = [];
+            }
             $this->handlers[$eventClass][] = $handler;
         }
     }
