@@ -1,6 +1,6 @@
 {
   "name": "blsv-space/inquisition-php",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "description",
   "minimum-stability": "stable",
   "type": "library",
@@ -11,7 +11,7 @@
     }
   ],
   "require": {
-    "php": ">=8.4",
+    "php": ">=8.5",
     "ext-pdo": "*",
     "ext-mbstring": "*",
     "ext-ctype": "*"

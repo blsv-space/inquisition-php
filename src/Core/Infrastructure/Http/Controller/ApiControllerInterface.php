@@ -43,7 +43,8 @@ interface ApiControllerInterface extends ControllerInterface
      *  Return normalized response data
      *
      * @param array|EntityInterface $data
+     * @param string|null $entityResponseClassName
      * @return array
      */
-    public function normalizeData(array | EntityInterface $data): array;
+    public function normalizeData(array | EntityInterface $data, ?string $entityResponseClassName = null): array;
 }
