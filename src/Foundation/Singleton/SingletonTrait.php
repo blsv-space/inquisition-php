@@ -6,7 +6,7 @@ use LogicException;
 
 trait SingletonTrait
 {
-    private static ?self $instance = null;
+    protected static ?self $instance = null;
 
     /**
      *
@@ -56,6 +56,9 @@ trait SingletonTrait
         throw new LogicException('Cannot unserialize singleton');
     }
 
+    /**
+     * @return static
+     */
     public static function getInstance(): static
     {
         if (static::$instance === null) {

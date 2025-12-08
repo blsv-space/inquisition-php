@@ -38,7 +38,7 @@ class SingletonRegistry implements SingletonInterface
     public function resetAll(): void
     {
         foreach ($this->singletons as $singleton => $_) {
-            if ($singleton instanceof SingletonInterface) {
+            if (is_subclass_of($singleton, SingletonInterface::class)) {
                 $singleton::reset();
             }
         }
