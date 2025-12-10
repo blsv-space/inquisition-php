@@ -33,15 +33,19 @@ class SingletonRegistry implements SingletonInterface
     }
 
     /**
+     * @param array $exclusions - class names to exclude from resetting
      * @return void
      */
-    public function resetAll(): void
+    public function resetAll(array $exclusions = []): void
     {
         foreach ($this->singletons as $singleton => $_) {
+            if (in_array($singleton, $exclusions)) {
+                continue;
+            }
             if (is_subclass_of($singleton, SingletonInterface::class)) {
                 $singleton::reset();
             }
         }
-        $this->singletons = [];
+        $this->singletons = array_intersect_key($this->singletons, array_flip($exclusions));
     }
 }
