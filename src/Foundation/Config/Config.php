@@ -7,6 +7,9 @@ use RuntimeException;
 
 final class Config implements ConfigInterface
 {
+    private const string ENV_CONFIG_WORD_SEPARATOR = '__';
+    private const string ENV_CONFIG_WORD_SEPARATOR_TMP = '%%separator%%';
+
     use SingletonTrait;
 
     private array $config = [];
@@ -54,7 +57,9 @@ final class Config implements ConfigInterface
             }
 
             $configKey = $prefix ? substr($key, strlen($prefix)) : $key;
+            $configKey = str_replace(self::ENV_CONFIG_WORD_SEPARATOR, self::ENV_CONFIG_WORD_SEPARATOR_TMP, $configKey);
             $configKey = strtolower(str_replace('_', '.', $configKey));
+            $configKey = str_replace(self::ENV_CONFIG_WORD_SEPARATOR_TMP, '_', $configKey);
             $parsedValue = $this->parseEnvironmentValue($value);
             $this->setByPath($envConfig, $configKey, $parsedValue);
         }
