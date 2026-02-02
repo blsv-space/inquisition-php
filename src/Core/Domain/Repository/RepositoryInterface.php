@@ -81,6 +81,29 @@ interface RepositoryInterface extends SingletonInterface
      */
     public function findOneBy(array $criteria = []): ?EntityInterface;
 
+    /**
+     * @return string
+     */
     public function getDatabaseName(): string;
 
+    /**
+     * @param callable $operation
+     * @return mixed
+     */
+    public function transactional(callable $operation): mixed;
+
+    /**
+     * @return void
+     */
+    public function beginTransaction(): void;
+
+    /**
+     * @return void
+     */
+    public function commit(): void;
+
+    /**
+     * @return void
+     */
+    public function rollback(): void;
 }

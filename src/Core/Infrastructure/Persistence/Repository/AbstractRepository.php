@@ -296,7 +296,7 @@ abstract class AbstractRepository implements RepositoryInterface
      *
      * @return void
      */
-    protected function beginTransaction(): void
+    public function beginTransaction(): void
     {
         $this->connection->beginTransaction();
     }
@@ -306,7 +306,7 @@ abstract class AbstractRepository implements RepositoryInterface
      *
      * @return void
      */
-    protected function commit(): void
+    public function commit(): void
     {
         $this->connection->commit();
     }
@@ -316,7 +316,7 @@ abstract class AbstractRepository implements RepositoryInterface
      *
      * @return void
      */
-    protected function rollback(): void
+    public function rollback(): void
     {
         $this->connection->rollback();
     }
@@ -324,9 +324,11 @@ abstract class AbstractRepository implements RepositoryInterface
     /**
      * Execute operation within transaction
      *
+     * @param callable $operation
+     * @return mixed
      * @throws Throwable
      */
-    protected function transactional(callable $operation): mixed
+    public function transactional(callable $operation): mixed
     {
         $this->beginTransaction();
 
