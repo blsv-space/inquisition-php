@@ -18,6 +18,8 @@ use Throwable;
  */
 abstract class AbstractRepository implements RepositoryInterface
 {
+    public const string ORDER_ASC = 'ASC';
+    public const string ORDER_DESC = 'DESC';
     protected const string DATABASE_NAME = 'default';
     protected const string ENTITY_CLASS_NAME = '';
     protected const bool REPOSITORY_WITHOUT_ENTITY = false;
@@ -388,10 +390,9 @@ abstract class AbstractRepository implements RepositoryInterface
     }
 
     /**
-     * Build ORDER BY clause
-     *
      * @param array|null $orderBy
      * @return string
+     * @throws PersistenceException
      */
     protected function buildOrderByClause(?array $orderBy): string
     {
@@ -401,7 +402,14 @@ abstract class AbstractRepository implements RepositoryInterface
 
         $clauses = [];
         foreach ($orderBy as $field => $direction) {
-            $direction = strtoupper($direction) === 'DESC' ? 'DESC' : 'ASC';
+            if (!is_string($field) || !is_string($direction)
+                || !in_array(strtoupper($direction), [self::ORDER_ASC, self::ORDER_DESC])
+                || empty($field)
+            ) {
+                throw new PersistenceException('Order by must be an array of Record<string, ASC|DESC>');
+            }
+
+            $direction = strtoupper($direction) === self::ORDER_DESC ? self::ORDER_DESC : self::ORDER_ASC;
             $clauses[] = "$field $direction";
         }
 
