@@ -1,18 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Persistence\Repository;
 
 use DateTime;
 use Inquisition\Core\Domain\Entity\EntityInterface;
-use Inquisition\Core\Infrastructure\Migration\AbstractMigration;
 use Inquisition\Core\Infrastructure\Migration\MigrationInterface;
 use Inquisition\Core\Infrastructure\Migration\MigrationRepositoryInterface;
 use Inquisition\Foundation\Singleton\SingletonTrait;
 use PDO;
 use RuntimeException;
 
-final class MigrationRepository extends AbstractRepository
-    implements MigrationRepositoryInterface
+final class MigrationRepository extends AbstractRepository implements MigrationRepositoryInterface
 {
     use SingletonTrait;
 
@@ -24,10 +24,11 @@ final class MigrationRepository extends AbstractRepository
         parent::__construct();
     }
 
+    #[\Override]
     public function hasRun(MigrationInterface $migration): bool
     {
         $stmt = $this->connection->connect()->prepare(
-            "SELECT COUNT(*) FROM `" . self::getTableName() . "` WHERE `migration_class` = :migration_class;"
+            "SELECT COUNT(*) FROM `" . self::getTableName() . "` WHERE `migration_class` = :migration_class;",
         );
         $stmt->execute([
             'migration_class' => get_class($migration),
@@ -36,6 +37,7 @@ final class MigrationRepository extends AbstractRepository
         return $stmt->fetchColumn() > 0;
     }
 
+    #[\Override]
     public function markAsRun(MigrationInterface $migration): void
     {
         $dateTime = new DateTime()->format('Y-m-d H:i:s');
@@ -43,7 +45,7 @@ final class MigrationRepository extends AbstractRepository
         $stmt = $this->connection->connect()->prepare(
             "INSERT INTO `" . self::getTableName() . "`
              (`migration_class`, `version`, `executed_at`)
-              VALUES (:migration_class, :version, '$dateTime');"
+              VALUES (:migration_class, :version, '$dateTime');",
         );
         $stmt->execute([
             'migration_class' => get_class($migration),
@@ -51,25 +53,28 @@ final class MigrationRepository extends AbstractRepository
         ]);
     }
 
+    #[\Override]
     public function markAsNotRun(MigrationInterface $migration): void
     {
         $stmt = $this->connection->connect()->prepare(
-            "DELETE FROM " . self::getTableName() . " WHERE `migration_class` = :migration_class;"
+            "DELETE FROM " . self::getTableName() . " WHERE `migration_class` = :migration_class;",
         );
         $stmt->execute([
             'migration_class' => get_class($migration),
         ]);
     }
 
+    #[\Override]
     public function getAllExecutedVersions(): array
     {
         $stmt = $this->connection->connect()->query(
-            "SELECT `version` FROM " . self::getTableName() . " ORDER BY `version`;"
+            "SELECT `version` FROM " . self::getTableName() . " ORDER BY `version`;",
         );
 
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
 
+    #[\Override]
     public function createMigrationsTableIfNotExists(): void
     {
         $sql = "CREATE TABLE IF NOT EXISTS " . self::getTableName() . " (
@@ -82,11 +87,13 @@ final class MigrationRepository extends AbstractRepository
         $this->connection->connect()->exec($sql);
     }
 
+    #[\Override]
     protected function mapRowToEntity(array $row): EntityInterface
     {
         throw new RuntimeException('Should not be called');
     }
 
+    #[\Override]
     protected function mapEntityToRow(EntityInterface $entity): array
     {
         throw new RuntimeException('Should not be called');

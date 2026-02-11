@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Http\Router;
 
 use Inquisition\Core\Infrastructure\Http\HttpMethod;
@@ -22,10 +24,7 @@ interface RouteInterface
         get;
     }
 
-    /**
-     * @var string|null
-     */
-    public null|string $name {
+    public ?string $name {
         get;
     }
 
@@ -36,9 +35,6 @@ interface RouteInterface
         get;
     }
 
-    /**
-     * @var string
-     */
     public string $action {
         get;
     }
@@ -64,7 +60,6 @@ interface RouteInterface
      * Add middleware to the route (fluent interface)
      *
      * @param MiddlewareInterface|MiddlewareInterface[] $middleware
-     * @return self
      */
     public function middleware(MiddlewareInterface|array $middleware): self;
 

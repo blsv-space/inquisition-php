@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Http\Controller;
 
 use Inquisition\Core\Domain\Entity\EntityInterface;
@@ -17,7 +19,7 @@ interface ApiControllerInterface extends ControllerInterface
      */
     public function jsonResponse(
         array $data,
-        HttpStatusCode $statusCode = HttpStatusCode::OK
+        HttpStatusCode $statusCode = HttpStatusCode::OK,
     ): ResponseInterface;
 
     /**
@@ -26,7 +28,7 @@ interface ApiControllerInterface extends ControllerInterface
     public function jsonErrorResponse(
         string $message,
         HttpStatusCode $statusCode = HttpStatusCode::BAD_REQUEST,
-        array $errors = []
+        array $errors = [],
     ): ResponseInterface;
 
     /**
@@ -36,15 +38,12 @@ interface ApiControllerInterface extends ControllerInterface
         array $data,
         int $total,
         int $page,
-        int $perPage
+        int $perPage,
     ): ResponseInterface;
 
     /**
-     *  Return normalized response data
-     *
-     * @param array|EntityInterface $data
-     * @param string|null $entityResponseClassName
-     * @return array
+     * Return normalized response data
+     * @param EntityInterface[]|EntityInterface $data
      */
-    public function normalizeData(array | EntityInterface $data, ?string $entityResponseClassName = null): array;
+    public function normalizeData(array|EntityInterface $data, ?string $entityResponseClassName = null): array;
 }

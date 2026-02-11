@@ -1,16 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Application\Validation\Rule;
 
 use Inquisition\Core\Application\Validation\RuleInterface;
 
 final readonly class IntegerRule implements RuleInterface
 {
-    /**
-     * @param mixed $value
-     * @param array $data
-     * @return bool
-     */
+    #[\Override]
     public function passes(mixed $value, array $data = []): bool
     {
         if (is_null($value)) {
@@ -28,17 +26,13 @@ final readonly class IntegerRule implements RuleInterface
         return filter_var($value, FILTER_VALIDATE_INT) !== false;
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function message(): string
     {
         return 'This field must be an integer';
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function getName(): string
     {
         return 'integer';

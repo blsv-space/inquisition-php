@@ -1,17 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Application\Validation\Rule;
 
 use Inquisition\Core\Application\Validation\RuleInterface;
 
 final readonly class RequiredRule implements RuleInterface
 {
-
-    /**
-     * @param mixed $value
-     * @param array $data
-     * @return bool
-     */
+    #[\Override]
     public function passes(mixed $value, array $data = []): bool
     {
         if (is_null($value)) {
@@ -29,17 +26,13 @@ final readonly class RequiredRule implements RuleInterface
         return true;
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function message(): string
     {
         return 'This field is required';
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function getName(): string
     {
         return 'required';

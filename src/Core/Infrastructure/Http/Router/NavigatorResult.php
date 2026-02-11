@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Http\Router;
 
 /**
@@ -14,14 +16,11 @@ final readonly class NavigatorResult
          * @var array<string, string>
          */
         private array          $parameters = [],
-    )
-    {
-    }
+    ) {}
 
     /**
      * Get the matched route
      *
-     * @return RouteInterface
      */
     public function getRoute(): RouteInterface
     {
@@ -41,10 +40,7 @@ final readonly class NavigatorResult
     /**
      * Get specific parameter
      *
-     * @param string $name
-     * @param string|null $default
      *
-     * @return ?string
      */
     public function getParameter(string $name, ?string $default = null): ?string
     {
@@ -54,7 +50,6 @@ final readonly class NavigatorResult
     /**
      * Get a route name
      *
-     * @return string|null
      */
     public function getRouteName(): ?string
     {
@@ -64,8 +59,6 @@ final readonly class NavigatorResult
     /**
      * Check if parameter exists
      *
-     * @param string $name
-     * @return bool
      */
     public function hasParameter(string $name): bool
     {
@@ -75,7 +68,6 @@ final readonly class NavigatorResult
     /**
      * Get a route path
      *
-     * @return string
      */
     public function getPath(): string
     {
@@ -85,7 +77,6 @@ final readonly class NavigatorResult
     /**
      * Get route methods
      *
-     * @return array
      */
     public function getMethods(): array
     {

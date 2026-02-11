@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Migration;
 
 use Inquisition\Core\Domain\Repository\RepositoryInterface;

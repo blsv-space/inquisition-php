@@ -1,11 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 if (!function_exists('dd')) {
     /**
      * Dump the given variables and end the script execution.
      *
      * @param mixed ...$vars
-     * @return never
      */
     function dd(...$vars): never
     {
@@ -19,7 +20,6 @@ if (!function_exists('dump')) {
      * Dump the given variable in a readable format.
      *
      * @param mixed ...$vars
-     * @return void
      */
     function dump(...$vars): void
     {
@@ -39,7 +39,6 @@ if (!function_exists('dumpCli')) {
      * Dump variable for CLI output.
      *
      * @param mixed ...$vars
-     * @return void
      */
     function dumpCli(...$vars): void
     {
@@ -56,7 +55,6 @@ if (!function_exists('dumpHttp')) {
      * Dump variable for HTTP/RESTful response.
      *
      * @param mixed $vars
-     * @return void
      */
     function dumpHttp($vars): void
     {
@@ -69,5 +67,3 @@ if (!function_exists('dumpHttp')) {
         echo "\n";
     }
 }
-
-

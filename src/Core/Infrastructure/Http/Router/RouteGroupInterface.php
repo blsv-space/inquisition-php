@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Http\Router;
 
 use Inquisition\Core\Infrastructure\Http\HttpMethod;
@@ -24,7 +26,6 @@ interface RouteGroupInterface
      * Add middleware to the group
      * @param MiddlewareInterface|MiddlewareInterface[] $middleware
      *
-     * @return self
      */
     public function middleware(MiddlewareInterface|array $middleware): self;
 
@@ -46,19 +47,15 @@ interface RouteGroupInterface
     /**
      * Create a route within this group
      *
-     * @param string $path
      * @param class-string $controller
-     * @param string $action
      * @param HttpMethod[] $methods
-     * @param string|null $name
-     * @return RouteInterface
      */
     public function route(
         string $path,
         string $controller,
         string $action,
         array $methods,
-        ?string $name = null
+        ?string $name = null,
     ): RouteInterface;
 
     /**
@@ -112,7 +109,7 @@ interface RouteGroupInterface
         get;
     }
 
-    public null|string $namePrefix {
+    public ?string $namePrefix {
         get;
     }
 
@@ -132,16 +129,12 @@ interface RouteGroupInterface
     /**
      * Check if a group has middleware
      *
-     * @param MiddlewareInterface $middleware
-     * @return bool
      */
     public function hasMiddleware(MiddlewareInterface $middleware): bool;
 
     /**
      * Merge with a parent group
      *
-     * @param RouteGroupInterface $parentGroup
-     * @return RouteGroupInterface
      */
     public function mergeWith(RouteGroupInterface $parentGroup): RouteGroupInterface;
 
@@ -149,6 +142,3 @@ interface RouteGroupInterface
         get;
     }
 }
-
-
-

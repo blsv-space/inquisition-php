@@ -1,18 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Persistence\DatabaseManager;
 
 use Inquisition\Core\Application\Persistence\DatabaseManagerInterface;
 use Inquisition\Core\Infrastructure\Persistence\DatabaseConnection;
-use PDO;
 
 final readonly class MySQLDatabaseManager implements DatabaseManagerInterface
 {
     public function __construct(private DatabaseConnection $connection) {}
 
-    /**
-     * @return void
-     */
+    #[\Override]
     public function create(): void
     {
         $name = $this->connection->getDatabaseName();
@@ -20,9 +19,7 @@ final readonly class MySQLDatabaseManager implements DatabaseManagerInterface
             ->exec("CREATE DATABASE `$name` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
     }
 
-    /**
-     * @return bool
-     */
+    #[\Override]
     public function exists(): bool
     {
         $stmt = $this->connection->connect()->prepare("SHOW DATABASES LIKE :name");
@@ -30,9 +27,7 @@ final readonly class MySQLDatabaseManager implements DatabaseManagerInterface
         return (bool) $stmt->fetchColumn();
     }
 
-    /**
-     * @return void
-     */
+    #[\Override]
     public function reset(): void
     {
         if ($this->exists()) {

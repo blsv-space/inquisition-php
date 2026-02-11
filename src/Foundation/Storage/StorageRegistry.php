@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Foundation\Storage;
 
 use Inquisition\Foundation\Config\Config;
@@ -9,6 +11,7 @@ use InvalidArgumentException;
 
 class StorageRegistry implements SingletonInterface
 {
+    use SingletonTrait;
     public const string NAME_LOCAL = 'local';
     public const string NAME_DEFAULT = 'default';
 
@@ -17,12 +20,6 @@ class StorageRegistry implements SingletonInterface
      */
     private array $storages = [];
 
-    use SingletonTrait;
-
-    /**
-     * @param string $name
-     * @return StorageInterface
-     */
     public function storage(string $name = self::NAME_DEFAULT): StorageInterface
     {
         if ($name === self::NAME_DEFAULT) {
@@ -40,10 +37,6 @@ class StorageRegistry implements SingletonInterface
         return $this->storages[$name];
     }
 
-    /**
-     * @param string $name
-     * @return void
-     */
     protected function createFromConfig(string $name): void
     {
         $storageConfig = Config::getInstance()->getByPath('storage.providers.' . $name);
@@ -66,14 +59,10 @@ class StorageRegistry implements SingletonInterface
 
         $this->storages[$name] = new $storageConfig['provider'](
             rootPath: $storageConfig['root_path'],
-            options: $options
+            options: $options,
         );
     }
 
-    /**
-     * @param array $storageConfig
-     * @return void
-     */
     protected function validateConfig(array $storageConfig): void
     {
         $errors = [];

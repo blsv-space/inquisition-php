@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Http\Router;
 
 use Inquisition\Core\Infrastructure\Http\Request\RequestInterface;
@@ -20,17 +22,18 @@ final class Router implements RouterInterface
     /**
      * @var RouteInterface[]
      */
-    protected array $routes = [];
+    public protected(set) array $routes = [] {
+        get {
+            return $this->routes;
+        }
+    }
 
     /**
      * @var RouteGroupInterface[] <string, RouteGroupInterface>
      */
     private array $routeGroups = [];
 
-    /**
-     * @var RouteInterface|null
-     */
-    protected(set) ?RouteInterface $currentRoute = null {
+    public protected(set) ?RouteInterface $currentRoute = null {
         get {
             return $this->currentRoute;
         }
@@ -39,7 +42,11 @@ final class Router implements RouterInterface
     /**
      * @var array<string, RouteInterface>
      */
-    protected array $namedRoutes = [];
+    public protected(set) array $namedRoutes = [] {
+        get {
+            return $this->namedRoutes;
+        }
+    }
 
     private function __construct()
     {
@@ -50,10 +57,9 @@ final class Router implements RouterInterface
     /**
      * Find a route that matches the given request
      *
-     * @param RequestInterface $request
-     * @return NavigatorResult|null
      * @throws Exception\RouterException
      */
+    #[\Override]
     public function routeByRequest(RequestInterface $request): ?NavigatorResult
     {
         foreach ($this->routes as $route) {
@@ -69,10 +75,9 @@ final class Router implements RouterInterface
     /**
      * Get route by name
      *
-     * @param string $name
      *
-     * @return RouteInterface|null
      */
+    #[\Override]
     public function getRouteByName(string $name): ?RouteInterface
     {
         return $this->namedRoutes[$name] ?? null;
@@ -81,11 +86,9 @@ final class Router implements RouterInterface
     /**
      * Generate URL for a named route
      *
-     * @param string $name
-     * @param array $parameters
      *
-     * @return string
      */
+    #[\Override]
     public function generateUrlByName(string $name, array $parameters = []): string
     {
         $route = $this->getRouteByName($name);
@@ -100,54 +103,43 @@ final class Router implements RouterInterface
     /**
      * Generate URL for a route
      *
-     * @param RouteInterface $route
-     * @param array $parameters
      *
-     * @return string
      */
+    #[\Override]
     public function generateUrlByRoute(RouteInterface $route, array $parameters = []): string
     {
         return $this->urlGenerator->generate($route, $parameters);
     }
 
-    /**
-     * @param RouteInterface $route
-     *
-     * @return void
-     */
+    #[\Override]
     public function addRoute(RouteInterface $route): void
     {
-        $this->routes[] = $route;
+        $routes = $this->routes;
+        $routes[] = $route;
+        $this->routes = $routes;
         if ($route->name) {
             if (array_key_exists($route->name, $this->namedRoutes)) {
                 throw new InvalidArgumentException("Route with name '$route->name' already exists");
             }
-            $this->namedRoutes[$route->name] = $route;
+            $namedRoutes = $this->namedRoutes;
+            $namedRoutes[$route->name] = $route;
+            $this->namedRoutes = $namedRoutes;
         }
     }
 
-    /**
-     * @param string $name
-     * @return RouteGroupInterface
-     */
+    #[\Override]
     public function group(string $name): RouteGroupInterface
     {
         return new RouteGroup($name);
     }
 
-    /**
-     * @param RouteGroupInterface $routeGroup
-     * @return void
-     */
+    #[\Override]
     public function groupRegistry(RouteGroupInterface $routeGroup): void
     {
         $this->routeGroups[$routeGroup->name] = $routeGroup;
     }
 
-    /**
-     * @param string $name
-     * @return RouteGroupInterface|null
-     */
+    #[\Override]
     public function getGroup(string $name): ?RouteGroupInterface
     {
         return $this->routeGroups[$name] ?? null;
@@ -156,10 +148,9 @@ final class Router implements RouterInterface
     /**
      * Check if the route exists by name
      *
-     * @param string $name
      *
-     * @return bool
      */
+    #[\Override]
     public function hasRoute(string $name): bool
     {
         return isset($this->namedRoutes[$name]);
@@ -169,10 +160,9 @@ final class Router implements RouterInterface
     /**
      * Remove route by name
      *
-     * @param string $name
      *
-     * @return bool
      */
+    #[\Override]
     public function removeRoute(string $name): bool
     {
         if (!$this->hasRoute($name)) {
@@ -191,27 +181,12 @@ final class Router implements RouterInterface
     /**
      * Clear all routes
      *
-     * @return void
      */
+    #[\Override]
     public function clearRoutes(): void
     {
         $this->routes = [];
         $this->namedRoutes = [];
     }
 
-    /**
-     * @return RouteInterface[]
-     */
-    public function getRoutes(): array
-    {
-        return $this->routes;
-    }
-
-    /**
-     * @return array<string, RouteInterface>
-     */
-    public function getNamedRoutes(): array
-    {
-        return $this->namedRoutes;
-    }
 }

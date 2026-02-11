@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Foundation;
 
 use Inquisition\Foundation\Config\Config;
@@ -9,8 +11,7 @@ use Inquisition\Foundation\Singleton\SingletonRegistry;
 use Inquisition\Foundation\Singleton\SingletonTrait;
 use LogicException;
 
-class Kernel
-    implements SingletonInterface, KernelInterface
+class Kernel implements SingletonInterface, KernelInterface
 {
     use SingletonTrait;
 
@@ -44,16 +45,18 @@ class Kernel
     }
 
     /**
-     * @return void
+     * @override
      */
+    #[\Override]
     public function boot(): void
     {
         $this->config = Config::getInstance();
     }
 
     /**
-     * @return void
+     * @override
      */
+    #[\Override]
     public function shutdown(): void
     {
         SingletonRegistry::getInstance()->resetAll();

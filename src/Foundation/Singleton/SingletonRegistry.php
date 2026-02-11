@@ -1,24 +1,25 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Foundation\Singleton;
+
+use InvalidArgumentException;
 
 class SingletonRegistry implements SingletonInterface
 {
     use SingletonTrait;
 
-    /**
-     * @var array
-     */
     private array $singletons = [];
 
-    /**
-     * @param class-string<SingletonInterface> $name
-     * @return void
-     */
     public function register(string $name): void
     {
         if (array_key_exists($name, $this->singletons)) {
             return;
+        }
+
+        if (!is_subclass_of($name, SingletonInterface::class)) {
+            throw new InvalidArgumentException("Class $name is not a singleton");
         }
 
         $this->singletons[$name] = true;
@@ -34,7 +35,6 @@ class SingletonRegistry implements SingletonInterface
 
     /**
      * @param array $exclusions - class names to exclude from resetting
-     * @return void
      */
     public function resetAll(array $exclusions = []): void
     {

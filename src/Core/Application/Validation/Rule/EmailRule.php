@@ -1,16 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Application\Validation\Rule;
 
 use Inquisition\Core\Application\Validation\RuleInterface;
 
 final readonly class EmailRule implements RuleInterface
 {
-    /**
-     * @param mixed $value
-     * @param array $data
-     * @return bool
-     */
+    #[\Override]
     public function passes(mixed $value, array $data = []): bool
     {
         if (is_null($value)) {
@@ -24,17 +22,13 @@ final readonly class EmailRule implements RuleInterface
         return filter_var($value, FILTER_VALIDATE_EMAIL) !== false;
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function message(): string
     {
         return 'This field must be a valid email address';
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function getName(): string
     {
         return 'email';

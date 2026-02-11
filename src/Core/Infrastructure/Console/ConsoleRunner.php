@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Console;
 
 use Exception;
@@ -21,8 +23,6 @@ final class ConsoleRunner
     private array $providers = [];
 
     /**
-     * @param CommandProviderInterface $provider
-     * @return void
      * @throws Exception
      */
     public function addProvider(CommandProviderInterface $provider): void
@@ -36,7 +36,6 @@ final class ConsoleRunner
     }
 
     /**
-     * @return void
      * @throws Exception
      */
     public function bootstrap(): void
@@ -47,18 +46,17 @@ final class ConsoleRunner
     /**
      * Run a console command
      *
-     * @param string $commandName The name of the command to run
-     * @param array $arguments Command arguments and options
-     * @return void
+     * @param  string                   $commandName The name of the command to run
+     * @param  array                    $arguments   Command arguments and options
      * @throws InvalidArgumentException If command is not found
-     * @throws Exception|Throwable If job class doesn't exist or can't be instantiated
+     * @throws Exception|Throwable      If job class doesn't exist or can't be instantiated
      */
     public function run(string $commandName, array $arguments = []): void
     {
         if (!isset($this->commands[$commandName])) {
             throw new InvalidArgumentException(
-                "Command '$commandName' not found. Available commands:\r\n" .
-                implode(",\r\n", array_keys($this->commands))
+                "Command '$commandName' not found. Available commands:\r\n"
+                . implode(",\r\n", array_keys($this->commands)),
             );
         }
 
@@ -81,7 +79,7 @@ final class ConsoleRunner
             $command->execute();
 
             $endTime = microtime(true);
-            $executionTime = round(($endTime - $startTime) * 1000, 2);
+            $executionTime = round(($endTime - $startTime) * 1000.0, 2);
 
             echo "Command '$commandName' completed in {$executionTime}ms\n";
 
@@ -101,7 +99,6 @@ final class ConsoleRunner
     /**
      * Get a list of available commands
      *
-     * @return array
      */
     public function listCommands(): array
     {
@@ -111,7 +108,6 @@ final class ConsoleRunner
     /**
      * Get detailed information about all commands
      *
-     * @return array
      */
     public function getCommandsInfo(): array
     {
@@ -120,7 +116,7 @@ final class ConsoleRunner
             $info[$commandName] = [
                 'name' => $commandName,
                 'job_class' => $jobClass,
-                'exists' => class_exists($jobClass)
+                'exists' => class_exists($jobClass),
             ];
         }
 
@@ -130,13 +126,11 @@ final class ConsoleRunner
     /**
      * Check if debug mode is enabled
      *
-     * @param array $arguments
-     * @return bool
      */
     private function isDebugMode(array $arguments): bool
     {
-        return isset($arguments['debug']) ||
-            isset($arguments['verbose']) ||
-            isset($arguments['v']);
+        return isset($arguments['debug'])
+            || isset($arguments['verbose'])
+            || isset($arguments['v']);
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Http\Router;
 
 use Inquisition\Core\Infrastructure\Http\HttpSchema;
@@ -11,8 +13,7 @@ use InvalidArgumentException;
  * URL Generator Implementation
  * Generates URLs from routes with support for parameters and options
  */
-final class UrlGenerator
-    implements UrlGeneratorInterface, SingletonInterface
+final class UrlGenerator implements UrlGeneratorInterface, SingletonInterface
 {
     use SingletonTrait;
 
@@ -24,7 +25,7 @@ final class UrlGenerator
             $this->baseUrl = rtrim($value, '/');
         }
     }
-    public HttpSchema $scheme  = HttpSchema::HTTP {
+    public HttpSchema $scheme = HttpSchema::HTTP {
         get {
             return $this->scheme;
         }
@@ -62,11 +63,8 @@ final class UrlGenerator
     /**
      * Generate URL for a named route
      *
-     * @param RouteInterface $route
-     * @param array $parameters
-     * @param array $options
-     * @return string
      */
+    #[\Override]
     public function generate(RouteInterface $route, array $parameters = [], array $options = []): string
     {
         $url = $this->buildUrl($route, $parameters);
@@ -87,10 +85,8 @@ final class UrlGenerator
     /**
      * Generate absolute URL
      *
-     * @param RouteInterface $route
-     * @param array $parameters
-     * @return string
      */
+    #[\Override]
     public function generateAbsolute(RouteInterface $route, array $parameters = []): string
     {
         return $this->generate($route, $parameters, ['absolute' => true]);
@@ -99,10 +95,8 @@ final class UrlGenerator
     /**
      * Generate relative URL
      *
-     * @param RouteInterface $route
-     * @param array $parameters
-     * @return string
      */
+    #[\Override]
     public function generateRelative(RouteInterface $route, array $parameters = []): string
     {
         return $this->generate($route, $parameters, ['relative' => true]);
@@ -111,9 +105,6 @@ final class UrlGenerator
     /**
      * Build URL from route and parameters
      *
-     * @param RouteInterface $route
-     * @param array $parameters
-     * @return string
      */
     private function buildUrl(RouteInterface $route, array $parameters = []): string
     {
@@ -133,8 +124,6 @@ final class UrlGenerator
     /**
      * Make URL absolute
      *
-     * @param string $url
-     * @return string
      */
     public function makeAbsolute(string $url): string
     {
@@ -165,14 +154,12 @@ final class UrlGenerator
     /**
      * Make URL relative (strip scheme and host)
      *
-     * @param string $url
-     * @return string
      */
     public function makeRelative(string $url): string
     {
         if (str_starts_with($url, 'http://') || str_starts_with($url, 'https://')) {
-            return parse_url($url, PHP_URL_PATH) .
-                (parse_url($url, PHP_URL_QUERY) ? '?' . parse_url($url, PHP_URL_QUERY) : '');
+            return parse_url($url, PHP_URL_PATH)
+                . (parse_url($url, PHP_URL_QUERY) ? '?' . parse_url($url, PHP_URL_QUERY) : '');
         }
 
         if ($this->baseUrl && str_starts_with($url, $this->baseUrl)) {
@@ -185,7 +172,6 @@ final class UrlGenerator
     /**
      * Detect the current scheme and host from the environment
      *
-     * @return void
      */
     private function detectCurrentSchemeAndHost(): void
     {

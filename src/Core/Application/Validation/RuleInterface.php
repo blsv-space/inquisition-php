@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Application\Validation;
 
 interface RuleInterface
@@ -7,9 +9,9 @@ interface RuleInterface
     /**
      * Validate the given data against this rule.
      *
-     * @param mixed $value The value to validate
-     * @param array $data Additional context data for validation
-     * @return bool True if the value is valid, according to this rule
+     * @param  mixed $value The value to validate
+     * @param  array $data  Additional context data for validation
+     * @return bool  True if the value is valid, according to this rule
      */
     public function passes(mixed $value, array $data = []): bool;
 

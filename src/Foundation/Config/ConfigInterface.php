@@ -1,12 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Foundation\Config;
 
 use Inquisition\Foundation\Singleton\SingletonInterface;
 
 interface ConfigInterface extends SingletonInterface
 {
-
     public function load(array $config);
 
     public function loadFromEnvironment(string $prefix = '', bool $merge = true);

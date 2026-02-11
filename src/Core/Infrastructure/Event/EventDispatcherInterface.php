@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Event;
 
 use Inquisition\Core\Application\Event\EventHandlerInterface;

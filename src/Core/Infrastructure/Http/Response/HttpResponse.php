@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Http\Response;
 
 use Inquisition\Core\Infrastructure\Http\HttpStatusCode;
@@ -8,19 +10,19 @@ use JsonException;
 class HttpResponse implements ResponseInterface
 {
     protected HttpStatusCode $statusCode = HttpStatusCode::OK;
-    protected string         $content    = '';
-    protected array          $headers    = [];
-    protected bool           $sent       = false {
+    protected string         $content = '';
+    protected array          $headers = [];
+    protected bool           $sent = false {
         get {
             return $this->sent;
         }
     }
 
     /**
-     * @param HttpStatusCode $statusCode
      *
      * @return $this
      */
+    #[\Override]
     public function setStatusCode(HttpStatusCode $statusCode): self
     {
         $this->statusCode = $statusCode;
@@ -28,17 +30,13 @@ class HttpResponse implements ResponseInterface
         return $this;
     }
 
-    /**
-     * @return HttpStatusCode
-     */
+    #[\Override]
     public function getStatusCode(): HttpStatusCode
     {
         return $this->statusCode;
     }
 
-    /**
-     * @return void
-     */
+    #[\Override]
     public function send(): void
     {
         if ($this->sent || headers_sent()) {
@@ -58,35 +56,26 @@ class HttpResponse implements ResponseInterface
         $this->sent = true;
     }
 
-    /**
-     * @return string
-     */
     public function getStatusMessage(): string
     {
         return $this->statusCode->getMessage();
     }
 
-    /**
-     * @return bool
-     */
     public function isSuccessful(): bool
     {
         return $this->statusCode->isSuccessful();
     }
 
-    /**
-     * @return bool
-     */
     public function isError(): bool
     {
         return $this->statusCode->isError();
     }
 
     /**
-     * @param string $content
      *
      * @return $this
      */
+    #[\Override]
     public function setContent(string $content): self
     {
         $this->content = $content;
@@ -94,20 +83,17 @@ class HttpResponse implements ResponseInterface
         return $this;
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function getContent(): string
     {
         return $this->content;
     }
 
     /**
-     * @param string $name
-     * @param string $value
      *
      * @return $this
      */
+    #[\Override]
     public function setHeader(string $name, string $value): self
     {
         $this->headers[$this->normalizeHeaderName($name)] = $value;
@@ -115,19 +101,17 @@ class HttpResponse implements ResponseInterface
         return $this;
     }
 
-    /**
-     * @return array
-     */
+    #[\Override]
     public function getHeaders(): array
     {
         return $this->headers;
     }
 
     /**
-     * @param array $headers
      *
      * @return $this
      */
+    #[\Override]
     public function setHeaders(array $headers): self
     {
         foreach ($headers as $name => $value) {

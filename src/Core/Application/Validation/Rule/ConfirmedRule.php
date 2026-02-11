@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Application\Validation\Rule;
 
 use Inquisition\Core\Application\Validation\RuleInterface;
@@ -7,23 +9,15 @@ use InvalidArgumentException;
 
 final readonly class ConfirmedRule implements RuleInterface
 {
-    /**
-     * @param string $confirmationField
-     */
     public function __construct(
-        private string $confirmationField
-    )
-    {
+        private string $confirmationField,
+    ) {
         if ($this->confirmationField === '') {
             throw new InvalidArgumentException('Confirmation field cannot be empty');
         }
     }
 
-    /**
-     * @param mixed $value
-     * @param array $data
-     * @return bool
-     */
+    #[\Override]
     public function passes(mixed $value, array $data = []): bool
     {
         if (is_null($value)) {
@@ -38,17 +32,13 @@ final readonly class ConfirmedRule implements RuleInterface
         return $value === $confirmationValue;
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function message(): string
     {
         return 'The confirmation does not match';
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function getName(): string
     {
         return 'confirmed';

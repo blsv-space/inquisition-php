@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Event;
 
 use Inquisition\Core\Application\Event\EventHandlerInterface;
@@ -10,13 +12,10 @@ final class EventDispatcher implements EventDispatcherInterface
 {
     use SingletonTrait;
 
-    /** @var EventHandlerInterface[] */
+    /** @var array<string, EventHandlerInterface[]> */
     private array $handlers = [];
 
-    /**
-     * @param EventHandlerInterface $handler
-     * @return void
-     */
+    #[\Override]
     public function registry(EventHandlerInterface $handler): void
     {
         foreach ($handler->getHandledEvents() as $eventClass) {
@@ -27,10 +26,7 @@ final class EventDispatcher implements EventDispatcherInterface
         }
     }
 
-    /**
-     * @param EventInterface $event
-     * @return void
-     */
+    #[\Override]
     public function dispatch(EventInterface $event): void
     {
         foreach ($this->handlers[$event::class] ?? [] as $handler) {

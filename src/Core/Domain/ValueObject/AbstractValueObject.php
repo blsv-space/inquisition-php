@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Domain\ValueObject;
 
 use Inquisition\Core\Domain\Validator\StubValueObjectValidator;
@@ -8,7 +10,7 @@ use JsonException;
 
 abstract class AbstractValueObject implements ValueObjectInterface
 {
-    protected(set) mixed $value;
+    public protected(set) mixed $value;
 
     protected function __construct(mixed $data)
     {
@@ -16,9 +18,10 @@ abstract class AbstractValueObject implements ValueObjectInterface
     }
 
     /**
-     * @inheritDoc
+     *
      * @throws JsonException
      */
+    #[\Override]
     public function equals(ValueObjectInterface $other): bool
     {
         return $this::class === $other::class
@@ -27,7 +30,7 @@ abstract class AbstractValueObject implements ValueObjectInterface
     }
 
     /**
-     * @inheritDoc
+     *
      * @throws JsonException
      */
     public function __toString(): string
@@ -35,19 +38,13 @@ abstract class AbstractValueObject implements ValueObjectInterface
         return json_encode($this->toRaw(), JSON_THROW_ON_ERROR);
     }
 
-    /**
-     * @inheritDoc
-     */
+    #[\Override]
     abstract public function toRaw(): mixed;
 
-    /**
-     * @inheritDoc
-     */
+    #[\Override]
     abstract public static function fromRaw(mixed $data): static;
 
-    /**
-     * @inheritDoc
-     */
+    #[\Override]
     abstract public static function validate(mixed $data): void;
 
     /**

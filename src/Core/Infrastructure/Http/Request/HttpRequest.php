@@ -1,35 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Http\Request;
 
 use Inquisition\Core\Infrastructure\Http\HttpMethod;
 use JsonException;
 
-final class
-
-
-HttpRequest implements RequestInterface
+final class HttpRequest implements RequestInterface
 {
     /** @var array<string,string|string[]> */
-    protected(set) array $headers {
+    public protected(set) array $headers {
         get {
             return $this->headers;
         }
     }
-    /**
-     * @var array|null
-     */
     private ?array $decodedJson = null;
 
     /**
-     * @param HttpMethod $method
-     * @param string $uri
-     * @param string $rawBody
-     * @param string $clientIp
-     * @param array<string,string|string[]> $headers
-     * @param array<string,mixed> $query
-     * @param array<string,mixed> $body
-     * @param array<string,mixed> $files
+     * @param array<string,string|string[]>                                                                                        $headers
+     * @param array<int|non-empty-string, non-empty-array<int|non-empty-string, array<int|non-empty-string, mixed>|string>|string> $query
+     * @param array<int|non-empty-string, non-empty-array<int|non-empty-string, array<int|non-empty-string, mixed>|string>|string> $body
+     * @param array<string,mixed>                                                                                                  $files
      */
     public function __construct(
         private readonly HttpMethod $method,
@@ -40,40 +32,32 @@ HttpRequest implements RequestInterface
         private readonly array      $files = [],
         private readonly string     $clientIp = '0.0.0.0',
         array                       $headers = [],
-    )
-    {
+    ) {
         $this->headers = $this->normaliseHeaders($headers);
     }
 
-    /**
-     * @return HttpMethod
-     */
+    #[\Override]
     public function getMethod(): HttpMethod
     {
         return $this->method;
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function getUri(): string
     {
         return $this->uri;
     }
 
-    /**
-     * @return array
-     */
+    #[\Override]
     public function getAllParameters(): array
     {
         return $this->body + $this->query;
     }
 
     /**
-     * @param string $key
-     * @param $default
      * @return mixed|null
      */
+    #[\Override]
     public function getParameter(string $key, $default = null): mixed
     {
         return $this->body[$key]
@@ -81,20 +65,13 @@ HttpRequest implements RequestInterface
             ?? $default;
     }
 
-    /**
-     * @param string $key
-     * @return bool
-     */
+    #[\Override]
     public function hasParameter(string $key): bool
     {
         return array_key_exists($key, $this->body) || array_key_exists($key, $this->query);
     }
 
-    /**
-     * @param string $name
-     * @param $default
-     * @return string|null
-     */
+    #[\Override]
     public function getHeader(string $name, $default = null): ?string
     {
         $normalised = strtolower($name);
@@ -111,18 +88,16 @@ HttpRequest implements RequestInterface
         return $value;
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function getBody(): string
     {
         return $this->rawBody;
     }
 
     /**
-     * @return array|null
      * @throws JsonException
      */
+    #[\Override]
     public function getJsonBody(): ?array
     {
         if ($this->decodedJson !== null) {
@@ -141,17 +116,13 @@ HttpRequest implements RequestInterface
         return null;
     }
 
-    /**
-     * @return array
-     */
+    #[\Override]
     public function getFiles(): array
     {
         return $this->files;
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function getClientIp(): string
     {
         return $this->clientIp;
@@ -161,7 +132,6 @@ HttpRequest implements RequestInterface
     /**
      * Build a request object from PHP super-globals.
      *
-     * @return self
      */
     public static function createFromGlobals(): self
     {
@@ -219,7 +189,7 @@ HttpRequest implements RequestInterface
         foreach ($_SERVER as $name => $value) {
             if (str_starts_with($name, 'HTTP_')) {
                 $header = str_replace('_', '-', substr($name, 5));
-                $headers[$header] = $value;
+                $headers[$header] = (string) $value;
             }
         }
 

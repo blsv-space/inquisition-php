@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Application\Job;
 
 use Throwable;
@@ -36,8 +38,5 @@ interface JobQueueInterface
      */
     public function clear(string $queue = 'default'): void;
 
-    /**
-     * @return string
-     */
     public function getQueueName(): string;
 }

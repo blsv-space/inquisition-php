@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Migration;
 
 use Inquisition\Core\Infrastructure\Persistence\DatabaseConnectionInterface;
@@ -23,8 +25,10 @@ abstract readonly class AbstractMigration implements MigrationInterface
         $this->connection = DatabaseConnections::getInstance()->connect(static::DATABASE_NAME);
     }
 
+    #[\Override]
     abstract public function getVersion(): string;
 
+    #[\Override]
     abstract public function getDescription(): string;
 
     protected function execute(string $sql): void
@@ -39,11 +43,11 @@ abstract readonly class AbstractMigration implements MigrationInterface
 
     private function prepareSQL(string $sql): string
     {
-        switch ($this->connection->getDatabaseDriver()){
+        switch ($this->connection->getDatabaseDriver()) {
             case DbDriverEnum::SQLITE:
                 return $this->convertToSQLite($sql);
-                default:
-                    return $sql;
+            default:
+                return $sql;
         }
     }
 

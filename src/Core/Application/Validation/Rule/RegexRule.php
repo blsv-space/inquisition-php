@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Application\Validation\Rule;
 
 use Inquisition\Core\Application\Validation\RuleInterface;
@@ -7,25 +9,16 @@ use InvalidArgumentException;
 
 final readonly class RegexRule implements RuleInterface
 {
-    /**
-     * @param string $pattern
-     * @param string $customMessage
-     */
     public function __construct(
         private string $pattern,
-        private string $customMessage = ''
-    )
-    {
+        private string $customMessage = '',
+    ) {
         if ($this->pattern === '') {
             throw new InvalidArgumentException('Pattern cannot be empty');
         }
     }
 
-    /**
-     * @param mixed $value
-     * @param array $data
-     * @return bool
-     */
+    #[\Override]
     public function passes(mixed $value, array $data = []): bool
     {
         if (is_null($value)) {
@@ -39,17 +32,13 @@ final readonly class RegexRule implements RuleInterface
         return preg_match($this->pattern, $value) === 1;
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function message(): string
     {
         return $this->customMessage ?: 'This field format is invalid';
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function getName(): string
     {
         return 'regex';

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Persistence;
 
 use PDO;
@@ -19,15 +21,9 @@ class DatabaseConnection implements DatabaseConnectionInterface
         private readonly ?string      $username = null,
         private readonly ?string      $password = null,
         private readonly ?array       $options = null,
-    )
-    {
-    }
+    ) {}
 
-    /**
-     * @param bool $reconnect
-     *
-     * @return PDO
-     */
+    #[\Override]
     public function connect(bool $reconnect = false): PDO
     {
         if (is_null($this->connection) || $reconnect) {
@@ -37,9 +33,6 @@ class DatabaseConnection implements DatabaseConnectionInterface
         return $this->connection;
     }
 
-    /**
-     * @return array
-     */
     private function getOptions(): array
     {
         $options = [
@@ -53,9 +46,6 @@ class DatabaseConnection implements DatabaseConnectionInterface
         return $options;
     }
 
-    /**
-     * @return string
-     */
     private function getDsn(): string
     {
         if (is_null($this->dsn)) {
@@ -87,41 +77,31 @@ class DatabaseConnection implements DatabaseConnectionInterface
         return $this->dsn;
     }
 
-    /**
-     * @return void
-     */
+    #[\Override]
     public function beginTransaction(): void
     {
         $this->connection->beginTransaction();
     }
 
-    /**
-     * @return void
-     */
+    #[\Override]
     public function commit(): void
     {
         $this->connection->commit();
     }
 
-    /**
-     * @return void
-     */
+    #[\Override]
     public function rollback(): void
     {
         $this->connection->rollback();
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function getDatabaseName(): string
     {
         return $this->database;
     }
 
-    /**
-     * @return DbDriverEnum
-     */
+    #[\Override]
     public function getDatabaseDriver(): DbDriverEnum
     {
         return $this->driver;

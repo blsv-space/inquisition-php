@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Foundation\Storage;
 
 final readonly class StorageWriteOptions
@@ -9,8 +11,5 @@ final readonly class StorageWriteOptions
         public bool $createDir = true,
         public bool $createFile = true,
         public bool $atomic = true,
-        public ?int $permissions = null
-    )
-    {
-    }
+    ) {}
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Foundation\Singleton;
 
 interface SingletonInterface
@@ -10,5 +12,8 @@ interface SingletonInterface
 
     public static function hasInstance(): bool;
 
-    public static function override(?self $instance = null): void;
+    /**
+     * @param static|null $instance
+     */
+    public static function override(?SingletonInterface $instance = null): void;
 }

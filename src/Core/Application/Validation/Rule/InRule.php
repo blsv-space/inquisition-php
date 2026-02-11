@@ -1,25 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Application\Validation\Rule;
 
 use Inquisition\Core\Application\Validation\RuleInterface;
 
 final readonly class InRule implements RuleInterface
 {
-    /**
-     * @param array $allowedValues
-     * @param bool $strict
-     */
     public function __construct(
         private array $allowedValues,
-        private bool $strict = false
+        private bool $strict = false,
     ) {}
 
-    /**
-     * @param mixed $value
-     * @param array $data
-     * @return bool
-     */
+    #[\Override]
     public function passes(mixed $value, array $data = []): bool
     {
         if (is_null($value)) {
@@ -29,18 +23,14 @@ final readonly class InRule implements RuleInterface
         return in_array($value, $this->allowedValues, $this->strict);
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function message(): string
     {
         $values = implode(', ', array_map('strval', $this->allowedValues));
         return sprintf('This field must be one of: %s', $values);
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function getName(): string
     {
         return 'in';

@@ -1,12 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Domain\Validator;
 
-class StubValueObjectValidator extends AbstractValueObjectValidator
-    implements ValueObjectValidatorInterface
+class StubValueObjectValidator extends AbstractValueObjectValidator implements ValueObjectValidatorInterface
 {
-
-    protected function doValidate(mixed $data): void
-    {
-    }
+    #[\Override]
+    protected function doValidate(mixed $data): void {}
 }

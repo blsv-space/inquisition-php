@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Persistence;
 
 use Inquisition\Core\Infrastructure\Persistence\Exception\InvalidConnectionConfig;
@@ -16,7 +18,7 @@ final class DatabaseConnections implements DatabaseConnectionsInterface
      */
     private array $connections;
     private Config $config;
-    private string $defaultConnectionName;
+    private ?string $defaultConnectionName = null;
 
     private function __construct()
     {
@@ -24,11 +26,10 @@ final class DatabaseConnections implements DatabaseConnectionsInterface
     }
 
     /**
-     * @param string|null $name
      *
-     * @return DatabaseConnection
      * @throws PersistenceException
      */
+    #[\Override]
     public function connect(?string $name = null): DatabaseConnection
     {
         if (is_null($name)) {
@@ -39,12 +40,9 @@ final class DatabaseConnections implements DatabaseConnectionsInterface
     }
 
     /**
-     * @param $name
-     *
-     * @return DatabaseConnection
      * @throws PersistenceException
      */
-    private function getConnection($name): DatabaseConnection
+    private function getConnection(string $name): DatabaseConnection
     {
         if (!isset($this->connections[$name])) {
             $this->loadConnection($name);
@@ -54,36 +52,25 @@ final class DatabaseConnections implements DatabaseConnectionsInterface
     }
 
     /**
-     * @return string
      * @throws PersistenceException
      */
     public function getDefaultConnectionName(): string
     {
-        if (!isset($this->defaultConnectionName)) {
-            $this->loadDefaultConnection();
+        if (is_null($this->defaultConnectionName)) {
+            $name = $this->config->getByPath('database.default');
+
+            if (!is_string($name)) {
+                throw new PersistenceException('No database connection name specified');
+            }
+
+            $this->defaultConnectionName = $name;
         }
 
         return $this->defaultConnectionName;
     }
 
     /**
-     * @throws PersistenceException
-     */
-    private function loadDefaultConnection(): void
-    {
-        $name = $this->config->getByPath('database.default');
-
-        if (is_null($name)) {
-            throw new PersistenceException('No database connection name specified');
-        }
-
-        $this->defaultConnectionName = $name;
-    }
-
-    /**
-     * @param $name
      *
-     * @return void
      * @throws PersistenceException
      */
     private function loadConnection($name = null): void
@@ -109,10 +96,7 @@ final class DatabaseConnections implements DatabaseConnectionsInterface
     }
 
     /**
-     * @param string $name
-     * @param array $connectionConfig
      *
-     * @return void
      * @throws InvalidConnectionConfig
      */
     private function validateConnectionSettings(string $name, array $connectionConfig): void
@@ -130,13 +114,13 @@ final class DatabaseConnections implements DatabaseConnectionsInterface
         switch ($dbDriverEnum) {
             case DbDriverEnum::MYSQL:
             case DbDriverEnum::PGSQL:
-            {
-                if (!isset($connectionConfig['host']) || !isset($connectionConfig['unix_socket'])) {
-                    throw new InvalidConnectionConfig($name, 'No database host or unix_socket specified');
-                } elseif (isset($connectionConfig['host'], $connectionConfig['unix_socket'])) {
-                    throw new InvalidConnectionConfig($name, 'Both host and unix_socket specified');
+                {
+                    if (!isset($connectionConfig['host']) || !isset($connectionConfig['unix_socket'])) {
+                        throw new InvalidConnectionConfig($name, 'No database host or unix_socket specified');
+                    } elseif (isset($connectionConfig['host'], $connectionConfig['unix_socket'])) {
+                        throw new InvalidConnectionConfig($name, 'Both host and unix_socket specified');
+                    }
                 }
-            }
             default:
         }
 

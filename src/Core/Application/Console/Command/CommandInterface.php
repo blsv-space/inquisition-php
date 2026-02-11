@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Application\Console\Command;
 
 interface CommandInterface
@@ -14,8 +16,7 @@ interface CommandInterface
 
     public function getHelp(): string;
 
-    public array $parameters
-    {
+    public array $parameters {
         get;
     }
 

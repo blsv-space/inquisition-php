@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Migration;
 
 use Exception;
@@ -29,9 +31,6 @@ final class MigrationRunner implements SingletonInterface
         $this->migrations[] = $migration;
     }
 
-    /**
-     * @return void
-     */
     private function prepareDatabase(): void
     {
         try {
@@ -117,7 +116,7 @@ final class MigrationRunner implements SingletonInterface
             throw new RuntimeException(
                 "Migration failed: {$migration->getVersion()} - {$e->getMessage()}",
                 0,
-                $e
+                $e,
             );
         }
     }

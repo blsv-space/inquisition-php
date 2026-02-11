@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Http\Router;
 
 use Inquisition\Core\Infrastructure\Http\HttpMethod;
@@ -8,17 +10,14 @@ use Inquisition\Core\Infrastructure\Http\Router\Exception\RouterException;
 use Inquisition\Foundation\Singleton\SingletonInterface;
 use Inquisition\Foundation\Singleton\SingletonTrait;
 
-final class Navigator
-    implements NavigatorInterface, SingletonInterface
+final class Navigator implements NavigatorInterface, SingletonInterface
 {
     use SingletonTrait;
 
     /**
-     * @param RequestInterface $request
-     * @param RouteGroupInterface $routeGroup
-     * @return NavigatorResult|null
      * @throws RouterException
      */
+    #[\Override]
     public function navigateByRouteGroup(RequestInterface $request, RouteGroupInterface $routeGroup): ?NavigatorResult
     {
         $method = $request->getMethod();
@@ -38,11 +37,9 @@ final class Navigator
     }
 
     /**
-     * @param RequestInterface $request
-     * @param RouteInterface $route
-     * @return NavigatorResult|null
      * @throws RouterException
      */
+    #[\Override]
     public function navigate(RequestInterface $request, RouteInterface $route): ?NavigatorResult
     {
         $method = $request->getMethod();
@@ -60,12 +57,10 @@ final class Navigator
     }
 
     /**
-     * @param RouteInterface $route
-     * @param HttpMethod $method
-     * @param string $path
-     * @return array<string, string>|null
      * @throws RouterException
+     * @return array<string, string>|null
      */
+    #[\Override]
     public function navigateRoute(RouteInterface $route, HttpMethod $method, string $path): ?array
     {
         if (!$this->routeSupportsMethod($route, $method)) {
@@ -76,12 +71,10 @@ final class Navigator
     }
 
     /**
-     * @param RouteInterface $route
-     * @param string $path
      *
-     * @return array<string, string>|null
      *
      * @throws RouterException
+     * @return array<string, string>|null
      */
     public function validateAndExtractParameters(RouteInterface $route, string $path): ?array
     {
@@ -110,10 +103,7 @@ final class Navigator
         return $parameters;
     }
 
-    /**
-     * @param string $path
-     * @return string
-     */
+    #[\Override]
     public function normalizePath(string $path): string
     {
         $path = strtok($path, '?') ?: $path;
@@ -127,11 +117,6 @@ final class Navigator
         return rtrim($path, '/');
     }
 
-    /**
-     * @param RouteInterface $route
-     * @param HttpMethod $method
-     * @return bool
-     */
     private function routeSupportsMethod(RouteInterface $route, HttpMethod $method): bool
     {
         return in_array($method, $route->methods, true);

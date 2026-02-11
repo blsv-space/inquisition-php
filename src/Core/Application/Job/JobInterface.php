@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Application\Job;
 
 use Inquisition\Core\Application\Job\Exception\JobFailedException;
@@ -12,7 +14,7 @@ interface JobInterface
      * Execute the job
      * return The result of the job execution (optional)
      *
-     * @throws JobFailedException If the job fails and should not be retried
+     * @throws JobFailedException    If the job fails and should not be retried
      * @throws JobRetryableException If the job fails but should be retried
      */
     public function handle();

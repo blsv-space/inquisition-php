@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Application\Job;
 
 use Throwable;
@@ -9,19 +11,10 @@ use Throwable;
  */
 readonly class JobWorker
 {
-
-    /**
-     * @param JobQueueInterface $queue
-     */
     public function __construct(
-        private JobQueueInterface $queue
-    )
-    {
-    }
+        private JobQueueInterface $queue,
+    ) {}
 
-    /**
-     * @return void
-     */
     public function work(): void
     {
         echo "Starting job worker for queue: {$this->queue->getQueueName()}\n";
@@ -38,11 +31,6 @@ readonly class JobWorker
         }
     }
 
-    /**
-     * @param JobInterface $job
-     * @param int $attempt
-     * @return void
-     */
     private function processJob(JobInterface $job, int $attempt = 1): void
     {
         try {
@@ -56,9 +44,6 @@ readonly class JobWorker
     }
 
     /**
-     * @param JobInterface $job
-     * @param int $attempt
-     * @return void
      * @throws Exception\JobException
      */
     private function execute(JobInterface $job, int $attempt = 1): void
@@ -75,4 +60,3 @@ readonly class JobWorker
         }
     }
 }
-

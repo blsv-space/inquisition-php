@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Http\Controller;
 
 use Inquisition\Core\Application\DTO\EntityResponseInterface;
@@ -21,6 +23,7 @@ abstract readonly class AbstractApiController implements ApiControllerInterface
      *
      * @throws JsonException
      */
+    #[\Override]
     public function jsonResponse(array $data, HttpStatusCode $statusCode = HttpStatusCode::OK): ResponseInterface
     {
         return ResponseFactory::json($data, $statusCode);
@@ -28,19 +31,20 @@ abstract readonly class AbstractApiController implements ApiControllerInterface
 
     /**
      * @param EntityInterface[]|EntityInterface $data
-     * @param string|null $entityResponseClassName
      *
-     * @return array
      */
-    public function normalizeData(array | EntityInterface $data, ?string $entityResponseClassName = null): array
+    #[\Override]
+    public function normalizeData(array|EntityInterface $data, ?string $entityResponseClassName = null): array
     {
         if (!is_null($entityResponseClassName)
-            && (!class_exists($entityResponseClassName)
+            && (
+                !class_exists($entityResponseClassName)
                 || !is_subclass_of($entityResponseClassName, EntityResponseInterface::class)
             )
         ) {
             throw new InvalidArgumentException(
-                'Entity response class name must be a valid class name which implements EntityResponseInterface');
+                'Entity response class name must be a valid class name which implements EntityResponseInterface',
+            );
         }
 
         $normalizer = is_null($entityResponseClassName)
@@ -59,10 +63,11 @@ abstract readonly class AbstractApiController implements ApiControllerInterface
      *
      * @throws JsonException
      */
+    #[\Override]
     public function jsonErrorResponse(
         string $message,
         HttpStatusCode $statusCode = HttpStatusCode::BAD_REQUEST,
-        array $errors = []
+        array $errors = [],
     ): ResponseInterface {
         return ResponseFactory::error($message, $statusCode, $errors);
     }
@@ -72,6 +77,7 @@ abstract readonly class AbstractApiController implements ApiControllerInterface
      *
      * @throws JsonException
      */
+    #[\Override]
     public function jsonPaginatedResponse(array $data, int $total, int $page, int $perPage): ResponseInterface
     {
         $response = [
@@ -82,8 +88,8 @@ abstract readonly class AbstractApiController implements ApiControllerInterface
                 'per_page' => $perPage,
                 'total_pages' => (int) ceil($total / $perPage),
                 'has_next' => $page < ceil($total / $perPage),
-                'has_prev' => $page > 1
-            ]
+                'has_prev' => $page > 1,
+            ],
         ];
 
         return ResponseFactory::json($response);

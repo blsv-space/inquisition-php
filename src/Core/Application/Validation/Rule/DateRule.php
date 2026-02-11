@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Application\Validation\Rule;
 
 use DateTimeImmutable;
@@ -7,20 +9,11 @@ use Inquisition\Core\Application\Validation\RuleInterface;
 
 final readonly class DateRule implements RuleInterface
 {
-    /**
-     * @param string $format
-     */
     public function __construct(
-        private string $format = 'Y-m-d'
-    )
-    {
-    }
+        private string $format = 'Y-m-d',
+    ) {}
 
-    /**
-     * @param mixed $value
-     * @param array $data
-     * @return bool
-     */
+    #[\Override]
     public function passes(mixed $value, array $data = []): bool
     {
         if (is_null($value)) {
@@ -35,17 +28,13 @@ final readonly class DateRule implements RuleInterface
         return $date && $date->format($this->format) === $value;
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function message(): string
     {
         return sprintf('This field must be a valid date in format %s', $this->format);
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function getName(): string
     {
         return 'date';

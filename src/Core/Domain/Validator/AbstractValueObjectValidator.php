@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Domain\Validator;
 
-abstract class AbstractValueObjectValidator
-    implements ValueObjectValidatorInterface
+abstract class AbstractValueObjectValidator implements ValueObjectValidatorInterface
 {
-    protected(set) array $errors = [] {
+    /** @var ValueObjectError[] $errors */
+    public protected(set) array $errors = [] {
         get {
             return $this->errors;
         }
@@ -16,12 +18,15 @@ abstract class AbstractValueObjectValidator
      *
      * @throws DomainValidationException
      */
+    #[\Override]
     final public function validate(mixed $data): void
     {
         $this->errors = [];
         $this->doValidate($data);
 
+        /** @psalm-suppress TypeDoesNotContainType */
         if (!empty($this->errors)) {
+            /** @psalm-suppress NoValue */
             throw new DomainValidationException($this->errors);
         }
     }
@@ -29,6 +34,7 @@ abstract class AbstractValueObjectValidator
     /**
      * Check if data is valid without throwing an exception
      */
+    #[\Override]
     final public function isValid(mixed $data): bool
     {
         $this->errors = [];

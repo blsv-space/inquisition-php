@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Persistence\Repository;
 
 use Inquisition\Core\Domain\ValueObject\ValueObjectInterface;
@@ -10,24 +12,18 @@ final readonly class QueryCriteria
     private string $paramName;
 
     /**
-     * @param string $field
-     * @param QueryOperatorEnum $operator
      * @param mixed|ValueObjectInterface $value
      */
     public function __construct(
         public string            $field,
         public mixed             $value,
         public QueryOperatorEnum $operator = QueryOperatorEnum::EQUALS,
-    )
-    {
+    ) {
         $this->validate();
 
         $this->paramName = str_replace(['.'], '_', $this->field);
     }
 
-    /**
-     * @return void
-     */
     private function validate(): void
     {
         if (empty($this->field)) {
@@ -64,9 +60,6 @@ final readonly class QueryCriteria
         }
     }
 
-    /**
-     * @return string
-     */
     public function compile(): string
     {
         $paramName = $this->getParamName();
@@ -115,7 +108,7 @@ final readonly class QueryCriteria
                     ? $values[$i]->toRaw()
                     : $values[$i];
 
-                $parameters[$paramName . '_' . $i] = (string)$value;
+                $parameters[$paramName . '_' . $i] = (string) $value;
             }
 
             return $parameters;
@@ -126,13 +119,10 @@ final readonly class QueryCriteria
             : $this->value;
 
         return [
-            $paramName => (string)$value,
+            $paramName => (string) $value,
         ];
     }
 
-    /**
-     * @return string
-     */
     private function getParamName(): string
     {
         return $this->paramName;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Domain\Repository;
 
 use Inquisition\Core\Domain\Entity\EntityInterface;
@@ -15,16 +17,13 @@ use Inquisition\Foundation\Singleton\SingletonInterface;
  */
 interface RepositoryInterface extends SingletonInterface
 {
-
     /**
      * Get the DB table name this repository handles
-     * @return string
      */
     public static function getTableName(): string;
 
     /**
      * Get the DatabaseConnection
-     * @return DatabaseConnectionInterface
      */
     public function getConnection(): DatabaseConnectionInterface;
 
@@ -48,16 +47,10 @@ interface RepositoryInterface extends SingletonInterface
      */
     public function save(EntityWithIdInterface $entity): void;
 
-    /**
-     * @param EntityWithIdInterface $entity
-     *
-     * @return bool
-     */
     public function removeById(EntityWithIdInterface $entity): bool;
 
     /**
      * @param QueryCriteria[] $criteria
-     * @return int
      */
     public function removeBy(array $criteria): int;
 
@@ -68,42 +61,32 @@ interface RepositoryInterface extends SingletonInterface
 
     /**
      * Count total entities
+     *
+     * @param QueryCriteria[] $criteria
      */
     public function count(array $criteria = []): int;
 
     /**
      * Find entities by criteria
+     *
+     * @param QueryCriteria[] $criteria
      */
     public function findBy(array $criteria = [], ?array $orderBy = null, ?int $limit = null, ?int $offset = null): array;
 
     /**
      * Find one entity by criteria
+     *
+     * @param QueryCriteria[] $criteria
      */
     public function findOneBy(array $criteria = []): ?EntityInterface;
 
-    /**
-     * @return string
-     */
     public function getDatabaseName(): string;
 
-    /**
-     * @param callable $operation
-     * @return mixed
-     */
     public function transactional(callable $operation): mixed;
 
-    /**
-     * @return void
-     */
     public function beginTransaction(): void;
 
-    /**
-     * @return void
-     */
     public function commit(): void;
 
-    /**
-     * @return void
-     */
     public function rollback(): void;
 }
