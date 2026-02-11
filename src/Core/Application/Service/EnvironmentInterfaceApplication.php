@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Application\Service;
 
 interface EnvironmentInterfaceApplication extends ApplicationServiceInterface
 {
-    protected(set) EnvironmentEnum $mode {
+    public protected(set) EnvironmentEnum $mode {
         get;
     }
     public function isDev(): bool;

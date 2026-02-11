@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Application\Console\Command;
 
 abstract class AbstractCommand implements CommandInterface
 {
     /** @var array<string, string> */
-    protected(set) array $parameters {
+    public protected(set) array $parameters {
         get {
             return $this->parameters;
         }
@@ -16,11 +18,13 @@ abstract class AbstractCommand implements CommandInterface
     /**
      * Get command alias
      */
+    #[\Override]
     abstract public static function getAlias(): string;
 
     /**
      * Get command arguments
      */
+    #[\Override]
     public static function getArguments(): array
     {
         return [];
@@ -73,11 +77,13 @@ abstract class AbstractCommand implements CommandInterface
     /**
      * Execute the command
      */
+    #[\Override]
     abstract public function execute(): void;
 
     /**
      * Get command description
      */
+    #[\Override]
     public function getDescription(): string
     {
         return 'No description provided.';
@@ -86,6 +92,7 @@ abstract class AbstractCommand implements CommandInterface
     /**
      * Get command help text
      */
+    #[\Override]
     public function getHelp(): string
     {
         return 'No help provided.';

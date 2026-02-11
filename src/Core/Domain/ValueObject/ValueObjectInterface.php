@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Domain\ValueObject;
 
 use InvalidArgumentException;
@@ -30,8 +32,6 @@ interface ValueObjectInterface
 
     /**
      * Create value object from raw data
-     * @param mixed $data
-     * @return static
      * @throws InvalidArgumentException
      */
     public static function fromRaw(mixed $data): static;
@@ -40,8 +40,6 @@ interface ValueObjectInterface
      * Validate the value object data
      * Should throw InvalidArgumentException if invalid
      *
-     * @param mixed $data
-     * @return void
      * @throws InvalidArgumentException
      */
     public static function validate(mixed $data): void;

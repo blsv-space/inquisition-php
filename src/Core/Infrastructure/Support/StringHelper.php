@@ -1,16 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Support;
 
 final readonly class StringHelper
 {
     private function __construct() {}
 
-    /**
-     * @param string $input
-     * @return string
-     */
-    static function camelCaseToSnakeCase(string $input): string {
+    public static function camelCaseToSnakeCase(string $input): string
+    {
         if (empty($input)) {
             return $input;
         }

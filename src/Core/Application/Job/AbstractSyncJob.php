@@ -1,32 +1,32 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Application\Job;
 
 use Throwable;
 
 abstract class AbstractSyncJob implements JobInterface
 {
-    /**
-     * @param array $payload
-     */
     public function __construct(
         public array $payload = [] {
             get {
                 return $this->payload;
             }
-        }
+        },
     )
     {
     }
 
+    #[\Override]
     abstract public function handle();
 
     /**
      * Execute the job directly
      *
-     * @return mixed
      * @throws Throwable
      */
+    #[\Override]
     public function execute(): mixed
     {
         try {
@@ -40,77 +40,51 @@ abstract class AbstractSyncJob implements JobInterface
         }
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function getName(): string
     {
         return static::class;
     }
 
-    /**
-     * @return bool
-     */
+    #[\Override]
     public function isAsync(): bool
     {
         return false;
     }
 
-    /**
-     * @return int
-     */
+    #[\Override]
     public function getMaxRetries(): int
     {
         return 0;
     }
 
-    /**
-     * @return int
-     */
+    #[\Override]
     public function getRetryDelay(): int
     {
         return 0;
     }
 
-    /**
-     * @return int
-     */
+    #[\Override]
     public function getPriority(): int
     {
         return 0;
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function getQueueName(): string
     {
         return 'sync';
     }
 
-    /**
-     * @param Throwable $exception
-     * @param int $attempt
-     * @return bool
-     */
+    #[\Override]
     public function shouldRetry(Throwable $exception, int $attempt): bool
     {
         return false;
     }
 
-    /**
-     * @param Throwable $exception
-     * @return void
-     */
-    public function onFailure(Throwable $exception): void
-    {
-    }
+    #[\Override]
+    public function onFailure(Throwable $exception): void {}
 
-    /**
-     * @param mixed $result
-     * @return void
-     */
-    public function onSuccess(mixed $result): void
-    {
-    }
+    #[\Override]
+    public function onSuccess(mixed $result): void {}
 }

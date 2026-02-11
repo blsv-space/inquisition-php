@@ -1,9 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Domain\Repository;
 
 use Inquisition\Core\Domain\Entity\EntityInterface;
-use Inquisition\Core\Domain\Entity\EntityWithIdInterface;
 use Inquisition\Core\Domain\ValueObject\ValueObjectInterface;
 use Inquisition\Core\Infrastructure\Persistence\DatabaseConnectionInterface;
 use Inquisition\Core\Infrastructure\Persistence\Repository\QueryCriteria;
@@ -12,31 +13,34 @@ use Inquisition\Foundation\Singleton\SingletonInterface;
 /**
  * Domain Repository Interface
  * Defines the contract for domain repositories
+ *
+ * @template TEntity of EntityInterface
  */
 interface RepositoryInterface extends SingletonInterface
 {
-
     /**
      * Get the DB table name this repository handles
-     * @return string
      */
     public static function getTableName(): string;
 
     /**
      * Get the DatabaseConnection
-     * @return DatabaseConnectionInterface
      */
     public function getConnection(): DatabaseConnectionInterface;
 
     /**
      * Get the entity class name this repository handles
+     *
+     * @psalm-return class-string<TEntity>
      */
     public static function getEntityClassName(): string;
 
     /**
      * Find an entity by its identifier
+     *
+     * @psalm-return TEntity|null
      */
-    public function findById(ValueObjectInterface $id): ?EntityWithIdInterface;
+    public function findById(ValueObjectInterface $id): ?EntityInterface;
 
     /**
      * Find all entities
@@ -45,19 +49,18 @@ interface RepositoryInterface extends SingletonInterface
 
     /**
      * Save an entity (insert or update)
+     *
+     * @psalm-param TEntity $entity
      */
-    public function save(EntityWithIdInterface $entity): void;
+    public function save(EntityInterface $entity): void;
 
     /**
-     * @param EntityWithIdInterface $entity
-     *
-     * @return bool
+     * @psalm-param TEntity $entity
      */
-    public function removeById(EntityWithIdInterface $entity): bool;
+    public function removeById(EntityInterface $entity): bool;
 
     /**
      * @param QueryCriteria[] $criteria
-     * @return int
      */
     public function removeBy(array $criteria): int;
 
@@ -68,42 +71,41 @@ interface RepositoryInterface extends SingletonInterface
 
     /**
      * Count total entities
+     *
+     * @param QueryCriteria[] $criteria
      */
     public function count(array $criteria = []): int;
 
     /**
      * Find entities by criteria
+     *
+     * @param QueryCriteria[] $criteria
+     *
+     * @psalm-return list<TEntity>
      */
     public function findBy(array $criteria = [], ?array $orderBy = null, ?int $limit = null, ?int $offset = null): array;
 
     /**
      * Find one entity by criteria
+     *
+     * @param QueryCriteria[] $criteria
+     *
+     * @psalm-return TEntity|null
      */
-    public function findOneBy(array $criteria = []): ?EntityInterface;
+    public function findOneBy(array $criteria): ?EntityInterface;
 
-    /**
-     * @return string
-     */
     public function getDatabaseName(): string;
 
-    /**
-     * @param callable $operation
-     * @return mixed
-     */
     public function transactional(callable $operation): mixed;
 
-    /**
-     * @return void
-     */
     public function beginTransaction(): void;
 
-    /**
-     * @return void
-     */
     public function commit(): void;
 
-    /**
-     * @return void
-     */
     public function rollback(): void;
+
+    /**
+     * @psalm-param TEntity $entity
+     */
+    public function insert(EntityInterface $entity): void;
 }

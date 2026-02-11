@@ -1,7 +1,11 @@
 <?php
 
-namespace Inquisition\Core\Application\Service;
+declare(strict_types=1);
 
+namespace Inquisition\Core\Infrastructure\Service;
+
+use Inquisition\Core\Application\Service\EnvironmentEnum;
+use Inquisition\Core\Application\Service\EnvironmentInterfaceApplication;
 use Inquisition\Foundation\Config\Config;
 use Inquisition\Foundation\Singleton\SingletonTrait;
 
@@ -9,7 +13,7 @@ final class Environment implements EnvironmentInterfaceApplication
 {
     use SingletonTrait;
 
-    protected(set) EnvironmentEnum $mode {
+    public protected(set) EnvironmentEnum $mode {
         get {
             return $this->mode;
         }
@@ -21,25 +25,19 @@ final class Environment implements EnvironmentInterfaceApplication
         $this->mode = EnvironmentEnum::fromString($config->getByPath('app.mode'));
     }
 
-    /**
-     * @return bool
-     */
+    #[\Override]
     public function isProd(): bool
     {
         return $this->mode->isProduction();
     }
 
-    /**
-     * @return bool
-     */
+    #[\Override]
     public function isDev(): bool
     {
         return $this->mode->isDevelopment();
     }
 
-    /**
-     * @return bool
-     */
+    #[\Override]
     public function isTest(): bool
     {
         return $this->mode->isTest();

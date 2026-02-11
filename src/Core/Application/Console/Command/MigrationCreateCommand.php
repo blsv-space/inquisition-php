@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Application\Console\Command;
 
 use DateTimeImmutable;
@@ -15,18 +17,13 @@ class MigrationCreateCommand extends AbstractCommand
 
     private MigrationDiscovery $migrationDiscovery;
 
-    /**
-     * @param array $parameters
-     */
     public function __construct(array $parameters)
     {
         $this->parameters = $parameters;
         $this->migrationDiscovery = MigrationDiscovery::getInstance();
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public static function getAlias(): string
     {
         return 'migration:create';
@@ -35,6 +32,7 @@ class MigrationCreateCommand extends AbstractCommand
     /**
      * @return string[]
      */
+    #[\Override]
     public static function getArguments(): array
     {
         return [
@@ -44,25 +42,19 @@ class MigrationCreateCommand extends AbstractCommand
         ];
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function getDescription(): string
     {
         return 'Create a new migration';
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function getHelp(): string
     {
         return 'Create a new migration';
     }
 
-    /**
-     * @return void
-     */
+    #[\Override]
     public function execute(): void
     {
         $this->validate();
@@ -70,9 +62,6 @@ class MigrationCreateCommand extends AbstractCommand
         $this->createMigration();
     }
 
-    /**
-     * @return void
-     */
     private function validate(): void
     {
         if (empty($this->migrationDiscovery->paths)) {
@@ -106,15 +95,12 @@ class MigrationCreateCommand extends AbstractCommand
         }
     }
 
-    /**
-     * @return void
-     */
     private function createMigration(): void
     {
         $dir = $this->migrationDiscovery->paths[$this->parameters[self::ARGUMENT_PATH]];
         $namespace = $this->pathToNamespaceFromComposer($dir);
         $className = $this->getClassName();
-        $path = str_replace('/', DIRECTORY_SEPARATOR,$dir . '/' . $className . '.php');
+        $path = str_replace('/', DIRECTORY_SEPARATOR, $dir . '/' . $className . '.php');
 
         if (file_exists($path)) {
             throw new RuntimeException("Migration file already exists: $path");
@@ -159,9 +145,6 @@ PHP;
         echo "Migration file created: $path\n";
     }
 
-    /**
-     * @return string
-     */
     private function getClassName(): string
     {
         $dateTime = new DateTimeImmutable();
@@ -170,9 +153,6 @@ PHP;
         return $this->parameters[self::ARGUMENT_NAME] . $postFix;
     }
 
-    /**
-     * @return void
-     */
     private function showPaths(): void
     {
         echo "Available migration paths:\n";
@@ -181,9 +161,6 @@ PHP;
         }
     }
 
-    /**
-     * @return array
-     */
     private function getComposerPsr4Mappings(): array
     {
         $composerJsonPath = 'composer.json';
@@ -197,10 +174,6 @@ PHP;
         return $composer['autoload']['psr-4'] ?? [];
     }
 
-    /**
-     * @param string $filePath
-     * @return string|null
-     */
     private function pathToNamespaceFromComposer(string $filePath): ?string
     {
         $psr4Mappings = $this->getComposerPsr4Mappings();
@@ -208,11 +181,6 @@ PHP;
         return $this->pathToNamespace($filePath, $psr4Mappings);
     }
 
-    /**
-     * @param string $filePath
-     * @param array $psr4Mappings
-     * @return string|null
-     */
     private function pathToNamespace(string $filePath, array $psr4Mappings): ?string
     {
         $filePath = trim($filePath, '/\\');

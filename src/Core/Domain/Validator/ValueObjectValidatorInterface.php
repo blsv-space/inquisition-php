@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Domain\Validator;
 
 interface ValueObjectValidatorInterface
@@ -11,16 +13,8 @@ interface ValueObjectValidatorInterface
         get;
     }
 
-    /**
-     * @param mixed $data
-     * @return void
-     */
     public function validate(mixed $data): void;
 
-    /**
-     * @param mixed $data
-     * @return bool
-     */
     public function isValid(mixed $data): bool;
 
 }

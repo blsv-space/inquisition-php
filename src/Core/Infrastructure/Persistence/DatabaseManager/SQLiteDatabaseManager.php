@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Persistence\DatabaseManager;
 
 use Inquisition\Core\Application\Persistence\DatabaseManagerInterface;
@@ -8,21 +10,15 @@ use Inquisition\Foundation\Kernel;
 
 final readonly class SQLiteDatabaseManager implements DatabaseManagerInterface
 {
+    public function __construct(private DatabaseConnection $connection) {}
 
-    public function __construct(private DatabaseConnection $connection)
-    {}
-
-    /**
-     * @return void
-     */
+    #[\Override]
     public function create(): void
     {
         $this->connection->connect()->exec('PRAGMA journal_mode = WAL;');
     }
 
-    /**
-     * @return bool
-     */
+    #[\Override]
     public function exists(): bool
     {
         if ($this->connection->getDatabaseName() === ':memory:') {
@@ -33,9 +29,7 @@ final readonly class SQLiteDatabaseManager implements DatabaseManagerInterface
         return file_exists($this->connection->getDatabaseName());
     }
 
-    /**
-     * @return void
-     */
+    #[\Override]
     public function reset(): void
     {
         $path = $this->connection->getDatabaseName();

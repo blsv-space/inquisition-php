@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Foundation\Singleton;
 
 use LogicException;
@@ -8,12 +10,7 @@ trait SingletonTrait
 {
     protected static ?self $instance = null;
 
-    /**
-     *
-     */
-    private function __construct()
-    {
-    }
+    private function __construct() {}
 
     /**
      * @return mixed
@@ -48,7 +45,6 @@ trait SingletonTrait
     }
 
     /**
-     * @param array $data
      * @return mixed
      */
     public function __unserialize(array $data)
@@ -56,9 +52,6 @@ trait SingletonTrait
         throw new LogicException('Cannot unserialize singleton');
     }
 
-    /**
-     * @return static
-     */
     public static function getInstance(): static
     {
         if (static::$instance === null) {
@@ -71,32 +64,20 @@ trait SingletonTrait
         return static::$instance;
     }
 
-    /**
-     * @return bool
-     */
     public static function hasInstance(): bool
     {
         return static::$instance !== null;
     }
 
-    /**
-     * @return void
-     */
     public static function reset(): void
     {
         static::$instance = null;
     }
 
-    /**
-     * @param SingletonTrait|null $instance
-     * @return void
-     */
-    public static function override($instance = null): void
+    public static function override(?SingletonInterface $instance = null): void
     {
-        if ($instance
-            && (!is_object($instance)
-                || static::class !== $instance::class
-            )
+        if (!is_null($instance)
+                && static::class !== $instance::class
         ) {
             throw new LogicException('Cannot override singleton with different class');
         }

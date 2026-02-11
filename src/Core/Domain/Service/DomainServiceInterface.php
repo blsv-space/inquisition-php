@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Domain\Service;
 
 use Inquisition\Foundation\Singleton\SingletonInterface;
@@ -9,6 +11,4 @@ use Inquisition\Foundation\Singleton\SingletonInterface;
  * Marker interface for domain services that contain business logic
  * that doesn't naturally fit within an entity or value object
  */
-interface DomainServiceInterface extends SingletonInterface
-{
-}
+interface DomainServiceInterface extends SingletonInterface {}

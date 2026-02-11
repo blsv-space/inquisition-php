@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Application\Validation\Rule;
 
 use Inquisition\Core\Application\Validation\RuleInterface;
@@ -7,22 +9,15 @@ use InvalidArgumentException;
 
 final readonly class MaxLengthRule implements RuleInterface
 {
-    /**
-     * @param int $maxLength
-     */
     public function __construct(
-        private int $maxLength
+        private int $maxLength,
     ) {
         if ($this->maxLength < 1) {
             throw new InvalidArgumentException('Maximum length must be at least 1');
         }
     }
 
-    /**
-     * @param mixed $value
-     * @param array $data
-     * @return bool
-     */
+    #[\Override]
     public function passes(mixed $value, array $data = []): bool
     {
         if (is_null($value)) {
@@ -44,17 +39,13 @@ final readonly class MaxLengthRule implements RuleInterface
         return false;
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function message(): string
     {
         return sprintf('This field cannot be longer than %d characters', $this->maxLength);
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function getName(): string
     {
         return 'max_length';

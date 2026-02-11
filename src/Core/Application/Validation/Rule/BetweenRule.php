@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Application\Validation\Rule;
 
 use Inquisition\Core\Application\Validation\RuleInterface;
@@ -7,25 +9,16 @@ use InvalidArgumentException;
 
 final readonly class BetweenRule implements RuleInterface
 {
-    /**
-     * @param int|float $min
-     * @param int|float $max
-     */
     public function __construct(
         private int|float $min,
-        private int|float $max
-    )
-    {
+        private int|float $max,
+    ) {
         if ($this->min > $this->max) {
             throw new InvalidArgumentException('Minimum value must be less than or equal to maximum value');
         }
     }
 
-    /**
-     * @param mixed $value
-     * @param array $data
-     * @return bool
-     */
+    #[\Override]
     public function passes(mixed $value, array $data = []): bool
     {
         if (is_null($value)) {
@@ -36,21 +29,17 @@ final readonly class BetweenRule implements RuleInterface
             return false;
         }
 
-        $numValue = (float)$value;
+        $numValue = (float) $value;
         return $numValue >= $this->min && $numValue <= $this->max;
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function message(): string
     {
         return sprintf('This field must be between %s and %s', $this->min, $this->max);
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function getName(): string
     {
         return 'between';

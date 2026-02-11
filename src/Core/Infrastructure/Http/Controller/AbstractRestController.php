@@ -1,21 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Http\Controller;
 
+use Inquisition\Core\Infrastructure\Http\Request\RequestInterface;
+use Inquisition\Core\Infrastructure\Http\Response\ResponseInterface;
 use Inquisition\Core\Infrastructure\Persistence\Repository\QueryCriteria;
 use Inquisition\Core\Infrastructure\Persistence\Repository\QueryOperatorEnum;
 use RuntimeException;
-use Inquisition\Core\Infrastructure\Http\Request\RequestInterface;
-use Inquisition\Core\Infrastructure\Http\Response\ResponseInterface;
 
 /**
  * Abstract REST Controller
  * Base implementation for RESTful API controllers
  */
-abstract readonly class AbstractRestController extends AbstractApiController
-    implements RestControllerInterface
+abstract readonly class AbstractRestController extends AbstractApiController implements RestControllerInterface
 {
-
     public const string PAGE_PARAM = 'page';
     public const string PER_PAGE_PARAM = 'per_page';
     public const int PER_PAGE_DEFAULT = 20;
@@ -29,10 +29,9 @@ abstract readonly class AbstractRestController extends AbstractApiController
     /**
      * GET /resource - List all resources
      *
-     * @param RequestInterface $request
      * @param array<string, string> $parameters
-     * @return ResponseInterface
      */
+    #[\Override]
     public function index(RequestInterface $request, array $parameters): ResponseInterface
     {
         throw new RuntimeException('Not implemented');
@@ -41,10 +40,8 @@ abstract readonly class AbstractRestController extends AbstractApiController
     /**
      * GET /resource/{id} - Show a specific resource
      *
-     * @param RequestInterface $request
-     * @param array $parameters
-     * @return ResponseInterface
      */
+    #[\Override]
     public function show(RequestInterface $request, array $parameters): ResponseInterface
     {
         throw new RuntimeException('Not implemented');
@@ -53,10 +50,8 @@ abstract readonly class AbstractRestController extends AbstractApiController
     /**
      * POST /resource - Create a new resource
      *
-     * @param RequestInterface $request
-     * @param array $parameters
-     * @return ResponseInterface
      */
+    #[\Override]
     public function store(RequestInterface $request, array $parameters): ResponseInterface
     {
         throw new RuntimeException('Not implemented');
@@ -65,10 +60,8 @@ abstract readonly class AbstractRestController extends AbstractApiController
     /**
      * PUT/PATCH /resource/{id} - Update existing resource
      *
-     * @param RequestInterface $request
-     * @param array $parameters
-     * @return ResponseInterface
      */
+    #[\Override]
     public function update(RequestInterface $request, array $parameters): ResponseInterface
     {
         throw new RuntimeException('Not implemented');
@@ -77,10 +70,8 @@ abstract readonly class AbstractRestController extends AbstractApiController
     /**
      * DELETE /resource/{id} - Delete resource
      *
-     * @param RequestInterface $request
-     * @param array $parameters
-     * @return ResponseInterface
      */
+    #[\Override]
     public function destroy(RequestInterface $request, array $parameters): ResponseInterface
     {
         throw new RuntimeException('Not implemented');
@@ -89,9 +80,6 @@ abstract readonly class AbstractRestController extends AbstractApiController
     /**
      * Extract resource ID from parameters
      *
-     * @param array $parameters
-     * @param string $key
-     * @return string|null
      */
     protected function getResourceId(array $parameters, string $key = 'id'): ?string
     {
@@ -101,32 +89,30 @@ abstract readonly class AbstractRestController extends AbstractApiController
     /**
      * Get pagination parameters from request
      *
-     * @param RequestInterface $request
      * @return array{page: int, per_page: int}
      */
     protected function getPaginationParams(RequestInterface $request): array
     {
-        $page = max(1, (int)($request->getParameter(static::PAGE_PARAM, 1)));
+        $page = max(1, (int) ($request->getParameter(static::PAGE_PARAM, 1)));
         $perPage = min(
             static::PER_PAGE_MAX,
             max(
                 static::PER_PAGE_MIN,
-                (int)($request->getParameter(static::PER_PAGE_PARAM, static::PER_PAGE_DEFAULT)
-                )
-            )
+                (int) (
+                    $request->getParameter(static::PER_PAGE_PARAM, static::PER_PAGE_DEFAULT)
+                ),
+            ),
         );
 
         return [
             'page' => $page,
-            'per_page' => $perPage
+            'per_page' => $perPage,
         ];
     }
 
     /**
      * Get filtering parameters from request
      *
-     * @param RequestInterface $request
-     * @param array $allowedFilters
      * @return QueryCriteria[]
      */
     protected function getFilterParams(RequestInterface $request, array $allowedFilters = []): array
@@ -155,17 +141,13 @@ abstract readonly class AbstractRestController extends AbstractApiController
     /**
      * Get sorting parameters from request
      *
-     * @param RequestInterface $request
-     * @param array $allowedSortFields
-     * @param string $defaultSort
      * @return array{field: string, direction: string}
      */
     protected function getSortParams(
         RequestInterface $request,
         array            $allowedSortFields = [],
-        string           $defaultSort = 'id'
-    ): array
-    {
+        string           $defaultSort = 'id',
+    ): array {
         $sort = $request->getParameter(static::SORT_PARAM, $defaultSort);
         $direction = strtolower($request->getParameter(static::SORT_DIRECTION_PARAM, 'asc'));
 
@@ -179,7 +161,7 @@ abstract readonly class AbstractRestController extends AbstractApiController
 
         return [
             'field' => $sort,
-            'direction' => $direction
+            'direction' => $direction,
         ];
     }
 }

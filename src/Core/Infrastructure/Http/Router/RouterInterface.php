@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Http\Router;
 
 use Inquisition\Core\Infrastructure\Http\Request\RequestInterface;
@@ -51,32 +53,21 @@ interface RouterInterface extends SingletonInterface
      */
     public function clearRoutes(): void;
 
-    /**
-     * @param string $name
-     * @return RouteGroupInterface
-     */
     public function group(string $name): RouteGroupInterface;
 
-    /**
-     * @param RouteGroupInterface $routeGroup
-     * @return void
-     */
     public function groupRegistry(RouteGroupInterface $routeGroup): void;
 
-    /**
-     * @param string $name
-     * @return RouteGroupInterface|null
-     */
     public function getGroup(string $name): ?RouteGroupInterface;
 
     /**
-     * @return RouteGroupInterface[]
+     * @var RouterInterface[] $routes
      */
-    public function getRoutes(): array;
+    public array $routes {
+        get;
+    }
 
-    /**
-     * @return array<string, RouteInterface>
-     */
-    public function getNamedRoutes(): array;
+    public array $namedRoutes {
+        get;
+    }
 
 }

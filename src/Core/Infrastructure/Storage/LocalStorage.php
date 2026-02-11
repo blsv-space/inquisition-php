@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Storage;
 
 use DirectoryIterator;
@@ -16,19 +18,26 @@ use RecursiveIteratorIterator;
 use SplFileInfo;
 use Throwable;
 
+/**
+ * @implements StorageInterface<LocalStorageOptions>
+ */
 final readonly class LocalStorage implements StorageInterface
 {
     protected string $rootPath;
+    protected LocalStorageOptions $options;
 
-    /**
-     * @param string $rootPath
-     * @param LocalStorageOptions $options
-     */
     public function __construct(
         string                            $rootPath,
-        protected StorageOptionsInterface $options = new LocalStorageOptions,
-    )
-    {
+        ?StorageOptionsInterface          $options = null,
+    ) {
+        if (is_null($options)) {
+            $options = new LocalStorageOptions();
+        } elseif (!$options instanceof LocalStorageOptions) {
+            throw new InvalidArgumentException('Invalid storage options.');
+        }
+
+        $this->options = $options;
+
         if (empty($rootPath)) {
             throw new InvalidArgumentException('Root path is empty.');
         }
@@ -50,10 +59,7 @@ final readonly class LocalStorage implements StorageInterface
         }
     }
 
-    /**
-     * @param string $path
-     * @return SplFileInfo|null
-     */
+    #[\Override]
     public function get(string $path): ?SplFileInfo
     {
         $resolvePath = $this->resolvePath($path);
@@ -65,35 +71,23 @@ final readonly class LocalStorage implements StorageInterface
         return null;
     }
 
-    /**
-     * @return string
-     */
     public function getRootPath(): string
     {
         return $this->rootPath;
     }
 
-    /**
-     * @return LocalStorageOptions
-     */
     public function getOptions(): LocalStorageOptions
     {
         return $this->options;
     }
 
-    /**
-     * @param string $path
-     * @param string $contents
-     * @param ?StorageWriteOptions $options
-     * @return void
-     */
+    #[\Override]
     public function writeByPath(
         string               $path,
         string               $contents,
         ?StorageWriteOptions $options = null,
-    ): void
-    {
-        $options ??= new StorageWriteOptions;
+    ): void {
+        $options ??= new StorageWriteOptions();
 
         $fullPath = $this->resolvePath($path);
 
@@ -125,6 +119,12 @@ final readonly class LocalStorage implements StorageInterface
         }
 
         if (!file_exists($fullPath)) {
+            if (!$options->createFile) {
+                throw StorageException::forWrite(
+                    path: $path,
+                    message: 'File does not exist and createFile option is disabled.',
+                );
+            }
             touch($fullPath);
             chmod($fullPath, $this->options->permissionsFile);
         }
@@ -168,11 +168,10 @@ final readonly class LocalStorage implements StorageInterface
     }
 
     /**
-     * @param SplFileInfo $fileInfo
-     * @param string $contents
      * @param ?StorageWriteOptions $options
-     * return void
+     *                                      return void
      */
+    #[\Override]
     public function write(SplFileInfo $fileInfo, string $contents, ?StorageWriteOptions $options = null): void
     {
         if ($fileInfo->isDir()) {
@@ -192,10 +191,7 @@ final readonly class LocalStorage implements StorageInterface
         $this->writeByPath($fileInfo->getPathname(), $contents, $options);
     }
 
-    /**
-     * @param string $path
-     * @return string
-     */
+    #[\Override]
     public function readByPath(string $path): string
     {
         $fullPath = $this->resolvePath($path);
@@ -224,10 +220,7 @@ final readonly class LocalStorage implements StorageInterface
         return $data;
     }
 
-    /**
-     * @param SplFileInfo $fileInfo
-     * @return string
-     */
+    #[\Override]
     public function read(SplFileInfo $fileInfo): string
     {
         if ($fileInfo->isDir()) {
@@ -247,10 +240,7 @@ final readonly class LocalStorage implements StorageInterface
         return $this->readByPath($fileInfo->getPathname());
     }
 
-    /**
-     * @param string $path
-     * @return void
-     */
+    #[\Override]
     public function deleteByPath(string $path): void
     {
         $fullPath = $this->resolvePath($path);
@@ -270,10 +260,7 @@ final readonly class LocalStorage implements StorageInterface
         }
     }
 
-    /**
-     * @param SplFileInfo $fileInfo
-     * @return void
-     */
+    #[\Override]
     public function delete(SplFileInfo $fileInfo): void
     {
         $this->deleteByPath($fileInfo->getPathname());
@@ -282,11 +269,10 @@ final readonly class LocalStorage implements StorageInterface
     /**
      * Recursively delete a directory and all its contents
      *
-     * @param string $dir
-     * @return void
      *
      * @throws StorageException
      */
+    #[\Override]
     public function deleteDirectoryByPath(string $dir): void
     {
         $dir = $this->resolvePath($dir);
@@ -296,7 +282,7 @@ final readonly class LocalStorage implements StorageInterface
 
         $iterator = new RecursiveIteratorIterator(
             new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
-            RecursiveIteratorIterator::CHILD_FIRST
+            RecursiveIteratorIterator::CHILD_FIRST,
         );
 
         foreach ($iterator as $fileInfo) {
@@ -319,10 +305,7 @@ final readonly class LocalStorage implements StorageInterface
         }
     }
 
-    /**
-     * @param SplFileInfo $dir
-     * @return void
-     */
+    #[\Override]
     public function deleteDirectory(SplFileInfo $dir): void
     {
         if (!$dir->isDir()) {
@@ -335,10 +318,7 @@ final readonly class LocalStorage implements StorageInterface
         $this->deleteDirectoryByPath($dir->getPathname());
     }
 
-    /**
-     * @param string $path
-     * @return bool
-     */
+    #[\Override]
     public function fileExists(string $path): bool
     {
         $fullPath = $this->resolvePath($path);
@@ -346,10 +326,7 @@ final readonly class LocalStorage implements StorageInterface
         return file_exists($fullPath) && is_file($fullPath);
     }
 
-    /**
-     * @param string $path
-     * @return bool
-     */
+    #[\Override]
     public function dirExists(string $path): bool
     {
         $fullPath = $this->resolvePath($path);
@@ -359,48 +336,43 @@ final readonly class LocalStorage implements StorageInterface
 
 
     /**
-     * @param string $path
-     * @param bool $recursively
      *
-     * @return string[]
+     * @return list<SplFileInfo>
      */
+    #[\Override]
     public function listFiles(string $path = '', bool $recursively = false): array
     {
         return $this->list($path, $recursively, StorageListTypeEnum::Files);
     }
 
     /**
-     * @param string $path
-     * @param bool $recursively
-     * @return SplFileInfo[]
+     * @return list<SplFileInfo>
      */
+    #[\Override]
     public function listDirs(string $path = '', bool $recursively = false): array
     {
         return $this->list($path, $recursively, StorageListTypeEnum::Directories);
     }
 
     /**
-     * @param string $path
-     * @param bool $recursively
-     * @param StorageListTypeEnum $type
-     * @return array|SplFileInfo[]
+     * @return list<SplFileInfo>
      */
+    #[\Override]
     public function list(
         string              $path = '',
         bool                $recursively = false,
-        StorageListTypeEnum $type = StorageListTypeEnum::All
-    ): array
-    {
+        StorageListTypeEnum $type = StorageListTypeEnum::All,
+    ): array {
         $base = $this->resolvePath($path);
+        $files = [];
         if (!is_dir($base)) {
-            return [];
+            return $files;
         }
 
-        $files = [];
         try {
             $iterator = $recursively
                 ? new RecursiveIteratorIterator(
-                    new RecursiveDirectoryIterator($base, FilesystemIterator::SKIP_DOTS)
+                    new RecursiveDirectoryIterator($base, FilesystemIterator::SKIP_DOTS),
                 )
                 : new DirectoryIterator($base);
 
@@ -422,16 +394,12 @@ final readonly class LocalStorage implements StorageInterface
                 $files[] = $fileInfo;
             }
         } catch (Throwable $e) {
-            throw StorageException::forList($path, $e);
+            throw StorageException::forList($path, $e->getMessage(), $e);
         }
 
         return $files;
     }
 
-    /**
-     * @param string $path
-     * @return string
-     */
     private function resolvePath(string $path): string
     {
         $path = ltrim($path, DIRECTORY_SEPARATOR);
@@ -452,10 +420,6 @@ final readonly class LocalStorage implements StorageInterface
         return $this->rootPath . DIRECTORY_SEPARATOR . $safe;
     }
 
-    /**
-     * @param string $fullPath
-     * @return string
-     */
     private function toRelativePath(string $fullPath): string
     {
         $root = rtrim($this->rootPath, DIRECTORY_SEPARATOR);

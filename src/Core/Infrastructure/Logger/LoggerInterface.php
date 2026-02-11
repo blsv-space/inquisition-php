@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Logger;
 
 /**
@@ -8,8 +10,6 @@ namespace Inquisition\Core\Infrastructure\Logger;
  */
 interface LoggerInterface
 {
-
-
     /**
      * System is unusable
      */

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Application\Validation;
 
 use Inquisition\Core\Application\Validation\Exception\ValidationException;
@@ -15,17 +17,16 @@ class HttpRequestValidator implements ValidatorInterface
     /**
      * @var array<string>
      */
-    protected(set) array $errors = [] {
+    public protected(set) array $errors = [] {
         get {
             return $this->errors;
         }
     }
 
     /**
-     * @param RequestInterface $data
-     * @return bool
      * @throws ValidationException
      */
+    #[\Override]
     public function validate(mixed $data): bool
     {
         if (!$data instanceof RequestInterface) {
@@ -42,9 +43,7 @@ class HttpRequestValidator implements ValidatorInterface
         return true;
     }
 
-    /**
-     * @inheritDoc
-     */
+    #[\Override]
     public function addRule(string $field, RuleInterface $rule): self
     {
         if (!isset($this->rules[$field])) {
@@ -56,9 +55,7 @@ class HttpRequestValidator implements ValidatorInterface
         return $this;
     }
 
-    /**
-     * @inheritDoc
-     */
+    #[\Override]
     public function addRules(array $rules): self
     {
         foreach ($rules as $field => $rule) {
@@ -74,18 +71,14 @@ class HttpRequestValidator implements ValidatorInterface
         return $this;
     }
 
-    /**
-     * @inheritDoc
-     */
+    #[\Override]
     public function clearErrors(): self
     {
         $this->errors = [];
         return $this;
     }
 
-    /**
-     * @inheritDoc
-     */
+    #[\Override]
     public function hasErrors(): bool
     {
         return count($this->errors) !== 0;
@@ -94,7 +87,6 @@ class HttpRequestValidator implements ValidatorInterface
     /**
      * Validate HTTP request against defined rules.
      *
-     * @param RequestInterface $request
      */
     private function validateRequest(RequestInterface $request): void
     {
@@ -107,7 +99,7 @@ class HttpRequestValidator implements ValidatorInterface
 
             foreach ($fieldRules as $rule) {
                 if (!$rule->passes($value, $data)) {
-                        $errors[] = sprintf('%s: %s', $field, $rule->message());
+                    $errors[] = sprintf('%s: %s', $field, $rule->message());
                 }
             }
         }

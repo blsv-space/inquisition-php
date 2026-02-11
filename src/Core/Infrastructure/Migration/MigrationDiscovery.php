@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Migration;
 
 use Inquisition\Foundation\Config\Config;
@@ -11,27 +13,28 @@ use RuntimeException;
 
 final class MigrationDiscovery implements SingletonInterface
 {
-    private(set) array $paths = [];
-
     use SingletonTrait;
+    public private(set) array $paths = [];
 
-    private function __construct() {
-       $this->load();
+    private function __construct()
+    {
+        $this->load();
     }
 
-    private function load(): void {
+    private function load(): void
+    {
         $paths = Config::getInstance()->getByPath('database.migration.paths', $this->paths);
         if (empty($paths) || !is_array($paths)) {
             throw new RuntimeException('No migration paths defined in config. Set an array to "database.migration.paths"');
         }
 
-        $paths = array_filter($paths, fn ($p) => is_string($p));
+        $paths = array_filter($paths, fn($p) => is_string($p));
 
         $this->paths = $paths;
     }
 
     /**
-     * @return MigrationInterface[]
+     * @psalm-return array<class-string<MigrationInterface>>
      */
     public function discover(): array
     {
@@ -53,8 +56,8 @@ final class MigrationDiscovery implements SingletonInterface
                 if ($className && class_exists($className)) {
                     $reflection = new ReflectionClass($className);
 
-                    if ($reflection->implementsInterface(MigrationInterface::class) &&
-                        !$reflection->isAbstract()) {
+                    if ($reflection->implementsInterface(MigrationInterface::class)
+                        && !$reflection->isAbstract()) {
                         $migrations[] = $className;
                     }
                 }
@@ -64,17 +67,12 @@ final class MigrationDiscovery implements SingletonInterface
         return $migrations;
     }
 
-    /**
-     * @param string $file
-     *
-     * @return string|null
-     */
     private function getClassNameFromFile(string $file): ?string
     {
         $content = file_get_contents($file);
 
-        if (preg_match('/namespace\s+([^;]+);/', $content, $namespaceMatches) &&
-            preg_match('/class\s+(\w+)/', $content, $classMatches)) {
+        if (preg_match('/namespace\s+([^;]+);/', $content, $namespaceMatches)
+            && preg_match('/class\s+(\w+)/', $content, $classMatches)) {
             return $namespaceMatches[1] . '\\' . $classMatches[1];
         }
 

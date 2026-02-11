@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Http\Router;
 
 use Inquisition\Core\Infrastructure\Http\HttpMethod;
@@ -12,80 +14,62 @@ use InvalidArgumentException;
  */
 class Route implements RouteInterface
 {
-    protected(set) string $path {
+    public protected(set) string $path {
         get => $this->path;
     }
 
     /**
      * @var HttpMethod[]
      */
-    protected(set) array $methods {
+    public protected(set) array $methods {
         get => $this->methods;
     }
 
-    /**
-     * @var string|null
-     */
-    protected(set) ?string $name {
+    public protected(set) ?string $name {
         get => $this->name;
     }
 
-    /**
-     * @var string
-     */
-    protected(set) string $controller {
+    public protected(set) string $controller {
         get => $this->controller;
     }
 
-    /**
-     * @var string
-     */
-    protected(set) string $action {
+    public protected(set) string $action {
         get => $this->action;
     }
 
-    /**
-     * @var array
-     */
     private array $parameters = [];
 
     /**
      * @var MiddlewareInterface[]
      */
-    protected(set) array $middlewares = [] {
+    public protected(set) array $middlewares = [] {
         get => $this->middlewares;
         set {
             if ($value instanceof MiddlewareInterface) {
                 $this->middlewares[] = $value;
             } elseif (is_array($value)) {
-                $this->middlewares = array_merge($this->middlewares,
-                    array_filter($value, fn($m) => $m instanceof MiddlewareInterface));
+                $this->middlewares = array_merge(
+                    $this->middlewares,
+                    array_filter($value, fn($m) => $m instanceof MiddlewareInterface),
+                );
             }
         }
     }
     private array $metadata = [];
     private ?string $compiledPattern = null;
     private array $parameterNames = [];
-    protected(set) array $constraints = [] {
+    public protected(set) array $constraints = [] {
         get => $this->constraints;
     }
 
 
-    /**
-     * @param string $path
-     * @param string $controller
-     * @param string $action
-     * @param array $methods
-     * @param string|null $name
-     */
     public function __construct(
         string  $path,
         string  $controller,
         string  $action,
         array   $methods = [HttpMethod::GET],
         ?string $name = null,
-    )
-    {
+    ) {
         if (!class_exists($controller)) {
             throw new InvalidArgumentException("Controller class $controller does not exist");
         }
@@ -111,18 +95,16 @@ class Route implements RouteInterface
         Router::getInstance()->addRoute($this);
     }
 
-    /**
-     * @return array
-     */
+    #[\Override]
     public function getParameters(): array
     {
         return $this->parameters;
     }
 
     /**
-     * @param array $parameters
      * @return $this
      */
+    #[\Override]
     public function setParameters(array $parameters): self
     {
         $this->parameters = $parameters;
@@ -130,11 +112,7 @@ class Route implements RouteInterface
         return $this;
     }
 
-    /**
-     * @param HttpMethod $method
-     * @param string $path
-     * @return bool
-     */
+    #[\Override]
     public function matches(HttpMethod $method, string $path): bool
     {
         if (!$this->hasMethod($method)) {
@@ -145,11 +123,13 @@ class Route implements RouteInterface
             return false;
         }
 
+        /** @var array<int, array{0: string, 1: int}> $matches */
         $matches = [];
         if (preg_match($this->compiledPattern, $path, $matches)) {
             // Extract parameters
             $parameters = [];
             foreach ($this->parameterNames as $index => $name) {
+                $index = (int) $index;
                 if (isset($matches[$index + 1])) {
                     $parameters[$name] = $matches[$index + 1];
                 }
@@ -165,9 +145,9 @@ class Route implements RouteInterface
     }
 
     /**
-     * @param MiddlewareInterface|array $middleware
      * @return $this
      */
+    #[\Override]
     public function middleware(MiddlewareInterface|array $middleware): self
     {
         $this->middlewares = $middleware;
@@ -176,9 +156,9 @@ class Route implements RouteInterface
     }
 
     /**
-     * @param string $name
      * @return $this
      */
+    #[\Override]
     public function name(string $name): self
     {
         $this->name = $name;
@@ -187,9 +167,9 @@ class Route implements RouteInterface
     }
 
     /**
-     * @param array $constraints
      * @return $this
      */
+    #[\Override]
     public function where(array $constraints): self
     {
         $this->constraints = array_merge($this->constraints, $constraints);
@@ -199,18 +179,16 @@ class Route implements RouteInterface
         return $this;
     }
 
-    /**
-     * @return array
-     */
+    #[\Override]
     public function getMetadata(): array
     {
         return $this->metadata;
     }
 
     /**
-     * @param array $metadata
      * @return $this
      */
+    #[\Override]
     public function setMetadata(array $metadata): self
     {
         $this->metadata = $metadata;
@@ -218,10 +196,7 @@ class Route implements RouteInterface
         return $this;
     }
 
-    /**
-     * @param HttpMethod $method
-     * @return bool
-     */
+    #[\Override]
     public function hasMethod(HttpMethod $method): bool
     {
         return in_array($method, $this->methods, true);
@@ -230,7 +205,6 @@ class Route implements RouteInterface
     /**
      * Compile the route pattern into a regex
      *
-     * @return void
      */
     private function compilePattern(): void
     {
@@ -253,7 +227,7 @@ class Route implements RouteInterface
 
                 return $isOptional ? "($constraint)?" : "($constraint)";
             },
-            $pattern
+            $pattern,
         );
 
         $pattern = str_replace('/', '\/', $pattern);
@@ -264,11 +238,6 @@ class Route implements RouteInterface
     /**
      * Create a new route instance with the GET method
      *
-     * @param string $path
-     * @param string $controller
-     * @param string $action
-     * @param string|null $name
-     * @return self
      */
     public static function get(string $path, string $controller, string $action, ?string $name = null): self
     {
@@ -278,11 +247,6 @@ class Route implements RouteInterface
     /**
      * Create a new route instance with the POST method
      *
-     * @param string $path
-     * @param string $controller
-     * @param string $action
-     * @param string|null $name
-     * @return self
      */
     public static function post(string $path, string $controller, string $action, ?string $name = null): self
     {
@@ -292,11 +256,6 @@ class Route implements RouteInterface
     /**
      * Create a new route instance with the PUT method
      *
-     * @param string $path
-     * @param string $controller
-     * @param string $action
-     * @param string|null $name
-     * @return self
      */
     public static function put(string $path, string $controller, string $action, ?string $name = null): self
     {
@@ -306,11 +265,6 @@ class Route implements RouteInterface
     /**
      * Create a new route instance with the DELETE method
      *
-     * @param string $path
-     * @param string $controller
-     * @param string $action
-     * @param string|null $name
-     * @return self
      */
     public static function delete(string $path, string $controller, string $action, ?string $name = null): self
     {
@@ -320,11 +274,6 @@ class Route implements RouteInterface
     /**
      * Create a new route instance with the PATCH method
      *
-     * @param string $path
-     * @param string $controller
-     * @param string $action
-     * @param string|null $name
-     * @return self
      */
     public static function patch(string $path, string $controller, string $action, ?string $name = null): self
     {
@@ -334,11 +283,6 @@ class Route implements RouteInterface
     /**
      * Create a new route instance with multiple methods
      *
-     * @param string $path
-     * @param string $controller
-     * @param string $action
-     * @param string|null $name
-     * @return self
      */
     public static function any(string $path, string $controller, string $action, ?string $name = null): self
     {
@@ -348,12 +292,6 @@ class Route implements RouteInterface
     /**
      * Create a new route instance with custom methods
      *
-     * @param array $methods
-     * @param string $path
-     * @param string $controller
-     * @param string $action
-     * @param string|null $name
-     * @return self
      */
     public static function match(array $methods, string $path, string $controller, string $action, ?string $name = null): self
     {
