@@ -12,6 +12,10 @@ use Inquisition\Foundation\Singleton\SingletonTrait;
 use PDO;
 use RuntimeException;
 
+/**
+ * @extends AbstractRepository<MigrationInterface>
+ * @implements MigrationRepositoryInterface<MigrationInterface>
+ */
 final class MigrationRepository extends AbstractRepository implements MigrationRepositoryInterface
 {
     use SingletonTrait;

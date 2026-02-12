@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Inquisition\Core\Domain\Repository;
 
 use Inquisition\Core\Domain\Entity\EntityInterface;
-use Inquisition\Core\Domain\Entity\EntityWithIdInterface;
 use Inquisition\Core\Domain\ValueObject\ValueObjectInterface;
 use Inquisition\Core\Infrastructure\Persistence\DatabaseConnectionInterface;
 use Inquisition\Core\Infrastructure\Persistence\Repository\QueryCriteria;
@@ -14,6 +13,8 @@ use Inquisition\Foundation\Singleton\SingletonInterface;
 /**
  * Domain Repository Interface
  * Defines the contract for domain repositories
+ *
+ * @template TEntity of EntityInterface
  */
 interface RepositoryInterface extends SingletonInterface
 {
@@ -34,8 +35,10 @@ interface RepositoryInterface extends SingletonInterface
 
     /**
      * Find an entity by its identifier
+     *
+     * @psalm-return TEntity|null
      */
-    public function findById(ValueObjectInterface $id): ?EntityWithIdInterface;
+    public function findById(ValueObjectInterface $id): ?EntityInterface;
 
     /**
      * Find all entities
@@ -44,10 +47,15 @@ interface RepositoryInterface extends SingletonInterface
 
     /**
      * Save an entity (insert or update)
+     *
+     * @psalm-param TEntity $entity
      */
-    public function save(EntityWithIdInterface $entity): void;
+    public function save(EntityInterface $entity): void;
 
-    public function removeById(EntityWithIdInterface $entity): bool;
+    /**
+     * @psalm-param TEntity $entity
+     */
+    public function removeById(EntityInterface $entity): bool;
 
     /**
      * @param QueryCriteria[] $criteria
@@ -70,6 +78,8 @@ interface RepositoryInterface extends SingletonInterface
      * Find entities by criteria
      *
      * @param QueryCriteria[] $criteria
+     *
+     * @psalm-return list<TEntity>
      */
     public function findBy(array $criteria = [], ?array $orderBy = null, ?int $limit = null, ?int $offset = null): array;
 
@@ -77,6 +87,8 @@ interface RepositoryInterface extends SingletonInterface
      * Find one entity by criteria
      *
      * @param QueryCriteria[] $criteria
+     *
+     * @psalm-return TEntity|null
      */
     public function findOneBy(array $criteria = []): ?EntityInterface;
 

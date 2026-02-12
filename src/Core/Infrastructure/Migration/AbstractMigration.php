@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Inquisition\Core\Infrastructure\Migration;
 
+use Inquisition\Core\Domain\Entity\EntityInterface;
 use Inquisition\Core\Infrastructure\Persistence\DatabaseConnectionInterface;
 use Inquisition\Core\Infrastructure\Persistence\DatabaseConnections;
 use Inquisition\Core\Infrastructure\Persistence\DbDriverEnum;
 use Inquisition\Core\Infrastructure\Persistence\Exception\PersistenceException;
 use PDOStatement;
+use RuntimeException;
 
 abstract readonly class AbstractMigration implements MigrationInterface
 {
@@ -94,4 +96,21 @@ abstract readonly class AbstractMigration implements MigrationInterface
         return trim($sql);
     }
 
+    #[\Override]
+    public function equals(EntityInterface $other): bool
+    {
+        throw new RuntimeException('Method not implemented');
+    }
+
+    #[\Override]
+    public function getEntityType(): string
+    {
+        return static::class;
+    }
+
+    #[\Override]
+    public function getAsArray(): array
+    {
+        throw new RuntimeException('Method not implemented');
+    }
 }
