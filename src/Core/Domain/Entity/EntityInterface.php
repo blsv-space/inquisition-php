@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Inquisition\Core\Domain\Entity;
 
-use Inquisition\Core\Domain\ValueObject\AbstractValueObject;
-
 interface EntityInterface
 {
     /**
@@ -21,7 +19,7 @@ interface EntityInterface
     public function getEntityType(): string;
 
     /**
-     * @return AbstractValueObject[]
+     * @psalm-return array<string, null|scalar>
      */
     public function getAsArray(): array;
 
