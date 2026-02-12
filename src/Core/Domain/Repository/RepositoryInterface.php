@@ -30,6 +30,8 @@ interface RepositoryInterface extends SingletonInterface
 
     /**
      * Get the entity class name this repository handles
+     *
+     * @psalm-return class-string<TEntity>
      */
     public static function getEntityClassName(): string;
 
@@ -101,4 +103,9 @@ interface RepositoryInterface extends SingletonInterface
     public function commit(): void;
 
     public function rollback(): void;
+
+    /**
+     * @psalm-param TEntity $entity
+     */
+    public function insert(EntityInterface $entity): void;
 }

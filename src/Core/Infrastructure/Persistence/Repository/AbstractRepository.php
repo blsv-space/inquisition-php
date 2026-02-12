@@ -296,6 +296,7 @@ abstract class AbstractRepository implements RepositoryInterface
      *
      * @throws PersistenceException
      */
+    #[\Override]
     public function insert(EntityInterface $entity): void
     {
         $rawData = $this->mapEntityToRow($entity);
