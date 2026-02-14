@@ -8,6 +8,9 @@ use Inquisition\Core\Application\Event\EventHandlerInterface;
 use Inquisition\Core\Application\Event\EventInterface;
 use Inquisition\Foundation\Singleton\SingletonTrait;
 
+/**
+ * @implements EventDispatcherInterface<EventInterface>
+ */
 final class EventDispatcher implements EventDispatcherInterface
 {
     use SingletonTrait;
