@@ -50,7 +50,6 @@ abstract class AbstractRepository implements RepositoryInterface
 
     /**
      * Get the table name for this repository
-     *
      */
     #[\Override]
     public static function getTableName(): string
@@ -81,6 +80,7 @@ abstract class AbstractRepository implements RepositoryInterface
 
     /**
      * @throws PersistenceException
+     * @retrun TEntity|null
      */
     #[\Override]
     public function findById(ValueObjectInterface $id): ?EntityWithIdInterface
@@ -95,7 +95,7 @@ abstract class AbstractRepository implements RepositoryInterface
 
     /**
      * @throws PersistenceException
-     * @return EntityInterface[]
+     * @return list<TEntity>
      */
     #[\Override]
     public function findAll(): array
