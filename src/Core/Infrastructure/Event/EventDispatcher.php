@@ -12,9 +12,12 @@ final class EventDispatcher implements EventDispatcherInterface
 {
     use SingletonTrait;
 
-    /** @var array<string, EventHandlerInterface[]> */
+    /** @var array<class-string<EventInterface>, EventHandlerInterface[]> */
     private array $handlers = [];
 
+    /**
+     * @param EventHandlerInterface<EventInterface> $handler
+     */
     #[\Override]
     public function registry(EventHandlerInterface $handler): void
     {
