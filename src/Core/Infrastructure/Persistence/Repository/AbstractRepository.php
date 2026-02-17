@@ -162,11 +162,8 @@ abstract class AbstractRepository implements RepositoryInterface
     #[\Override]
     public function save(EntityInterface $entity): void
     {
-        if (!is_subclass_of($entity, EntityWithIdInterface::class)) {
-            if (is_null($entity->getId())) {
-                throw new PersistenceException('Entity that implements EntityWithIdInterface should have an ID');
-            }
-            $exists = $entity->getId()
+        if (is_subclass_of($entity, EntityWithIdInterface::class)) {
+            $exists = !is_null($entity->getId())
                 && $this->count(
                     [
                         new QueryCriteria(
