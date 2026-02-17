@@ -142,12 +142,12 @@ abstract class AbstractRepository implements RepositoryInterface
 
     /**
      * Find one entity by criteria
-     *
+     * @param  QueryCriteria[]      $criteria
      * @throws PersistenceException
      * @psalm-return TEntity|null
      */
     #[\Override]
-    public function findOneBy(array $criteria = []): ?EntityInterface
+    public function findOneBy(array $criteria): ?EntityInterface
     {
         return $this->findBy($criteria, null, 1)[0] ?? null;
     }

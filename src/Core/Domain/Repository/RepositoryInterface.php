@@ -92,7 +92,7 @@ interface RepositoryInterface extends SingletonInterface
      *
      * @psalm-return TEntity|null
      */
-    public function findOneBy(array $criteria = []): ?EntityInterface;
+    public function findOneBy(array $criteria): ?EntityInterface;
 
     public function getDatabaseName(): string;
 
