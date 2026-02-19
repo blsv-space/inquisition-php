@@ -94,7 +94,7 @@ class RouteGroup implements RouteGroupInterface
     #[\Override]
     public function prefix(string $prefix): self
     {
-        $this->prefix = $prefix;
+        $this->prefix = $this->buildMergedPrefix($this->prefix, $prefix);
 
         return $this;
     }
