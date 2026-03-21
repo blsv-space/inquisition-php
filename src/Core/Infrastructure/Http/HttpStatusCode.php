@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Http;
 
 /**
@@ -157,7 +159,7 @@ enum HttpStatusCode: int
      */
     public function isInformational(): bool
     {
-        return $this->value >= 100 && $this->value < 200;
+        return $this->value < 200;
     }
 
     /**

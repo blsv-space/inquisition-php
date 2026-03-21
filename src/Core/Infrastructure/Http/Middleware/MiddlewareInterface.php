@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Http\Middleware;
 
 use Inquisition\Core\Infrastructure\Http\Request\RequestInterface;
@@ -17,7 +19,6 @@ interface MiddlewareInterface
      * @param RequestInterface $request The HTTP request
      * @param callable         $next    The next middleware in the stack
      *
-     * @return ResponseInterface
      */
     public function process(RequestInterface $request, callable $next): ResponseInterface;
 }

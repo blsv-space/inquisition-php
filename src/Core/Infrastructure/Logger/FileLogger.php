@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Logger;
 
 use DateMalformedStringException;
@@ -10,7 +12,6 @@ use Throwable;
 
 final class FileLogger implements LoggerInterface
 {
-
     /** @var resource */
     private $stream;
 
@@ -23,7 +24,7 @@ final class FileLogger implements LoggerInterface
         }
     }
 
-    protected(set) string $channel = 'app' {
+    public protected(set) string $channel = 'app' {
         get {
             return $this->channel;
         }
@@ -32,10 +33,9 @@ final class FileLogger implements LoggerInterface
     private array $baseContext = [];
 
     /**
-     * @param LogLevelEnum $level
-     * @param string|null $stream A writable stream resource or path. Defaults to php://stderr
+     * @psalm-param resource|string|null $stream A writable stream resource or path. Defaults to php://stderr
      */
-    public function __construct(LogLevelEnum $level, ?string $stream = null)
+    public function __construct(LogLevelEnum $level, mixed $stream = null)
     {
         $this->level = $level;
         if (is_resource($stream)) {
@@ -56,100 +56,81 @@ final class FileLogger implements LoggerInterface
     }
 
     /**
-     * @param string $message
-     * @param array $context
-     * @return void
      * @throws DateMalformedStringException
      */
+    #[\Override]
     public function emergency(string $message, array $context = []): void
     {
         $this->log(LogLevelEnum::EMERGENCY, $message, $context);
     }
 
     /**
-     * @param string $message
-     * @param array $context
-     * @return void
      * @throws DateMalformedStringException
      */
+    #[\Override]
     public function alert(string $message, array $context = []): void
     {
         $this->log(LogLevelEnum::ALERT, $message, $context);
     }
 
     /**
-     * @param string $message
-     * @param array $context
-     * @return void
      * @throws DateMalformedStringException
      */
+    #[\Override]
     public function critical(string $message, array $context = []): void
     {
         $this->log(LogLevelEnum::CRITICAL, $message, $context);
     }
 
     /**
-     * @param string $message
-     * @param array $context
-     * @return void
      * @throws DateMalformedStringException
      */
+    #[\Override]
     public function error(string $message, array $context = []): void
     {
         $this->log(LogLevelEnum::ERROR, $message, $context);
     }
 
     /**
-     * @param string $message
-     * @param array $context
-     * @return void
      * @throws DateMalformedStringException
      */
+    #[\Override]
     public function warning(string $message, array $context = []): void
     {
         $this->log(LogLevelEnum::WARNING, $message, $context);
     }
 
     /**
-     * @param string $message
-     * @param array $context
-     * @return void
      * @throws DateMalformedStringException
      */
+    #[\Override]
     public function notice(string $message, array $context = []): void
     {
         $this->log(LogLevelEnum::NOTICE, $message, $context);
     }
 
     /**
-     * @param string $message
-     * @param array $context
-     * @return void
      * @throws DateMalformedStringException
      */
+    #[\Override]
     public function info(string $message, array $context = []): void
     {
         $this->log(LogLevelEnum::INFO, $message, $context);
     }
 
     /**
-     * @param string $message
-     * @param array $context
-     * @return void
      * @throws DateMalformedStringException
      */
+    #[\Override]
     public function debug(string $message, array $context = []): void
     {
         $this->log(LogLevelEnum::DEBUG, $message, $context);
     }
 
     /**
-     * @param LogLevelEnum $level
-     * @param string $message
-     * @param array $context
-     * @return void
      * @throws DateMalformedStringException
      */
+    #[\Override]
     public function log(LogLevelEnum $level, string $message, array $context = []): void
     {
         if (!$level->isLoggable($this->level)) {
@@ -165,7 +146,7 @@ final class FileLogger implements LoggerInterface
             $timestamp,
             $this->channel,
             $level->getLabel(),
-            $interpolated
+            $interpolated,
         );
 
         $contextPayload = $this->contextToString($mergedContext);
@@ -179,9 +160,9 @@ final class FileLogger implements LoggerInterface
     }
 
     /**
-     * @param array $context
      * @return $this
      */
+    #[\Override]
     public function withContext(array $context): self
     {
         $clone = clone $this;
@@ -191,9 +172,9 @@ final class FileLogger implements LoggerInterface
     }
 
     /**
-     * @param string $channel
      * @return $this
      */
+    #[\Override]
     public function channel(string $channel): self
     {
         $clone = clone $this;
@@ -212,11 +193,6 @@ final class FileLogger implements LoggerInterface
         return $dt->format('Y-m-d\TH:i:s.v\Z');
     }
 
-    /**
-     * @param string $message
-     * @param array $context
-     * @return string
-     */
     private function interpolate(string $message, array $context): string
     {
         if (str_contains($message, '{') === false) {
@@ -231,10 +207,6 @@ final class FileLogger implements LoggerInterface
         return strtr($message, $replacements);
     }
 
-    /**
-     * @param mixed $value
-     * @return string
-     */
     private function scalarForMessage(mixed $value): string
     {
         if ($value instanceof Throwable) {
@@ -247,10 +219,10 @@ final class FileLogger implements LoggerInterface
             return $value ? 'true' : 'false';
         }
         if (is_scalar($value)) {
-            return (string)$value;
+            return (string) $value;
         }
         if (is_object($value) && method_exists($value, '__toString')) {
-            return (string)$value;
+            return (string) $value;
         }
         if (is_object($value)) {
             return sprintf('object(%s)', $value::class);
@@ -262,10 +234,6 @@ final class FileLogger implements LoggerInterface
         return gettype($value);
     }
 
-    /**
-     * @param array $context
-     * @return string
-     */
     private function contextToString(array $context): string
     {
         if ($context === []) {
@@ -289,7 +257,7 @@ final class FileLogger implements LoggerInterface
 
         $json = json_encode(
             $normalized,
-            JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PARTIAL_OUTPUT_ON_ERROR
+            JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PARTIAL_OUTPUT_ON_ERROR,
         );
 
         return $json === false ? '' : $json;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Application\Validation\Rule;
 
 use Inquisition\Core\Application\Validation\RuleInterface;
@@ -7,23 +9,15 @@ use InvalidArgumentException;
 
 final readonly class FileExtensionRule implements RuleInterface
 {
-    /**
-     * @param array $allowedExtensions
-     */
     public function __construct(
-        private array $allowedExtensions
-    )
-    {
+        private array $allowedExtensions,
+    ) {
         if (empty($this->allowedExtensions)) {
             throw new InvalidArgumentException('Allowed extensions cannot be empty');
         }
     }
 
-    /**
-     * @param mixed $value
-     * @param array $data
-     * @return bool
-     */
+    #[\Override]
     public function passes(mixed $value, array $data = []): bool
     {
         if (is_null($value)) {
@@ -40,18 +34,14 @@ final readonly class FileExtensionRule implements RuleInterface
         return in_array($extension, array_map('strtolower', $this->allowedExtensions));
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function message(): string
     {
         $extensions = implode(', ', $this->allowedExtensions);
         return sprintf('File must have one of the following extensions: %s', $extensions);
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function getName(): string
     {
         return 'file_extension';

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Http\Response;
 
 use Inquisition\Core\Infrastructure\Http\HttpStatusCode;

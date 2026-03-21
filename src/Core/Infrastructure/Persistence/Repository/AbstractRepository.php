@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Persistence\Repository;
 
 use Inquisition\Core\Domain\Entity\EntityInterface;
@@ -15,6 +17,9 @@ use Throwable;
 /**
  * Abstract Repository
  * Base repository class that provides common database operations
+ *
+ * @template TEntity of EntityInterface
+ * @implements  RepositoryInterface<TEntity>
  */
 abstract class AbstractRepository implements RepositoryInterface
 {
@@ -33,8 +38,8 @@ abstract class AbstractRepository implements RepositoryInterface
      */
     protected function __construct()
     {
-        if (!static::REPOSITORY_WITHOUT_ENTITY &&
-            (!class_exists(static::getEntityClassName())
+        if (!static::REPOSITORY_WITHOUT_ENTITY
+            && (!class_exists(static::getEntityClassName())
                 || !is_subclass_of(static::getEntityClassName(), EntityInterface::class))
         ) {
             throw new PersistenceException("Entity class does not exist or is not a subclass of EntityInterface");
@@ -45,9 +50,8 @@ abstract class AbstractRepository implements RepositoryInterface
 
     /**
      * Get the table name for this repository
-     *
-     * @return string
      */
+    #[\Override]
     public static function getTableName(): string
     {
         if (static::TABLE_NAME_PREFIX) {
@@ -60,60 +64,57 @@ abstract class AbstractRepository implements RepositoryInterface
     /**
      * Get the entity class name
      *
-     * @return string
+     * @return class-string<TEntity>
      */
+    #[\Override]
     public static function getEntityClassName(): string
     {
         return static::ENTITY_CLASS_NAME;
     }
 
-    /**
-     * @return DatabaseConnectionInterface
-     */
+    #[\Override]
     public function getConnection(): DatabaseConnectionInterface
     {
         return $this->connection;
     }
 
     /**
-     * @param ValueObjectInterface $id
-     * @return EntityWithIdInterface|null
      * @throws PersistenceException
+     * @retrun TEntity|null
      */
+    #[\Override]
     public function findById(ValueObjectInterface $id): ?EntityWithIdInterface
     {
         return $this->findOneBy([
             new QueryCriteria(
                 field: 'id',
                 value: $id,
-            )
+            ),
         ]);
     }
 
     /**
-     * @return EntityInterface[]
      * @throws PersistenceException
+     * @return list<TEntity>
      */
+    #[\Override]
     public function findAll(): array
     {
         return $this->findBy();
     }
 
     /**
-     * @param QueryCriteria[] $criteria
-     * @param array|null $orderBy
-     * @param int|null $limit
-     * @param int|null $offset
-     * @return EntityInterface[]
+     * @param  QueryCriteria[]      $criteria
      * @throws PersistenceException
+     * @psalm-return list<TEntity>
      */
+    #[\Override]
     public function findBy(
         array  $criteria = [],
         ?array $orderBy = null,
         ?int   $limit = null,
         ?int   $offset = null,
-    ): array
-    {
+    ): array {
         $whereClause = $this->buildWhereClause($criteria);
         $orderByClause = $this->buildOrderByClause($orderBy);
         $limitClause = $this->buildLimitClause($limit, $offset);
@@ -141,12 +142,12 @@ abstract class AbstractRepository implements RepositoryInterface
 
     /**
      * Find one entity by criteria
-     *
-     * @param array $criteria
-     * @return EntityInterface|EntityWithIdInterface|null
+     * @param  QueryCriteria[]      $criteria
      * @throws PersistenceException
+     * @psalm-return TEntity|null
      */
-    public function findOneBy(array $criteria = []): EntityInterface|EntityWithIdInterface|null
+    #[\Override]
+    public function findOneBy(array $criteria): ?EntityInterface
     {
         return $this->findBy($criteria, null, 1)[0] ?? null;
     }
@@ -154,25 +155,29 @@ abstract class AbstractRepository implements RepositoryInterface
     /**
      * Save entity (insert or update)
      *
-     * @param EntityWithIdInterface $entity
-     * @return void
+     * @psalm-param TEntity $entity
+     *
      * @throws PersistenceException
      */
-    public function save(EntityWithIdInterface $entity): void
+    #[\Override]
+    public function save(EntityInterface $entity): void
     {
-        $exists = $entity->getId()
-            && $this->count(
-                [
-                    new QueryCriteria(
-                        field: 'id',
-                        value: $entity->getId()->toRaw(),
-                    )
-                ]) !== 0;
+        if (is_subclass_of($entity, EntityWithIdInterface::class)) {
+            $exists = !is_null($entity->getId())
+                && $this->count(
+                    [
+                        new QueryCriteria(
+                            field: 'id',
+                            value: $entity->getId()->toRaw(),
+                        ),
+                    ],
+                ) !== 0;
 
-        if ($exists) {
-            $this->updateById($entity);
+            if ($exists) {
+                $this->updateById($entity);
 
-            return;
+                return;
+            }
         }
 
         $this->insert($entity);
@@ -181,11 +186,16 @@ abstract class AbstractRepository implements RepositoryInterface
     /**
      * Delete entity
      *
-     * @param EntityWithIdInterface $entity
-     * @return bool
+     * @psalm-param TEntity $entity
+     * @throws PersistenceException
      */
-    public function removeById(EntityWithIdInterface $entity): bool
+    #[\Override]
+    public function removeById(EntityInterface $entity): bool
     {
+        if (is_subclass_of($entity, EntityWithIdInterface::class) && !$entity->getId()) {
+            throw new PersistenceException('Entity must implement EntityWithIdInterface and have an ID');
+        }
+
         $stmt = $this->connection->connect()->prepare('
             DELETE FROM `' . static::getTableName() . '`
             WHERE `id` = :id;
@@ -196,17 +206,18 @@ abstract class AbstractRepository implements RepositoryInterface
     }
 
     /**
-     * @param QueryCriteria[] $criteria
-     * @return int
+     * @param  QueryCriteria[]      $criteria
      * @throws PersistenceException
      */
+    #[\Override]
     public function removeBy(array $criteria): int
     {
         $whereClause = $this->buildWhereClause($criteria);
 
-        $stmt = $this->connection->connect()->prepare('
+        $stmt = $this->connection->connect()->prepare(
+            '
             DELETE FROM `' . static::getTableName() . '`
-             ' . (!empty($whereClause['conditions']) ? 'WHERE ' . $whereClause['conditions'] : '')
+             ' . (!empty($whereClause['conditions']) ? 'WHERE ' . $whereClause['conditions'] : ''),
         );
         $stmt->execute($whereClause['parameters']);
 
@@ -216,10 +227,10 @@ abstract class AbstractRepository implements RepositoryInterface
     /**
      * Count entities
      *
-     * @param QueryCriteria[] $criteria
-     * @return int
+     * @param  QueryCriteria[]      $criteria
      * @throws PersistenceException
      */
+    #[\Override]
     public function count(array $criteria = []): int
     {
         $whereClause = $this->buildWhereClause($criteria);
@@ -231,37 +242,42 @@ abstract class AbstractRepository implements RepositoryInterface
 
         $stmt->execute($whereClause['parameters']);
 
-        return (int)$stmt->fetchColumn();
+        return (int) $stmt->fetchColumn();
     }
 
     /**
      * Check if entity exists
      *
-     * @param ValueObjectInterface $id
-     * @return bool
      * @throws PersistenceException
      */
+    #[\Override]
     public function exists(ValueObjectInterface $id): bool
     {
         return $this->count([
-                new QueryCriteria(
-                    field: 'id',
-                    value: $id->toRaw())
-            ]) === 1;
+            new QueryCriteria(
+                field: 'id',
+                value: $id->toRaw(),
+            ),
+        ]) === 1;
     }
 
     /**
-     * @param EntityWithIdInterface $entity
-     * @return void
+     * @psalm-param TEntity $entity
+     *
      * @throws PersistenceException
      */
-    public function updateById(EntityWithIdInterface $entity): void
+    public function updateById(EntityInterface $entity): void
     {
+        if (!is_subclass_of($entity, EntityWithIdInterface::class) || !$entity->getId()) {
+            throw new PersistenceException('Entity must implement EntityWithIdInterface');
+        }
+
         $rawData = $this->mapEntityToRow($entity);
+        $fields = array_filter(array_keys($rawData), fn($k) => $k !== 'id');
 
         $stmt = $this->connection->connect()->prepare('
                 UPDATE ' . static::getTableName() . '
-                SET ' . implode(', ', array_map(fn($field) => "`$field` = :$field", array_keys($rawData))) . '
+                SET ' . implode(', ', array_map(fn($field) => "`$field` = :$field", $fields)) . '
                 WHERE id = :id;
             ');
 
@@ -273,10 +289,11 @@ abstract class AbstractRepository implements RepositoryInterface
     }
 
     /**
-     * @param EntityInterface $entity
-     * @return void
+     * @psalm-param TEntity $entity
+     *
      * @throws PersistenceException
      */
+    #[\Override]
     public function insert(EntityInterface $entity): void
     {
         $rawData = $this->mapEntityToRow($entity);
@@ -296,8 +313,8 @@ abstract class AbstractRepository implements RepositoryInterface
     /**
      * Begin database transaction
      *
-     * @return void
      */
+    #[\Override]
     public function beginTransaction(): void
     {
         $this->connection->beginTransaction();
@@ -306,8 +323,8 @@ abstract class AbstractRepository implements RepositoryInterface
     /**
      * Commit database transaction
      *
-     * @return void
      */
+    #[\Override]
     public function commit(): void
     {
         $this->connection->commit();
@@ -316,8 +333,8 @@ abstract class AbstractRepository implements RepositoryInterface
     /**
      * Rollback database transaction
      *
-     * @return void
      */
+    #[\Override]
     public function rollback(): void
     {
         $this->connection->rollback();
@@ -326,10 +343,9 @@ abstract class AbstractRepository implements RepositoryInterface
     /**
      * Execute operation within transaction
      *
-     * @param callable $operation
-     * @return mixed
      * @throws Throwable
      */
+    #[\Override]
     public function transactional(callable $operation): mixed
     {
         $this->beginTransaction();
@@ -348,25 +364,21 @@ abstract class AbstractRepository implements RepositoryInterface
     /**
      * Map database row to entity
      *
-     * @param array $row
-     * @return EntityInterface
+     * @psalm-return TEntity
      */
     abstract protected function mapRowToEntity(array $row): EntityInterface;
 
     /**
      * Map entity to database row
      *
-     * @param EntityInterface $entity
-     * @return array
+     * @psalm-param TEntity $entity
      */
     abstract protected function mapEntityToRow(EntityInterface $entity): array;
 
     /**
      * Build WHERE clause from criteria
      *
-     * @param array $criteria
      *
-     * @return array
      * @throws PersistenceException
      */
     protected function buildWhereClause(array $criteria): array
@@ -390,8 +402,6 @@ abstract class AbstractRepository implements RepositoryInterface
     }
 
     /**
-     * @param array|null $orderBy
-     * @return string
      * @throws PersistenceException
      */
     protected function buildOrderByClause(?array $orderBy): string
@@ -419,9 +429,6 @@ abstract class AbstractRepository implements RepositoryInterface
     /**
      * Build LIMIT and OFFSET clause
      *
-     * @param int|null $limit
-     * @param int|null $offset
-     * @return string
      */
     protected function buildLimitClause(?int $limit, ?int $offset): string
     {
@@ -438,9 +445,7 @@ abstract class AbstractRepository implements RepositoryInterface
         return $clause;
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function getDatabaseName(): string
     {
         return static::DATABASE_NAME;

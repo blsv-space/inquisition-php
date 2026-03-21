@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Application\Job;
 
 use Inquisition\Core\Application\Job\Exception\JobFailedException;
@@ -13,15 +15,12 @@ abstract class AbstractAsyncJob implements JobInterface
     protected const int PRIORITY = 0;
     protected const string QUEUE_NAME = 'default';
 
-    /**
-     * @param array $payload
-     */
     public function __construct(
         public array $payload = [] {
             get {
                 return $this->payload;
             }
-        }
+        },
     )
     {
     }
@@ -29,77 +28,59 @@ abstract class AbstractAsyncJob implements JobInterface
     /**
      * Must be implemented by concrete jobs
      */
+    #[\Override]
     abstract public function handle();
 
-    /**
-     * @return JobQueueInterface
-     */
     abstract public function getQueue(): JobQueueInterface;
 
     /**
      * Execute async job (enqueue it)
      *
-     * @return void
      */
+    #[\Override]
     public function execute(): void
     {
         $this->getQueue()->enqueue($this);
     }
 
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function getName(): string
     {
         return static::class;
     }
 
-    /**
-     * @return bool
-     */
+    #[\Override]
     public function isAsync(): bool
     {
         return true;
     }
 
-    /**
-     * @return int
-     */
+    #[\Override]
     public function getMaxRetries(): int
     {
         return static::MAX_RETRIES;
     }
 
-    /**
-     * @return int
-     */
+    #[\Override]
     public function getRetryDelay(): int
     {
         return static::RETRY_DELAY_SECONDS;
     }
 
-    /**
-     * @return int
-     */
+    #[\Override]
     public function getPriority(): int
     {
         return static::PRIORITY;
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function getQueueName(): string
     {
         return static::QUEUE_NAME;
     }
 
-    /**
-     * @param Throwable $exception
-     * @param int $attempt
-     * @return bool
-     */
+    #[\Override]
     public function shouldRetry(Throwable $exception, int $attempt): bool
     {
         // Don't retry if it's a permanent failure
@@ -116,19 +97,9 @@ abstract class AbstractAsyncJob implements JobInterface
         return $attempt < $this->getMaxRetries();
     }
 
-    /**
-     * @param Throwable $exception
-     * @return void
-     */
-    public function onFailure(Throwable $exception): void
-    {
-    }
+    #[\Override]
+    public function onFailure(Throwable $exception): void {}
 
-    /**
-     * @param mixed $result
-     * @return void
-     */
-    public function onSuccess(mixed $result): void
-    {
-    }
+    #[\Override]
+    public function onSuccess(mixed $result): void {}
 }

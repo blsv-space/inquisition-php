@@ -1,28 +1,25 @@
 <?php
 
-namespace Inquisition\Core\Domain\Entity;
+declare(strict_types=1);
 
-use Inquisition\Core\Domain\ValueObject\AbstractValueObject;
+namespace Inquisition\Core\Domain\Entity;
 
 interface EntityInterface
 {
     /**
      * Check if this entity is equal to another entity
      * Equality is based on ID and type, not object reference
-     * @param EntityInterface $other
-     * @return bool
      */
     public function equals(EntityInterface $other): bool;
 
     /**
      * Get the entity type/class name
      * Useful for equality checks and debugging
-     * @return string
      */
     public function getEntityType(): string;
 
     /**
-     * @return AbstractValueObject[]
+     * @psalm-return array<string, null|scalar>
      */
     public function getAsArray(): array;
 

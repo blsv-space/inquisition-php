@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Http\Router;
 
 use Exception;
@@ -19,7 +21,7 @@ class RequestDispatcher implements SingletonInterface
     use SingletonTrait;
 
     private RouterInterface $router;
-    private(set) ?RequestInterface $request = null {
+    public private(set) ?RequestInterface $request = null {
         get {
             return $this->request;
         }
@@ -31,8 +33,6 @@ class RequestDispatcher implements SingletonInterface
     }
 
     /**
-     * @param RequestInterface $request
-     * @return ResponseInterface
      * @throws RouteNotFoundException
      */
     public function handle(RequestInterface $request): ResponseInterface
@@ -48,7 +48,7 @@ class RequestDispatcher implements SingletonInterface
 
         $pipeline = $this->buildMiddlewarePipeline(
             $route->middlewares,
-            $this->createControllerHandler($route, $routeMatchResult->getParameters())
+            $this->createControllerHandler($route, $routeMatchResult->getParameters()),
         );
 
         try {
@@ -66,9 +66,6 @@ class RequestDispatcher implements SingletonInterface
     /**
      * Build a middleware pipeline that chains all middleware together
      *
-     * @param array $middlewares
-     * @param callable $finalHandler
-     * @return callable
      */
     private function buildMiddlewarePipeline(array $middlewares, callable $finalHandler): callable
     {
@@ -87,9 +84,6 @@ class RequestDispatcher implements SingletonInterface
     /**
      * Create the final handler that calls the controller
      *
-     * @param RouteInterface $route
-     * @param array $parameters
-     * @return callable
      */
     private function createControllerHandler(RouteInterface $route, array $parameters): callable
     {

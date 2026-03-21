@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Application\Console\Command;
 
 use Inquisition\Core\Infrastructure\Migration\MigrationDiscovery;
@@ -20,9 +22,7 @@ final class MigrateCommand extends AbstractCommand
         $this->migrationDiscovery = MigrationDiscovery::getInstance();
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public static function getAlias(): string
     {
         return 'migration:migrate';
@@ -31,6 +31,7 @@ final class MigrateCommand extends AbstractCommand
     /**
      * @return string[]
      */
+    #[\Override]
     public static function getArguments(): array
     {
         return [
@@ -39,25 +40,19 @@ final class MigrateCommand extends AbstractCommand
         ];
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function getDescription(): string
     {
         return 'Run database migrations';
     }
 
-    /**
-     * @return string
-     */
+    #[\Override]
     public function getHelp(): string
     {
         return 'Run database migrations';
     }
 
-    /**
-     * @return void
-     */
+    #[\Override]
     public function execute(): void
     {
         if (isset($this->parameters[self::ARGUMENT_DOWN])) {
@@ -66,7 +61,7 @@ final class MigrateCommand extends AbstractCommand
                 && is_numeric($this->parameters[self::ARGUMENT_STEPS])
                 && $this->parameters[self::ARGUMENT_STEPS] > 1
             ) {
-                $steps = (int)$this->parameters[self::ARGUMENT_STEPS];
+                $steps = (int) $this->parameters[self::ARGUMENT_STEPS];
             }
             $this->down($steps);
 
@@ -76,9 +71,6 @@ final class MigrateCommand extends AbstractCommand
         $this->up();
     }
 
-    /**
-     * @return void
-     */
     private function up(): void
     {
         echo "Running migrations...\n";
@@ -90,7 +82,6 @@ final class MigrateCommand extends AbstractCommand
     /**
      * @param int $steps Number of migrations that will be rolled back
      *
-     * @return void
      */
     private function down(int $steps): void
     {
@@ -101,9 +92,6 @@ final class MigrateCommand extends AbstractCommand
     }
 
 
-    /**
-     * @return void
-     */
     private function discoveryAndRegistration(): void
     {
         $migrations = $this->migrationDiscovery->discover();

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inquisition\Core\Infrastructure\Http;
 
 /**
@@ -141,4 +143,3 @@ enum HttpMethod: string
         return [self::POST, self::PUT, self::PATCH, self::DELETE];
     }
 }
-
