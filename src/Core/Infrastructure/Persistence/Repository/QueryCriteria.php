@@ -66,8 +66,14 @@ final readonly class QueryCriteria
 
         switch ($this->operator) {
             case QueryOperatorEnum::EQUALS:
+                if (is_null($this->value)) {
+                    return "`$this->field` IS NULL";
+                }
                 return "`$this->field` = :$paramName";
             case QueryOperatorEnum::NOT_EQUALS:
+                if (is_null($this->value)) {
+                    return "`$this->field` IS NOT NULL";
+                }
                 return "`$this->field` != :$paramName";
             case QueryOperatorEnum::LESS_THAN:
                 return "`$this->field` < :$paramName";
