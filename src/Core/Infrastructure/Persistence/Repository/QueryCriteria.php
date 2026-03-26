@@ -104,6 +104,13 @@ final readonly class QueryCriteria
      */
     public function getParameters(): array
     {
+        if (is_null($this->value) && in_array(
+            $this->operator,
+            [QueryOperatorEnum::EQUALS, QueryOperatorEnum::NOT_EQUALS],
+        )) {
+            return [];
+        }
+
         $paramName = $this->getParamName();
 
         if ($this->operator === QueryOperatorEnum::IN || $this->operator === QueryOperatorEnum::NOT_IN) {
