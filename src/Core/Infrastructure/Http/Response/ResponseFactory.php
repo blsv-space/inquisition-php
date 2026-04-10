@@ -82,6 +82,14 @@ class ResponseFactory
     }
 
     /**
+     * @throws JsonException
+     */
+    public static function forbidden(string $message = 'Forbidden'): ResponseInterface
+    {
+        return self::error($message, HttpStatusCode::FORBIDDEN);
+    }
+
+    /**
      * Create a validation error response
      *
      * @throws JsonException
