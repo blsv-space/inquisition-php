@@ -24,6 +24,7 @@ abstract readonly class AbstractRestController extends AbstractApiController imp
     public const string SORT_PARAM = 'sort';
     public const string SORT_DIRECTION_PARAM = 'direction';
     public const string FILTER_OPERATOR_SUFFIX = '_operator';
+    public const string FILTER_PARAM_PREFIX = 'filter_';
 
 
     /**
@@ -87,7 +88,7 @@ abstract readonly class AbstractRestController extends AbstractApiController imp
     }
 
     /**
-     * Get pagination parameters from request
+     * Get pagination parameters from a request
      *
      * @return array{page: int, per_page: int}
      */
@@ -111,7 +112,7 @@ abstract readonly class AbstractRestController extends AbstractApiController imp
     }
 
     /**
-     * Get filtering parameters from request
+     * Get filtering parameters from a request
      *
      * @return QueryCriteria[]
      */
@@ -120,6 +121,7 @@ abstract readonly class AbstractRestController extends AbstractApiController imp
         $filters = [];
 
         foreach ($allowedFilters as $filter) {
+            $filter = static::FILTER_PARAM_PREFIX . $filter;
             $value = $request->getParameter($filter);
             if ($value !== null) {
                 $operator = QueryOperatorEnum::EQUALS;
