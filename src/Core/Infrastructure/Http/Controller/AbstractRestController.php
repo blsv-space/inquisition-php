@@ -121,11 +121,11 @@ abstract readonly class AbstractRestController extends AbstractApiController imp
         $filters = [];
 
         foreach ($allowedFilters as $filter) {
-            $filter = static::FILTER_PARAM_PREFIX . $filter;
-            $value = $request->getParameter($filter);
+            $filterParam = static::FILTER_PARAM_PREFIX . $filter;
+            $value = $request->getParameter($filterParam);
             if ($value !== null) {
                 $operator = QueryOperatorEnum::EQUALS;
-                $operatorName = $request->getParameter($filter . static::FILTER_OPERATOR_SUFFIX);
+                $operatorName = $request->getParameter($filterParam . static::FILTER_OPERATOR_SUFFIX);
                 if (!is_null($operatorName)) {
                     $operator = QueryOperatorEnum::tryFrom($operatorName) ?? QueryOperatorEnum::EQUALS;
                 }
