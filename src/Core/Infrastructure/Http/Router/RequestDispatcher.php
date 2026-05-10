@@ -12,6 +12,7 @@ use Inquisition\Core\Infrastructure\Http\Response\HttpResponse;
 use Inquisition\Core\Infrastructure\Http\Response\ResponseFactory;
 use Inquisition\Core\Infrastructure\Http\Response\ResponseInterface;
 use Inquisition\Core\Infrastructure\Http\Router\Exception\RouteNotFoundException;
+use Inquisition\Core\Infrastructure\Http\Router\Exception\RouterException;
 use Inquisition\Foundation\Singleton\SingletonInterface;
 use Inquisition\Foundation\Singleton\SingletonTrait;
 use JsonException;
@@ -33,6 +34,7 @@ class RequestDispatcher implements SingletonInterface
     }
 
     /**
+     * @throws RouterException
      * @throws RouteNotFoundException
      */
     public function handle(RequestInterface $request): ResponseInterface
@@ -45,6 +47,7 @@ class RequestDispatcher implements SingletonInterface
         }
 
         $route = $routeMatchResult->getRoute();
+        $route->setParameters($routeMatchResult->getParameters());
 
         $pipeline = $this->buildMiddlewarePipeline(
             $route->middlewares,
