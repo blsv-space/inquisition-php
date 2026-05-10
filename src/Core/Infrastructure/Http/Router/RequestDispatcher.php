@@ -50,7 +50,7 @@ class RequestDispatcher implements SingletonInterface
         $route->setParameters($routeMatchResult->getParameters());
 
         $pipeline = $this->buildMiddlewarePipeline(
-            $route->middlewares,
+            $route,
             $this->createControllerHandler($route, $routeMatchResult->getParameters()),
         );
 
@@ -68,16 +68,19 @@ class RequestDispatcher implements SingletonInterface
 
     /**
      * Build a middleware pipeline that chains all middleware together
-     *
      */
-    private function buildMiddlewarePipeline(array $middlewares, callable $finalHandler): callable
+    private function buildMiddlewarePipeline(RouteInterface $route, callable $finalHandler): callable
     {
         $pipeline = $finalHandler;
 
-        foreach (array_reverse($middlewares) as $middleware) {
+        foreach (array_reverse($route->middlewares) as $middleware) {
             $currentPipeline = $pipeline;
-            $pipeline = function (RequestInterface $request) use ($middleware, $currentPipeline): ResponseInterface {
-                return $middleware->process($request, $currentPipeline);
+            $pipeline = function (RequestInterface $request) use ($middleware, $route, $currentPipeline): ResponseInterface {
+                return $middleware->process(
+                    request: $request,
+                    route: $route,
+                    next: $currentPipeline,
+                );
             };
         }
 

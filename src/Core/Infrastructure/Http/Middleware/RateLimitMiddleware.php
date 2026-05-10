@@ -10,6 +10,7 @@ use Inquisition\Core\Infrastructure\Http\RateLimit\RateLimitIdentifierInterface;
 use Inquisition\Core\Infrastructure\Http\Request\RequestInterface;
 use Inquisition\Core\Infrastructure\Http\Response\ResponseFactory;
 use Inquisition\Core\Infrastructure\Http\Response\ResponseInterface;
+use Inquisition\Core\Infrastructure\Http\Router\RouteInterface;
 use JsonException;
 
 readonly class RateLimitMiddleware implements MiddlewareInterface
@@ -29,7 +30,7 @@ readonly class RateLimitMiddleware implements MiddlewareInterface
      * @throws JsonException
      */
     #[\Override]
-    public function process(RequestInterface $request, callable $next): ResponseInterface
+    public function process(RequestInterface $request, RouteInterface $route, callable $next): ResponseInterface
     {
 
         if ($this->rateLimiter->isExceeded($this->identifier, $this->maxRequests, $this->timeWindow)) {

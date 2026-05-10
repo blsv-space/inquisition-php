@@ -6,6 +6,7 @@ namespace Inquisition\Core\Infrastructure\Http\Middleware;
 
 use Inquisition\Core\Infrastructure\Http\Request\RequestInterface;
 use Inquisition\Core\Infrastructure\Http\Response\ResponseInterface;
+use Inquisition\Core\Infrastructure\Http\Router\RouteInterface;
 
 /**
  * Middleware Interface
@@ -20,5 +21,5 @@ interface MiddlewareInterface
      * @param callable         $next    The next middleware in the stack
      *
      */
-    public function process(RequestInterface $request, callable $next): ResponseInterface;
+    public function process(RequestInterface $request, RouteInterface $route, callable $next): ResponseInterface;
 }

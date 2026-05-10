@@ -9,6 +9,7 @@ use Inquisition\Core\Infrastructure\Http\HttpStatusCode;
 use Inquisition\Core\Infrastructure\Http\Request\RequestInterface;
 use Inquisition\Core\Infrastructure\Http\Response\HttpResponse;
 use Inquisition\Core\Infrastructure\Http\Response\ResponseInterface;
+use Inquisition\Core\Infrastructure\Http\Router\RouteInterface;
 use InvalidArgumentException;
 
 /**
@@ -43,7 +44,7 @@ final readonly class CorsMiddleware implements MiddlewareInterface
     }
 
     #[\Override]
-    public function process(RequestInterface $request, callable $next): ResponseInterface
+    public function process(RequestInterface $request, RouteInterface $route, callable $next): ResponseInterface
     {
         if ($request->getMethod() === HttpMethod::OPTIONS) {
             return $this->createPreflightResponse();
