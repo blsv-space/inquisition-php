@@ -14,10 +14,13 @@ abstract class BaseEntity implements EntityInterface
         $array = [];
 
         foreach (get_object_vars($this) as $key => $value) {
-            if ($value instanceof ValueObjectInterface === false) {
+            if ($value instanceof ValueObjectInterface) {
+                $array[$key] = $value->toRaw();
                 continue;
             }
-            $array[$key] = $value->toRaw();
+            if (!is_object($value)) {
+                $array[$key] = $value;
+            }
         }
 
         return $array;
