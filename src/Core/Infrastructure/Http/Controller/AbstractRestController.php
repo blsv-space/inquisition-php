@@ -26,6 +26,8 @@ abstract readonly class AbstractRestController extends AbstractApiController imp
     public const string FILTER_OPERATOR_SUFFIX = '_operator';
     public const string FILTER_PARAM_PREFIX = 'filter_';
 
+    public const string SORT_DIRECTION_ASC = 'asc';
+    public const string SORT_DIRECTION_DESC = 'desc';
 
     /**
      * GET /resource - List all resources
@@ -149,16 +151,17 @@ abstract readonly class AbstractRestController extends AbstractApiController imp
         RequestInterface $request,
         array            $allowedSortFields = [],
         string           $defaultSort = 'id',
+        string           $defaultDirection = self::SORT_DIRECTION_ASC,
     ): array {
         $sort = $request->getParameter(static::SORT_PARAM, $defaultSort);
-        $direction = strtolower($request->getParameter(static::SORT_DIRECTION_PARAM, 'asc'));
+        $direction = strtolower($request->getParameter(static::SORT_DIRECTION_PARAM, self::SORT_DIRECTION_ASC));
 
         if (!empty($allowedSortFields) && !in_array($sort, $allowedSortFields)) {
             $sort = $defaultSort;
         }
 
-        if (!in_array($direction, ['asc', 'desc'])) {
-            $direction = 'asc';
+        if (!in_array($direction, [self::SORT_DIRECTION_ASC, self::SORT_DIRECTION_DESC])) {
+            $direction = $defaultDirection;
         }
 
         return [
