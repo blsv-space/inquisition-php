@@ -37,8 +37,14 @@ class HttpRequestValidator implements ValidatorInterface
         $this->validateRequest($data);
 
         if ($this->hasErrors()) {
+            $message = '';
+            foreach ($this->errors as $field => $error) {
+                $message .= $field . ': ' . $error . ', ';
+            }
+            $message = rtrim($message, ', ');
+
             throw new ValidationException(
-                message: 'Request validation failed: ' . implode(', ', $this->errors),
+                message: 'Request validation failed: ' . $message,
                 errors: $this->errors,
             );
         }
@@ -102,7 +108,7 @@ class HttpRequestValidator implements ValidatorInterface
 
             foreach ($fieldRules as $rule) {
                 if (!$rule->passes($value, $data)) {
-                    $errors[] = sprintf('%s: %s', $field, $rule->message());
+                    $errors[$field] = $rule->message();
                 }
             }
         }
