@@ -37,7 +37,10 @@ class HttpRequestValidator implements ValidatorInterface
         $this->validateRequest($data);
 
         if ($this->hasErrors()) {
-            throw new ValidationException('Request validation failed: ' . implode(', ', $this->errors));
+            throw new ValidationException(
+                message: 'Request validation failed: ' . implode(', ', $this->errors),
+                errors: $this->errors,
+            );
         }
 
         return true;

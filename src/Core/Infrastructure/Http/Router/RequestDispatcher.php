@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Inquisition\Core\Infrastructure\Http\Router;
 
 use Exception;
+use Inquisition\Core\Application\Validation\Exception\ValidationException;
 use Inquisition\Core\Infrastructure\Http\Controller\ControllerInterface;
 use Inquisition\Core\Infrastructure\Http\HttpStatusCode;
 use Inquisition\Core\Infrastructure\Http\Request\RequestInterface;
@@ -58,6 +59,10 @@ class RequestDispatcher implements SingletonInterface
             return $pipeline($request);
         } catch (Exception $exception) {
             try {
+                if ($exception instanceof ValidationException) {
+                    return ResponseFactory::error($exception->getMessage(), $exception->getErrors());
+                }
+
                 return ResponseFactory::error($exception->getMessage());
             } catch (JsonException $e) {
                 return new HttpResponse()->setStatusCode(HttpStatusCode::INTERNAL_SERVER_ERROR)
