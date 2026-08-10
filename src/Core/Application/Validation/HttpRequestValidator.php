@@ -15,7 +15,7 @@ class HttpRequestValidator implements ValidatorInterface
     private array $rules = [];
 
     /**
-     * @var array<string>
+     * @var array<string, string[]>
      */
     public protected(set) array $errors = [] {
         get {
@@ -39,7 +39,7 @@ class HttpRequestValidator implements ValidatorInterface
         if ($this->hasErrors()) {
             $message = '';
             foreach ($this->errors as $field => $error) {
-                $message .= $field . ': ' . $error . ', ';
+                $message .= $field . ': ' . implode(', ', $error) . ', ';
             }
             $message = rtrim($message, ', ');
 
@@ -108,7 +108,11 @@ class HttpRequestValidator implements ValidatorInterface
 
             foreach ($fieldRules as $rule) {
                 if (!$rule->passes($value, $data)) {
-                    $errors[$field] = $rule->message();
+                    if (!array_key_exists($field, $errors)) {
+                        $errors[$field] = [];
+                    }
+
+                    $errors[$field][] = $rule->message();
                 }
             }
         }
