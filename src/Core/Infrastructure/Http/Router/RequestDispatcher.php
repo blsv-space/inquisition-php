@@ -60,7 +60,10 @@ class RequestDispatcher implements SingletonInterface
         } catch (Exception $exception) {
             try {
                 if ($exception instanceof ValidationException) {
-                    return ResponseFactory::error($exception->getMessage(), $exception->getErrors());
+                    return ResponseFactory::error(
+                        message: $exception->getMessage(),
+                        errors: $exception->getErrors()
+                    );
                 }
 
                 return ResponseFactory::error($exception->getMessage());
