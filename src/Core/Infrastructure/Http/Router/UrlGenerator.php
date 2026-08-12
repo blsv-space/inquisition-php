@@ -179,14 +179,14 @@ final class UrlGenerator implements UrlGeneratorInterface, SingletonInterface
             $this->host = $_SERVER['HTTP_HOST'];
         }
 
-        $SERVER_PORT = $_SERVER['SERVER_PORT'] ?? 80;
+        $SERVER_PORT = (int) ($_SERVER['SERVER_PORT'] ?? 80);
         $HTTPS = $_SERVER['HTTPS'] ?? null;
         $HTTP_X_FORWARDED_PROTO = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null;
         if ($HTTPS === 'on') {
             $this->scheme = HttpSchema::HTTPS;
         } elseif ($HTTP_X_FORWARDED_PROTO === 'https') {
             $this->scheme = HttpSchema::HTTPS;
-        } elseif ($SERVER_PORT === '443') {
+        } elseif ($SERVER_PORT === 443) {
             $this->scheme = HttpSchema::HTTPS;
         } else {
             $this->scheme = HttpSchema::HTTP;

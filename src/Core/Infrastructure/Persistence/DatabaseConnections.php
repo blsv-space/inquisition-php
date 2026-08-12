@@ -115,7 +115,7 @@ final class DatabaseConnections implements DatabaseConnectionsInterface
             case DbDriverEnum::MYSQL:
             case DbDriverEnum::PGSQL:
                 {
-                    if (!isset($connectionConfig['host']) || !isset($connectionConfig['unix_socket'])) {
+                    if (!isset($connectionConfig['host']) && !isset($connectionConfig['unix_socket'])) {
                         throw new InvalidConnectionConfig($name, 'No database host or unix_socket specified');
                     } elseif (isset($connectionConfig['host'], $connectionConfig['unix_socket'])) {
                         throw new InvalidConnectionConfig($name, 'Both host and unix_socket specified');
