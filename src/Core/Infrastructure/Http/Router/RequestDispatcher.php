@@ -43,12 +43,6 @@ class RequestDispatcher implements SingletonInterface
     {
         $this->request = $request;
 
-        if ($request->getMethod() === HttpMethod::OPTIONS) {
-            $response = new HttpResponse();
-            $response->enableCors();
-            return $response;
-        }
-
         $routeMatchResult = $this->router->routeByRequest($request);
 
         if ($routeMatchResult === null) {

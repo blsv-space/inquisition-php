@@ -14,6 +14,8 @@ final class Navigator implements NavigatorInterface, SingletonInterface
 {
     use SingletonTrait;
 
+    public const string HEADER_ACCESS_CONTROL_REQUEST_METHOD = 'Access-Control-Request-Method';
+
     /**
      * @throws RouterException
      */
@@ -43,6 +45,17 @@ final class Navigator implements NavigatorInterface, SingletonInterface
     public function navigate(RequestInterface $request, RouteInterface $route): ?NavigatorResult
     {
         $method = $request->getMethod();
+
+        if ($method === HttpMethod::OPTIONS) {
+            $corsMethod = $request->getHeader(self::HEADER_ACCESS_CONTROL_REQUEST_METHOD);
+            if (!is_null($corsMethod)) {
+                $corsMethodHttp = HttpMethod::tryFrom($corsMethod);
+                if ($corsMethodHttp instanceof HttpMethod) {
+                    $method = $corsMethodHttp;
+                }
+            }
+        }
+
         $path = $this->normalizePath($request->getUri());
 
         $parameters = $this->navigateRoute($route, $method, $path);
