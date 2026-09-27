@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Inquisition\Core\Infrastructure\Http\Response;
 
 use Inquisition\Core\Infrastructure\Http\HttpStatusCode;
+use InvalidArgumentException;
 use JsonException;
 
 class HttpResponse implements ResponseInterface
@@ -115,6 +116,15 @@ class HttpResponse implements ResponseInterface
     public function setHeaders(array $headers): self
     {
         foreach ($headers as $name => $value) {
+            if (!is_string($name)) {
+                throw new InvalidArgumentException('Header name must be a string');
+            }
+            if (is_int($value) || is_float($value)) {
+                $value = (string) $value;
+            }
+            if (!is_string($value)) {
+                throw new InvalidArgumentException('Header value must be a string');
+            }
             $this->setHeader($name, $value);
         }
 
