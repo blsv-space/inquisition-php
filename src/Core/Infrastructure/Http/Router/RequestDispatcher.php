@@ -7,6 +7,7 @@ namespace Inquisition\Core\Infrastructure\Http\Router;
 use Exception;
 use Inquisition\Core\Application\Validation\Exception\ValidationException;
 use Inquisition\Core\Infrastructure\Http\Controller\ControllerInterface;
+use Inquisition\Core\Infrastructure\Http\HttpMethod;
 use Inquisition\Core\Infrastructure\Http\HttpStatusCode;
 use Inquisition\Core\Infrastructure\Http\Request\RequestInterface;
 use Inquisition\Core\Infrastructure\Http\Response\HttpResponse;
@@ -41,6 +42,13 @@ class RequestDispatcher implements SingletonInterface
     public function handle(RequestInterface $request): ResponseInterface
     {
         $this->request = $request;
+
+        if ($request->getMethod() === HttpMethod::OPTIONS) {
+            $response = new HttpResponse();
+            $response->enableCors();
+            return $response;
+        }
+
         $routeMatchResult = $this->router->routeByRequest($request);
 
         if ($routeMatchResult === null) {
@@ -62,7 +70,7 @@ class RequestDispatcher implements SingletonInterface
                 if ($exception instanceof ValidationException) {
                     return ResponseFactory::error(
                         message: $exception->getMessage(),
-                        errors: $exception->getErrors()
+                        errors: $exception->getErrors(),
                     );
                 }
 
