@@ -86,7 +86,9 @@ class DatabaseConnection implements DatabaseConnectionInterface
     #[\Override]
     public function commit(): void
     {
-        $this->connection->commit();
+        if ($this->connection->inTransaction()) {
+            $this->connection->commit();
+        }
     }
 
     #[\Override]

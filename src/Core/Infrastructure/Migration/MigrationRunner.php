@@ -39,7 +39,7 @@ final class MigrationRunner implements SingletonInterface
             if (!$databaseManager->exists()) {
                 $databaseManager->create();
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
         }
 
         $this->migrationRepository->createMigrationsTableIfNotExists();
