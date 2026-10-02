@@ -33,11 +33,22 @@ abstract class AbstractCommand implements CommandInterface
     /**
      * Ask user for input
      */
-    protected function ask(string $question): string
+    protected function ask(string $question, bool $hide = false): string
     {
         echo $question . ' ';
 
-        return trim(fgets(STDIN));
+        if ($hide) {
+            exec("stty -echo", $output, $return_var);
+        }
+
+        $value = trim(fgets(STDIN));
+
+        if ($hide) {
+            exec("stty echo", $output, $return_var);
+            echo PHP_EOL;
+        }
+
+        return $value;
     }
 
     /**
